@@ -27,7 +27,7 @@ export async function GET(req: Request) {
 
 // POST /api/sparks — create a new spark
 export async function POST(req: Request) {
-  const session = await getSession()
+  const session = await getSession(req)
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {

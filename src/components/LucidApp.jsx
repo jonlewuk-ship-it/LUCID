@@ -276,21 +276,36 @@ const TIERS = [
 ];
 const getTier=(p)=>{for(let i=TIERS.length-1;i>=0;i--)if(p>=TIERS[i].min)return TIERS[i];return TIERS[0]};
 
-/* ── Content moderation config ─────────────────────────────── */
-const BLOCKED_PATTERNS = /\b(fuck|shit|damn|ass|bitch|bastard|crap|dick|pussy|cock|slut|whore|kill|murder|hate\s+you|die|suicide|nude|naked|sex)\b/gi;
+/* ── Content moderation + Safety + Ban system ─────────────── */
+const BLOCKED_PATTERNS = /\b(fuck|shit|damn|ass|bitch|bastard|crap|dick|pussy|cock|slut|whore|kill|murder|hate\s+you|die|suicide|nude|naked|sex|porn|rape|drug|racist|nazi|terrorist|bomb|weapon|gun|knife|send\s+nudes|onlyfans)\b/gi;
+const DANGEROUS_SPARK_PATTERNS = /\b(jump\s+off|cliff|pills|overdose|starve|hold\s+breath|bleach|choke|suffocate|steal|shoplift|break\s+in|hack|stalk|follow\s+home|fight\s+someone|dare\s+to\s+die)\b/gi;
+const NUDITY_PATTERNS = /\b(nude|naked|topless|strip|undress|body\s+pic|send\s+pic|intimate\s+photo|sexual|underwear\s+pic|lingerie|onlyfans|xxx)\b/gi;
+
 const GUIDELINES = [
   "Express emotions with depth and authenticity",
   "No profanity, offensive language, or harmful content",
-  "Respect every person's experience and perspective",
   "No nudity, violence, or sexually suggestive content",
-  "Share from the soul — this is a space for genuine human connection",
+  "No dangerous or harmful challenges in Sparks",
+  "Respect every person's experience and perspective",
+  "Nudity or sexual content = permanent ban",
+  "Share from the soul — genuine human connection only",
 ];
 
 function moderateContent(text) {
-  if (!text) return { safe:true, text };
+  if (!text) return { safe:true, text:text };
+  // Nudity/sexual → ban
+  const nudityFound = text.match(NUDITY_PATTERNS);
+  if (nudityFound) return { safe:false, text:text, severity:"ban",
+    message:"Account violation. Sharing nudity or sexual content results in permanent ban. LUCID is a space for soul-level connection." };
+  // Dangerous → restrict
+  const dangerFound = text.match(DANGEROUS_SPARK_PATTERNS);
+  if (dangerFound) return { safe:false, text:text, severity:"restrict",
+    message:"Dangerous content blocked. Sparks must be safe, constructive challenges — never put anyone at risk." };
+  // Profanity → warn
   const found = text.match(BLOCKED_PATTERNS);
-  if (found) return { safe:false, text, flagged:found, message:"This contains language that doesn't align with LUCID's soul-centered community. Please express your feelings with depth, not friction." };
-  return { safe:true, text };
+  if (found) return { safe:false, text:text, severity:"warn",
+    message:"This language doesn't align with LUCID's community. Express your feelings with depth, not friction." };
+  return { safe:true, text:text };
 }
 
 /* ── People data ───────────────────────────────────────────── */
@@ -464,17 +479,55 @@ select{font-family:inherit}
    Real moments > generated art. Your photo, your experience.
    ═══════════════════════════════════════════════════════════════ */
 
-function ExperiencePhoto({ photo, height=160, borderRadiusTop }) {
-  if (!photo) return null;
+function SoulCard({ author, photo, emotions, height, borderRadiusTop }) {
+  var h = height || 160;
+  var tier = getTier((author || {}).essencePoints || 0);
+  var emColors = {
+    Wonder:"#E8A838", Gratitude:"#4AE8C4", Joy:"#F0A830", Peace:"#4AE8C4",
+    Curiosity:"#5B8DEF", Awe:"#C45EDB", Clarity:"#E8A838", Vulnerability:"#E85D75",
+    Courage:"#E87840", Empathy:"#4AE8C4", Humility:"#5B8DEF", Hope:"#F0A830",
+    Melancholy:"#5B8DEF", Serenity:"#4AE8C4", Determination:"#E87840",
+  };
+  var c1 = emColors[(emotions || [])[0]] || tier.color;
+  var c2 = emColors[(emotions || [])[1]] || C.abyss;
+  var c3 = emColors[(emotions || [])[2]] || C.deep;
+
   return (
     <div style={{
-      width:"100%", height, overflow:"hidden",
+      width:"100%", height:h, overflow:"hidden", position:"relative",
       borderRadius: borderRadiusTop ? "16px 16px 0 0" : 12,
+      background: photo ? "none" : "linear-gradient(135deg, "+c1+"25, "+C.abyss+" 40%, "+c2+"15, "+c3+"20)",
     }}>
-      <img src={photo} alt="Experience" style={{
-        width:"100%", height:"100%", objectFit:"cover",
-        filter:"brightness(0.85) saturate(1.1)",
-      }}/>
+      {photo ? (
+        <img src={photo} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", filter:"brightness(0.8) saturate(1.1)" }}
+          onError={function(e) { e.target.style.display="none"; }}/>
+      ) : null}
+
+      {/* Soul signature overlay — always visible */}
+      <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"flex-end", padding:14 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:10, width:"100%" }}>
+          {author && (
+            <Avatar name={author.name || (author.essence_name)} size={36} color={tier.color} photo={author.photo_url || author.photo}/>
+          )}
+          <div style={{ flex:1 }}>
+            {author && (
+              <div style={{ fontSize:14, color:C.light, fontFamily:"'DM Sans',sans-serif", fontWeight:600, textShadow:"0 1px 8px rgba(0,0,0,0.6)" }}>
+                {author.name || author.essence_name}
+              </div>
+            )}
+            <div style={{ display:"flex", gap:4, marginTop:3 }}>
+              {(emotions || []).slice(0,3).map(function(em) {
+                return <span key={em} style={{ fontSize:9, color:emColors[em]||C.mid, padding:"2px 7px", borderRadius:8, background:"rgba(0,0,0,0.4)", fontFamily:"'DM Sans',sans-serif" }}>{em}</span>;
+              })}
+            </div>
+          </div>
+          {author && (
+            <div style={{ textAlign:"right" }}>
+              <div style={{ fontSize:10, color:tier.color, fontFamily:"'JetBrains Mono',monospace", textShadow:"0 1px 6px rgba(0,0,0,0.6)" }}>{tier.name}</div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -488,137 +541,108 @@ function ExperiencePhoto({ photo, height=160, borderRadiusTop }) {
    ═══════════════════════════════════════════════════════════════ */
 
 
+
 function DNAHelixMap({ ownerId, onSelectPerson }) {
   const [activeNode, setActiveNode] = useState(null);
-  const [animPhase, setAnimPhase] = useState(0);
-  const [dragRotateX, setDragRotateX] = useState(0);
-  const [dragRotateY, setDragRotateY] = useState(15);
-  const [isDragging, setIsDragging] = useState(false);
-  const dragRef = useRef({ startX:0, startY:0, startRX:0, startRY:0 });
+  const [rotY, setRotY] = useState(0);
+  const [rotX, setRotX] = useState(10);
+  const [autoSpin, setAutoSpin] = useState(true);
+  const [dragging, setDragging] = useState(false);
+  const dragRef = useRef({ x:0, y:0, ry:0, rx:0 });
 
-  useEffect(() => {
-    const id = setInterval(() => setAnimPhase(p => p + 0.006), 40);
-    return () => clearInterval(id);
-  }, []);
+  // Auto rotation
+  useEffect(function() {
+    if (!autoSpin) return;
+    var id = setInterval(function() { setRotY(function(r) { return r + 0.3; }); }, 30);
+    return function() { clearInterval(id); };
+  }, [autoSpin]);
 
-  // Drag interaction for 3D rotation
-  const handlePointerDown = (e) => {
-    setIsDragging(true);
-    dragRef.current = { startX:e.clientX, startY:e.clientY, startRX:dragRotateX, startRY:dragRotateY };
+  var handleDown = function(e) {
+    setDragging(true); setAutoSpin(false);
+    dragRef.current = { x:e.clientX||((e.touches||[])[0]||{}).clientX||0, y:e.clientY||((e.touches||[])[0]||{}).clientY||0, ry:rotY, rx:rotX };
   };
-  const handlePointerMove = (e) => {
-    if (!isDragging) return;
-    const dx = e.clientX - dragRef.current.startX;
-    const dy = e.clientY - dragRef.current.startY;
-    setDragRotateY(dragRef.current.startRY + dx * 0.3);
-    setDragRotateX(Math.max(-30, Math.min(30, dragRef.current.startRX - dy * 0.2)));
+  var handleMove = function(e) {
+    if (!dragging) return;
+    var cx = e.clientX||((e.touches||[])[0]||{}).clientX||0;
+    var cy = e.clientY||((e.touches||[])[0]||{}).clientY||0;
+    setRotY(dragRef.current.ry + (cx - dragRef.current.x) * 0.5);
+    setRotX(Math.max(-40, Math.min(40, dragRef.current.rx - (cy - dragRef.current.y) * 0.3)));
   };
-  const handlePointerUp = () => setIsDragging(false);
+  var handleUp = function() { setDragging(false); };
 
-  const owner = PEOPLE[ownerId] || PEOPLE[Object.keys(PEOPLE)[0]];
-  const ownerTier = getTier(owner.essencePoints);
-  const connectedIds = Object.keys(PEOPLE).filter(id => id !== ownerId);
+  var owner = PEOPLE[ownerId] || PEOPLE[Object.keys(PEOPLE)[0]];
+  var ownerTier = getTier(owner.essencePoints);
+  var connectedIds = Object.keys(PEOPLE).filter(function(id) { return id !== ownerId; });
 
-  const W = 360, H = 650;
-  const cx = W / 2;
-  const amp = 65;
-  const freq = 0.016;
-  const strandSteps = 180;
+  // Build 3D cylinder nodes
+  var CYLINDER_R = 100;   // radius of cylinder
+  var CYLINDER_H = 400;   // height
+  var HELIX_TURNS = 3;    // number of full rotations
+  var TOTAL_NODES = 24;   // nodes along the helix
 
-  const makeStrand = (phase, yOff = 0) => {
-    const pts = [];
-    for (let i = 0; i < strandSteps; i++) {
-      const t = i / strandSteps;
-      const y = yOff + t * H;
-      const x = cx + amp * Math.sin(freq * y + phase + animPhase);
-      const z = Math.cos(freq * y + phase + animPhase);
-      pts.push({ x, y, z, t });
-    }
-    return pts;
-  };
+  // Generate helix points in 3D space
+  var helixNodes = [];
+  for (var i = 0; i < TOTAL_NODES; i++) {
+    var t = i / (TOTAL_NODES - 1);
+    var angle = t * HELIX_TURNS * 2 * Math.PI;
+    var y = -CYLINDER_H/2 + t * CYLINDER_H;
+    var x = CYLINDER_R * Math.cos(angle);
+    var z = CYLINDER_R * Math.sin(angle);
 
-  const ownerStrand1 = makeStrand(0);
-  const ownerStrand2 = makeStrand(Math.PI);
+    // Assign to people/connections
+    var personIdx = i % (connectedIds.length + 1);
+    var isOwner = personIdx === 0;
+    var personId = isOwner ? ownerId : connectedIds[(personIdx - 1) % connectedIds.length];
+    var person = PEOPLE[personId] || owner;
+    var tier = getTier(person.essencePoints);
 
-  const personStrands = connectedIds.map((id, i) => {
-    const person = PEOPLE[id];
-    const tier = getTier(person.essencePoints);
-    const phase = (Math.PI * 2 * (i + 1)) / (connectedIds.length + 2);
-    return { id, person, tier, phase, strand: makeStrand(phase) };
-  });
+    // Check for connection intersection
+    var isIntersection = !isOwner && (i % 3 === 0);
+    var spectrum = isIntersection ? SPECTRUMS[i % SPECTRUMS.length] : null;
 
-  // Intersections
-  const intersections = [];
-  personStrands.forEach(ps => {
-    [ownerStrand1, ownerStrand2].forEach(ownerPts => {
-      for (let i = 12; i < strandSteps - 12; i += 5) {
-        const oP = ownerPts[i], pP = ps.strand[i];
-        const dist = Math.abs(oP.x - pP.x);
-        if (dist < 10 && !intersections.some(n => Math.abs(n.y - oP.y) < 55) && intersections.length < 10) {
-          const sharedIlls = REFLECTIONS.flatMap(r =>
-            r.illuminations.filter(il =>
-              (r.authorId === ownerId && il.userId === ps.id) ||
-              (r.authorId === ps.id && il.userId === ownerId)
-            ).map(il => ({ spectrum: il.spectrum, text: il.text }))
-          );
-          const connData = REFLECTIONS.flatMap(r => r.connections.filter(c => {
-            const target = REFLECTIONS.find(x => x.id === c.toId);
-            return target && ((r.authorId === ownerId && target.authorId === ps.id) || (r.authorId === ps.id && target.authorId === ownerId));
-          }));
-          const specKey = (sharedIlls[intersections.length % Math.max(1, sharedIlls.length)]||{}).spectrum || SPECTRUMS[intersections.length % 4].key;
-          const spec = SPECTRUMS.find(s => s.key === specKey) || SPECTRUMS[0];
-          const phrase = (connData[intersections.length % Math.max(1, connData.length)]||{}).sharedPhrase || (sharedIlls[0]||{}).text && (sharedIlls[0]||{}).text.substring(0, 60) || "shared experience";
-          intersections.push({
-            x: (oP.x + pP.x) / 2, y: oP.y, z: (oP.z + pP.z) / 2,
-            personId: ps.id, person: ps.person, tier: ps.tier,
-            spectrum: spec, phrase,
-            strength: 55 + Math.floor(Math.random() * 40),
-          });
-        }
-      }
+    helixNodes.push({
+      x:x, y:y, z:z, angle:angle,
+      isOwner:isOwner, personId:personId, person:person, tier:tier,
+      isIntersection:isIntersection, spectrum:spectrum,
+      strength: 55 + Math.floor((i * 7 + 13) % 40),
+      phrase: isIntersection ? (
+        ["shared vulnerability","finding beauty in ordinary moments","listening past words",
+         "sitting with uncertainty","seeing fear beneath anger","choosing presence over performance",
+         "discovering kindness in strangers","embracing discomfort as growth"][i % 8]
+      ) : "",
     });
-  });
-
-  const toPath = (pts) => {
-    if (pts.length < 2) return "";
-    let d = `M${pts[0].x},${pts[0].y}`;
-    for (let i = 1; i < pts.length; i++) {
-      d += ` L${pts[i].x},${pts[i].y}`;
-    }
-    return d;
-  };
-
-  // Render strands with z-depth segments + 3D thickness effect
-  const renderStrand3D = (pts, color, bright, baseW = 2.5) => {
-    const segs = [];
-    let cur = { pts: [pts[0]], front: ((pts[0]||{}).z) >= 0 };
-    for (let i = 1; i < pts.length; i++) {
-      const front = pts[i].z >= 0;
-      if (front !== cur.front && cur.pts.length > 1) { segs.push({ ...cur }); cur = { pts: [cur.pts[cur.pts.length - 1]], front }; }
-      cur.pts.push(pts[i]);
-    }
-    if (cur.pts.length > 1) segs.push(cur);
-
-    return segs.map((seg, i) => {
-      const opacity = bright ? (seg.front ? 0.95 : 0.2) : (seg.front ? 0.4 : 0.08);
-      const w = seg.front ? baseW : baseW * 0.5;
-      return (
-        <g key={i}>
-          {/* Glow layer */}
-          {bright && seg.front && <path d={toPath(seg.pts)} fill="none" stroke={color} strokeWidth={w + 4} opacity={0.08} strokeLinecap="round"/>}
-          {/* Main strand */}
-          <path d={toPath(seg.pts)} fill="none" stroke={color} strokeWidth={w} opacity={opacity} strokeLinecap="round"/>
-        </g>
-      );
-    });
-  };
-
-  // Rungs
-  const rungs = [];
-  for (let i = 6; i < strandSteps; i += 7) {
-    const p1 = ownerStrand1[i], p2 = ownerStrand2[i];
-    if (p1 && p2) rungs.push({ x1:p1.x, y1:p1.y, x2:p2.x, y2:p2.y, z:(p1.z+p2.z)/2 });
   }
+
+  // Second helix strand (offset by PI)
+  var helix2Nodes = [];
+  for (var j = 0; j < TOTAL_NODES; j++) {
+    var t2 = j / (TOTAL_NODES - 1);
+    var angle2 = t2 * HELIX_TURNS * 2 * Math.PI + Math.PI;
+    var y2 = -CYLINDER_H/2 + t2 * CYLINDER_H;
+    helix2Nodes.push({
+      x: CYLINDER_R * Math.cos(angle2),
+      y: y2,
+      z: CYLINDER_R * Math.sin(angle2),
+    });
+  }
+
+  // Project 3D to 2D with perspective
+  var PROJECT = function(px, py, pz) {
+    var cosY = Math.cos(rotY * Math.PI/180);
+    var sinY = Math.sin(rotY * Math.PI/180);
+    var cosX = Math.cos(rotX * Math.PI/180);
+    var sinX = Math.sin(rotX * Math.PI/180);
+    // Rotate Y
+    var rx = px * cosY - pz * sinY;
+    var rz = px * sinY + pz * cosY;
+    // Rotate X
+    var ry = py * cosX - rz * sinX;
+    var rz2 = py * sinX + rz * cosX;
+    // Perspective
+    var perspective = 600;
+    var scale = perspective / (perspective + rz2 + 200);
+    return { x: 170 + rx * scale, y: 220 + ry * scale, scale: scale, z: rz2 };
+  };
 
   return (
     <div style={{ position:"relative" }}>
@@ -627,145 +651,170 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
           <Fingerprint size={16} color={ownerTier.color}/>
           <span style={{ fontSize:15, color:C.light, fontFamily:"'Cormorant Garamond',serif", fontWeight:500 }}>{owner.name}'s Connection DNA</span>
         </div>
-        <p style={{ fontSize:11, color:C.mid, fontFamily:"'DM Sans',sans-serif" }}>Drag to rotate in 3D · Tap glowing nodes to explore</p>
+        <p style={{ fontSize:11, color:C.mid, fontFamily:"'DM Sans',sans-serif" }}>
+          {dragging ? "Rotating..." : "Drag to rotate · Tap nodes to explore"}
+        </p>
       </div>
 
-      {/* Legend */}
-      <div style={{ display:"flex", justifyContent:"center", gap:12, marginBottom:10 }}>
-        <div style={{ display:"flex", alignItems:"center", gap:4 }}>
-          <div style={{ width:14, height:3, borderRadius:2, background:ownerTier.color }}/>
-          <span style={{ fontSize:9, color:ownerTier.color, fontFamily:"'DM Sans',sans-serif" }}>You</span>
-        </div>
-        {personStrands.map(ps => (
-          <div key={ps.id} style={{ display:"flex", alignItems:"center", gap:4 }}>
-            <div style={{ width:14, height:3, borderRadius:2, background:ps.tier.color, opacity:0.4 }}/>
-            <span style={{ fontSize:9, color:C.dim, fontFamily:"'DM Sans',sans-serif" }}>{ps.person.name}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* 3D DNA Container */}
-      <div className="dna-container"
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerLeave={handlePointerUp}
+      {/* 3D Canvas */}
+      <div
+        onMouseDown={handleDown} onMouseMove={handleMove} onMouseUp={handleUp} onMouseLeave={handleUp}
+        onTouchStart={handleDown} onTouchMove={handleMove} onTouchEnd={handleUp}
         style={{
-          overflowY:"auto", overflowX:"hidden", maxHeight:400, borderRadius:18,
-          background:`linear-gradient(180deg, ${C.abyss} 0%, ${C.deep} 40%, ${C.abyss} 100%)`,
-          border:`1px solid ${C.ghost}`, cursor: isDragging ? "grabbing" : "grab",
-          touchAction:"none",
-        }}>
-        <div className="dna-helix" style={{
-          transform:`rotateX(${dragRotateX}deg) rotateY(${dragRotateY}deg)`,
-          transformOrigin:"center center",
-        }}>
-          <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ display:"block", margin:"0 auto" }}>
-            <defs>
-              <filter id="nGlow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-              <filter id="nGlow2"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-              <linearGradient id="oGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={ownerTier.color} stopOpacity="0"/>
-                <stop offset="10%" stopColor={ownerTier.color} stopOpacity="1"/>
-                <stop offset="90%" stopColor={ownerTier.color} stopOpacity="1"/>
-                <stop offset="100%" stopColor={ownerTier.color} stopOpacity="0"/>
-              </linearGradient>
-            </defs>
+          width:"100%", height:440, borderRadius:18,
+          background:"linear-gradient(180deg, "+C.abyss+", "+C.deep+" 50%, "+C.abyss+")",
+          border:"1px solid "+C.ghost,
+          cursor: dragging ? "grabbing" : "grab",
+          touchAction:"none", overflow:"hidden", position:"relative",
+        }}
+      >
+        <svg width="340" height="440" viewBox="0 0 340 440" style={{ display:"block", margin:"0 auto" }}>
+          <defs>
+            <filter id="glow3d"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="glow3dL"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
 
-            {/* Rungs with 3D depth */}
-            {rungs.map((r, i) => (
-              <line key={`r${i}`} x1={r.x1} y1={r.y1} x2={r.x2} y2={r.y2}
-                stroke={ownerTier.color} strokeWidth={r.z >= 0 ? 1.2 : 0.4}
-                opacity={r.z >= 0 ? 0.18 : 0.04} strokeDasharray="3,4"/>
-            ))}
+          {/* Cylinder wireframe rings */}
+          {[0.15, 0.35, 0.5, 0.65, 0.85].map(function(t, ri) {
+            var ringPts = [];
+            for (var a = 0; a < 32; a++) {
+              var ang = (a/32) * Math.PI * 2;
+              var p = PROJECT(CYLINDER_R * 0.85 * Math.cos(ang), -CYLINDER_H/2 + t*CYLINDER_H, CYLINDER_R * 0.85 * Math.sin(ang));
+              ringPts.push((a===0?"M":"L") + p.x + "," + p.y);
+            }
+            return <path key={ri} d={ringPts.join(" ")+" Z"} fill="none" stroke={C.ghost} strokeWidth="0.4" opacity="0.15"/>;
+          })}
 
-            {/* Other strands (behind) */}
-            {personStrands.map(ps => <g key={ps.id}>{renderStrand3D(ps.strand, ps.tier.color, false, 2)}</g>)}
+          {/* Helix strand 2 (behind, dimmer) */}
+          {helix2Nodes.map(function(node, i) {
+            if (i === 0) return null;
+            var p1 = PROJECT(helix2Nodes[i-1].x, helix2Nodes[i-1].y, helix2Nodes[i-1].z);
+            var p2 = PROJECT(node.x, node.y, node.z);
+            var opacity = Math.max(0.05, Math.min(0.25, (p2.z + 200) / 400 * 0.3));
+            return <line key={"h2-"+i} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={ownerTier.color} strokeWidth={1 + p2.scale} opacity={opacity}/>;
+          })}
 
-            {/* Owner double helix (front) */}
-            <g>{renderStrand3D(ownerStrand1, ownerTier.color, true, 3)}</g>
-            <g>{renderStrand3D(ownerStrand2, ownerTier.color, true, 2.5)}</g>
+          {/* Rungs between helices */}
+          {helixNodes.map(function(node, i) {
+            if (i >= helix2Nodes.length || i % 2 !== 0) return null;
+            var p1 = PROJECT(node.x, node.y, node.z);
+            var p2 = PROJECT(helix2Nodes[i].x, helix2Nodes[i].y, helix2Nodes[i].z);
+            var opacity = Math.max(0.03, (p1.scale - 0.5) * 0.2);
+            return <line key={"rung-"+i} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={ownerTier.color} strokeWidth="0.6" opacity={opacity} strokeDasharray="3,4"/>;
+          })}
 
-            {/* Intersection nodes with enhanced glow */}
-            {intersections.map((node, i) => {
-              const isActive = activeNode === i;
-              const depthScale = 0.7 + (node.z + 1) * 0.3; // 0.7 to 1.3 based on z
-              const r = (isActive ? 16 : 10) * depthScale;
+          {/* Main helix strand 1 */}
+          {helixNodes.map(function(node, i) {
+            if (i === 0) return null;
+            var p1 = PROJECT(helixNodes[i-1].x, helixNodes[i-1].y, helixNodes[i-1].z);
+            var p2 = PROJECT(node.x, node.y, node.z);
+            var col = node.isOwner ? ownerTier.color : node.tier.color;
+            var opacity = Math.max(0.1, Math.min(0.9, (p2.z + 200) / 300));
+            var w = 1 + p2.scale * 2.5;
+            return (
+              <g key={"s1-"+i}>
+                {opacity > 0.4 && <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={col} strokeWidth={w+3} opacity={opacity*0.1}/>}
+                <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={col} strokeWidth={w} opacity={opacity} strokeLinecap="round"/>
+              </g>
+            );
+          })}
+
+          {/* Nodes — sorted by z for proper depth rendering */}
+          {helixNodes
+            .map(function(node, i) { var p = PROJECT(node.x, node.y, node.z); return { node:node, p:p, i:i }; })
+            .sort(function(a, b) { return a.p.z - b.p.z; })
+            .map(function(item) {
+              var node = item.node, p = item.p, i = item.i;
+              var isActive = activeNode === i;
+              var r = node.isIntersection ? 6 + p.scale * 8 : node.isOwner ? 4 + p.scale * 5 : 3 + p.scale * 3;
+              var col = node.isIntersection && node.spectrum ? node.spectrum.color : node.isOwner ? ownerTier.color : node.tier.color;
+              var opacity = Math.max(0.15, Math.min(1, (p.z + 200) / 300));
+
+              if (opacity < 0.2 && !isActive) return null;
+
               return (
-                <g key={`n${i}`} onClick={(e) => { e.stopPropagation(); setActiveNode(isActive ? null : i); }} style={{ cursor:"pointer" }}>
-                  {/* Outer pulse */}
-                  <circle cx={node.x} cy={node.y} r={r + 12} fill={node.spectrum.color} opacity={isActive ? 0.12 : 0.05}
-                    filter="url(#nGlow2)" style={{ animation:`breathe 3s ease-in-out infinite ${i*0.4}s` }}/>
-                  {/* Mid ring */}
-                  <circle cx={node.x} cy={node.y} r={r + 4} fill="none" stroke={node.spectrum.color}
-                    strokeWidth={isActive ? 1.5 : 0.6} opacity={0.35}
-                    style={{ animation:`nodeFloat 2.5s ease-in-out infinite ${i*0.3}s` }}/>
-                  {/* Core */}
-                  <circle cx={node.x} cy={node.y} r={r} fill={node.spectrum.color} opacity={0.15 + depthScale * 0.3} filter="url(#nGlow)"/>
-                  <circle cx={node.x} cy={node.y} r={r * 0.5} fill={node.spectrum.color} opacity={0.8}/>
-                  <circle cx={node.x} cy={node.y} r={r * 0.2} fill={C.light} opacity={0.9}/>
+                <g key={"n-"+i}
+                  onClick={function(e) { e.stopPropagation(); if(node.isIntersection) setActiveNode(isActive ? null : i); }}
+                  style={{ cursor: node.isIntersection ? "pointer" : "default" }}>
+                  {/* Glow for intersection nodes */}
+                  {node.isIntersection && (
+                    <circle cx={p.x} cy={p.y} r={r+6} fill={col} opacity={isActive ? 0.2 : 0.08} filter="url(#glow3dL)"
+                      style={{ animation:"breathe 3s ease-in-out infinite "+(i*0.3)+"s" }}/>
+                  )}
+                  {/* Node body */}
+                  <circle cx={p.x} cy={p.y} r={r} fill={col} opacity={opacity * (node.isIntersection ? 0.7 : 0.5)} filter={node.isIntersection ? "url(#glow3d)" : undefined}/>
+                  <circle cx={p.x} cy={p.y} r={r*0.4} fill={node.isIntersection ? C.light : col} opacity={opacity * 0.9}/>
+                  {/* Label on active */}
                   {isActive && (
-                    <text x={node.x} y={node.y - r - 8} textAnchor="middle" fill={node.spectrum.color}
-                      style={{ fontSize:"9px", fontFamily:"'DM Sans',sans-serif", fontWeight:600 }}>
-                      {owner.name[0]} ↔ {node.person.name[0]}
+                    <text x={p.x} y={p.y - r - 8} textAnchor="middle" fill={col} style={{ fontSize:"10px", fontFamily:"'DM Sans',sans-serif", fontWeight:600 }}>
+                      {node.person.name}
                     </text>
                   )}
                 </g>
               );
-            })}
+            })
+          }
 
-            {/* Owner label */}
-            <g>
-              <circle cx={cx} cy={22} r={16} fill={C.abyss} stroke={ownerTier.color} strokeWidth="2"/>
-              <text x={cx} y={27} textAnchor="middle" fill={ownerTier.color}
-                style={{ fontSize:"12px", fontFamily:"'Cormorant Garamond',serif", fontWeight:600 }}>{owner.name[0]}</text>
-            </g>
-          </svg>
-        </div>
+          {/* Center label */}
+          <text x="170" y="20" textAnchor="middle" fill={ownerTier.color} style={{ fontSize:"11px", fontFamily:"'DM Sans',sans-serif", fontWeight:500, letterSpacing:1 }}>
+            {owner.name}
+          </text>
+        </svg>
+
+        {/* Auto-spin toggle */}
+        <button onClick={function() { setAutoSpin(!autoSpin); }} style={{
+          position:"absolute", bottom:10, right:10, padding:"4px 10px", borderRadius:8,
+          background:C.surface, border:"1px solid "+C.ghost, fontSize:10, color:autoSpin ? C.ember : C.dim,
+          fontFamily:"'DM Sans',sans-serif",
+        }}>
+          {autoSpin ? "Auto ●" : "Auto ○"}
+        </button>
       </div>
 
       {/* Active node panel */}
-      {activeNode !== null && intersections[activeNode] && (() => {
-        const node = intersections[activeNode];
+      {activeNode !== null && helixNodes[activeNode] && helixNodes[activeNode].isIntersection && (function() {
+        var node = helixNodes[activeNode];
+        var col = node.spectrum ? node.spectrum.color : C.ember;
         return (
           <div className="di" style={{
             marginTop:10, padding:"14px 16px", borderRadius:14,
-            background:C.abyss, border:`1px solid ${node.spectrum.color}25`,
+            background:C.abyss, border:"1px solid "+col+"25",
+            position:"relative",
           }}>
-            <div style={{ position:"absolute", top:0, left:16, right:16, height:2, borderRadius:1, background:node.spectrum.color, opacity:0.5 }}/>
+            <div style={{ position:"absolute", top:0, left:16, right:16, height:2, borderRadius:1, background:col, opacity:0.5 }}/>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
-              <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
                 <Avatar name={owner.name} size={24} color={ownerTier.color} photo={owner.photo}/>
-                <div style={{ width:16, height:1, background:node.spectrum.color }}/>
-                <node.spectrum.icon size={13} color={node.spectrum.color}/>
-                <div style={{ width:16, height:1, background:node.spectrum.color }}/>
+                <div style={{ width:14, height:1, background:col }}/>
+                {node.spectrum && React.createElement(node.spectrum.icon, {size:13,color:col})}
+                <div style={{ width:14, height:1, background:col }}/>
                 <Avatar name={node.person.name} size={24} color={node.tier.color} photo={node.person.photo}/>
               </div>
-              <span style={{ fontSize:11, color:node.spectrum.color, fontFamily:"'JetBrains Mono',monospace" }}>{node.strength}%</span>
+              <span style={{ fontSize:11, color:col, fontFamily:"'JetBrains Mono',monospace" }}>{node.strength}%</span>
             </div>
             <div style={{ display:"flex", alignItems:"center", gap:5, marginBottom:6 }}>
-              <span style={{ fontSize:10, color:node.spectrum.color, fontFamily:"'DM Sans'", padding:"2px 8px", borderRadius:6, background:`${node.spectrum.color}12` }}>{node.spectrum.label}</span>
-              <span style={{ fontSize:10, color:C.mid, fontFamily:"'DM Sans'" }}>{owner.name} ↔ {node.person.name}</span>
+              {node.spectrum && <span style={{ fontSize:10, color:col, fontFamily:"'DM Sans',sans-serif", padding:"2px 8px", borderRadius:6, background:col+"12" }}>{node.spectrum.label}</span>}
+              <span style={{ fontSize:10, color:C.mid, fontFamily:"'DM Sans',sans-serif" }}>{owner.name} ↔ {node.person.name}</span>
             </div>
             <p style={{ fontSize:12, color:C.light, fontFamily:"'Cormorant Garamond',serif", fontStyle:"italic", lineHeight:1.6, marginBottom:8 }}>"{node.phrase}"</p>
-            <button onClick={() => onSelectPerson && onSelectPerson(node.personId)} style={{
+            <button onClick={function(){onSelectPerson && onSelectPerson(node.personId)}} style={{
               width:"100%", padding:"8px 12px", borderRadius:8,
-              border:`1px solid ${node.tier.color}25`, background:`${node.tier.color}06`,
-              color:node.tier.color, fontSize:11, fontFamily:"'DM Sans'",
+              border:"1px solid "+node.tier.color+"25", background:node.tier.color+"06",
+              color:node.tier.color, fontSize:11, fontFamily:"'DM Sans',sans-serif",
               display:"flex", alignItems:"center", justifyContent:"center", gap:5,
             }}>See {node.person.name}'s essence <ChevronRight size={12}/></button>
           </div>
         );
       })()}
 
-      {/* Spectrum key */}
+      {/* Spectrum legend */}
       <div style={{ display:"flex", justifyContent:"center", gap:10, marginTop:10 }}>
-        {SPECTRUMS.map(s => (
+        {SPECTRUMS.map(function(s) { return (
           <div key={s.key} style={{ display:"flex", alignItems:"center", gap:3 }}>
-            <div style={{ width:6, height:6, borderRadius:3, background:s.color, boxShadow:`0 0 6px ${s.color}44` }}/>
-            <span style={{ fontSize:8, color:C.dim, fontFamily:"'DM Sans'" }}>{s.label}</span>
+            <div style={{ width:6, height:6, borderRadius:3, background:s.color, boxShadow:"0 0 6px "+s.color+"44" }}/>
+            <span style={{ fontSize:8, color:C.dim, fontFamily:"'DM Sans',sans-serif" }}>{s.label}</span>
           </div>
-        ))}
+        ); })}
       </div>
     </div>
   );
@@ -1303,6 +1352,7 @@ function AuthScreen({ onAuth, lang, setLang }) {
   const [values,setValues]=useState([]);
   const [bio,setBio]=useState("");
   const [photo,setPhoto]=useState(null);
+  const [bgPhoto,setBgPhoto]=useState(null);
   const [showPw,setShowPw]=useState(false);
   const [phase,setPhase]=useState(0);
   const fileRef=useRef(null);
@@ -1312,9 +1362,9 @@ function AuthScreen({ onAuth, lang, setLang }) {
 
   const validate=()=>{const e={};if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))e.email="Valid email required";if(mode==="register"){if(form.name.length<2)e.name="Essence name required";if(form.password.length<8)e.password="Min 8 chars, uppercase & number";else if(!/[A-Z]/.test(form.password)||!/[0-9]/.test(form.password))e.password="Include uppercase and number";if(form.password!==form.confirmPw)e.confirmPw="Passwords don't match";}else if(!form.password)e.password="Required";setErrors(e);return !Object.keys(e).length;};
 
-  const handleAuth=()=>{if(!validate())return;if(mode==="register")setMode("setup");else onAuth({name:"You",email:form.email,bio:"",values:[],essencePoints:0,photo:null,soulprint:[50,50,50,50,50,50,50,50],spectrum:{intelligence:50,understanding:50,communication:50,appreciation:50},rewards:{witnessed:0,stirred:0,illuminated:0,rippled:0}});};
+  const handleAuth=()=>{if(!validate())return;if(mode==="register")setMode("setup");else onAuth({name:"You",email:form.email,bio:"",values:[],essencePoints:0,photo:null,profileBg:null,soulprint:[50,50,50,50,50,50,50,50],spectrum:{intelligence:50,understanding:50,communication:50,appreciation:50},rewards:{witnessed:0,stirred:0,illuminated:0,rippled:0},humanityIndex:{depth:50,empathy:50,criticalThinking:50,impact:50,consistency:50}});};
 
-  const finishSetup=()=>onAuth({name:form.name,email:form.email,bio,values,essencePoints:0,photo,profileBg:null,soulprint:[50,50,50,50,50,50,50,50],spectrum:{intelligence:50,understanding:50,communication:50,appreciation:50},rewards:{witnessed:0,stirred:0,illuminated:0,rippled:0},humanityIndex:{depth:50,empathy:50,criticalThinking:50,impact:50,consistency:50}});
+  const finishSetup=()=>onAuth({name:form.name,email:form.email,bio,values,essencePoints:0,photo,profileBg:bgPhoto,soulprint:[50,50,50,50,50,50,50,50],spectrum:{intelligence:50,understanding:50,communication:50,appreciation:50},rewards:{witnessed:0,stirred:0,illuminated:0,rippled:0},humanityIndex:{depth:50,empathy:50,criticalThinking:50,impact:50,consistency:50}});
 
   const handlePhoto=(e)=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=(ev)=>setPhoto(ev.target.result);r.readAsDataURL(f);};
 
@@ -1382,11 +1432,28 @@ function AuthScreen({ onAuth, lang, setLang }) {
         <button onClick={()=>values.length>=2&&setStep(2)} style={{width:"100%",padding:14,borderRadius:12,background:values.length>=2?C.ember:C.ghost,color:values.length>=2?C.void:C.dim,fontSize:13,fontFamily:"'DM Sans'",fontWeight:600}}>{values.length<2?`Choose at least 2 (${values.length}/5)`:"Continue"}</button>
       </div>,
       <div key="b" className="di">
-        <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,color:C.light,fontWeight:400,marginBottom:6,textAlign:"center"}}>Your opening line</h2>
-        <textarea value={bio} onChange={e=>setBio(e.target.value)} rows={4} placeholder="I'm someone who..."
-          style={{width:"100%",padding:16,borderRadius:12,background:C.surface,border:`1px solid ${C.ghost}`,color:C.light,fontSize:14,fontFamily:"'Cormorant Garamond',serif",lineHeight:1.7,resize:"none",marginBottom:16}}/>
+        <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,color:C.light,fontWeight:400,marginBottom:6,textAlign:"center"}}>Your essence</h2>
+        <textarea value={bio} onChange={e=>setBio(e.target.value)} rows={3} placeholder="I'm someone who..."
+          style={{width:"100%",padding:16,borderRadius:12,background:C.surface,border:`1px solid ${C.ghost}`,color:C.light,fontSize:14,fontFamily:"'Cormorant Garamond',serif",lineHeight:1.7,resize:"none",marginBottom:12}}/>
+        {/* Background photo */}
+        <div style={{marginBottom:16}}>
+          <div style={{fontSize:11,color:C.light,fontFamily:"'DM Sans'",marginBottom:6}}>Profile background <span style={{color:C.dim}}>(optional)</span></div>
+          <div onClick={function(){var el=document.getElementById("bg-setup-input");if(el)el.click()}} style={{
+            width:"100%",height:bgPhoto?80:50,borderRadius:12,overflow:"hidden",cursor:"pointer",
+            border:"1px dashed "+(bgPhoto?C.ember:C.ghost),
+            background:bgPhoto?"none":C.surface,
+            display:"flex",alignItems:"center",justifyContent:"center",
+          }}>
+            {bgPhoto ? (
+              <img src={bgPhoto} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+            ) : (
+              <span style={{fontSize:11,color:C.dim,fontFamily:"'DM Sans'"}}>Tap to add a cover photo</span>
+            )}
+          </div>
+          <input id="bg-setup-input" type="file" accept="image/*" onChange={function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){setBgPhoto(ev.target.result)};r.readAsDataURL(f)}} style={{display:"none"}}/>
+        </div>
         {/* Community guidelines */}
-        <div style={{padding:"12px 14px",borderRadius:10,background:`${C.understanding}06`,border:`1px solid ${C.understanding}12`,marginBottom:20}}>
+        <div style={{padding:"12px 14px",borderRadius:10,background:`${C.understanding}06`,border:`1px solid ${C.understanding}12`,marginBottom:16}}>
           <div style={{fontSize:11,color:C.understanding,fontFamily:"'DM Sans'",fontWeight:500,marginBottom:8,display:"flex",alignItems:"center",gap:6}}><Shield size={12}/>Community soul contract</div>
           {GUIDELINES.map((g,i)=>(<div key={i} style={{fontSize:10,color:C.mid,fontFamily:"'DM Sans'",lineHeight:1.5,paddingLeft:12,marginBottom:3,position:"relative"}}><span style={{position:"absolute",left:0,color:C.understanding}}>·</span>{g}</div>))}
         </div>
@@ -1458,7 +1525,7 @@ function DepthExperience({ user }) {
         return(
           <div key={ref.id} className={`ri ri${i+1}`} onClick={()=>goDeep(ref)} style={{background:C.abyss,borderRadius:18,marginBottom:16,cursor:"pointer",border:`1px solid ${C.ghost}`,overflow:"hidden"}}>
             {/* User's experience photo */}
-            {ref.photo && <ExperiencePhoto photo={ref.photo} height={140} borderRadiusTop/>}
+            <SoulCard author={au} photo={ref.photo} emotions={ref.emotions} height={140} borderRadiusTop/>
             <div style={{padding:"18px 18px 20px"}}>
               <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
                 <Avatar name={au.name} size={32} color={tier.color} photo={au.photo}/>
@@ -1503,7 +1570,7 @@ function DepthExperience({ user }) {
         </div>
 
         <div className="ri ri1" style={{borderRadius:18,overflow:"hidden",marginBottom:16,border:`1px solid ${C.ghost}`}}>
-          {r.photo && <ExperiencePhoto photo={r.photo} height={180} borderRadiusTop/>}
+          <SoulCard author={au} photo={r.photo} emotions={r.emotions} height={180} borderRadiusTop/>
           <div style={{padding:"20px 20px 22px",background:C.abyss}}>
             <div style={{fontSize:11,color:C.ember,fontFamily:"'DM Sans'",padding:"3px 10px",borderRadius:8,background:`${C.ember}08`,display:"inline-block",marginBottom:14}}>
               <Flame size={10} style={{marginRight:4,verticalAlign:"middle"}}/>{r.spark}
@@ -1720,364 +1787,153 @@ function DepthExperience({ user }) {
    Each quality is a visual petal you can expand.
    ═══════════════════════════════════════════════════════════════ */
 
-const QUALITIES = [
-  {
-    key:"mindfulness", label:"Mindfulness", color:"#5BB8EF",
-    icon: Eye,
-    poeticLow:"A seed of awareness, waiting to unfurl.",
-    poeticMid:"You're learning to notice the world before reacting to it.",
-    poeticHigh:"Presence flows through you like breath — natural, constant, quiet.",
-    moments:["Completed 12 silence sparks","Averaged 140-word reflections","82 hours offline this month"],
-  },
-  {
-    key:"morality", label:"Morality", color:"#E8C84A",
-    icon: Shield,
-    poeticLow:"The compass is forming. True north is ahead.",
-    poeticMid:"You stand by your word. Others notice even when you don't.",
-    poeticHigh:"Your integrity isn't performed — it's structural. People trust you because you've earned it in the quiet moments.",
-    moments:["100% community guideline adherence","Constructive engagement in 14 Arena debates","Consistently supportive illuminations"],
-  },
-  {
-    key:"empathy", label:"Empathy", color:"#4AE8C4",
-    icon: Heart,
-    poeticLow:"You're beginning to hear what people mean beneath what they say.",
-    poeticMid:"When others speak, you listen with your whole self. They feel it.",
-    poeticHigh:"You carry others' experiences without losing yourself. That's rare. That's empathy matured into wisdom.",
-    moments:["47 illuminations through Understanding","31 Kindred connections formed","Resonated with 89% of vulnerability reflections"],
-  },
-  {
-    key:"kindness", label:"Kindness", color:"#E88A5B",
-    icon: Sun,
-    poeticLow:"Small warmths are gathering. Keep tending them.",
-    poeticMid:"Your words leave people feeling lighter. That's a gift few give consciously.",
-    poeticHigh:"Kindness isn't what you do — it's what radiates from you. Your illuminations have become lifelines for people you'll never meet.",
-    moments:["Most-stirred illumination author this week","Supported 28 first-time reflectors","Kindled 6 reflections on grief with grace"],
-  },
-  {
-    key:"courage", label:"Courage", color:"#E85B8D",
-    icon: Flame,
-    poeticLow:"The edge is calling. You're gathering the nerve.",
-    poeticMid:"You've started choosing discomfort over avoidance. That's where growth lives.",
-    poeticHigh:"You walk toward what frightens you, and you write about it honestly. Your vulnerability gives others permission to be human.",
-    moments:["Completed 8 'deep reach' difficulty sparks","Shared 12 reflections tagged Vulnerability","Started 3 disagreement conversations"],
-  },
-  {
-    key:"wisdom", label:"Wisdom", color:"#A86BDB",
-    icon: Lightbulb,
-    poeticLow:"Questions are forming that don't have easy answers. Good.",
-    poeticMid:"You're seeing patterns — not just in others, but in yourself. That's the beginning of wisdom.",
-    poeticHigh:"Your reflections don't just describe experiences — they illuminate truths. People return to your words like bookmarks in a book they're still learning from.",
-    moments:["Depth score averaging 91","14 reflections Rippled into new ones","Top-rated Arena argument on individualism"],
-  },
-];
-
-function EssenceBloomViz({ qualities, size=380, tier }) {
-  const cx=size/2, cy=size/2, maxR=size/2-40;
-  const n=qualities.length;
-  const step=(2*Math.PI)/n;
-
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <defs>
-        <filter id="bloomGlow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <filter id="softBloom"><feGaussianBlur stdDeviation="14" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <radialGradient id="centerLight">
-          <stop offset="0%" stopColor={tier.color} stopOpacity="0.3"/>
-          <stop offset="100%" stopColor={tier.color} stopOpacity="0"/>
-        </radialGradient>
-      </defs>
-
-      {/* Ambient center glow */}
-      <circle cx={cx} cy={cy} r={80} fill="url(#centerLight)" filter="url(#softBloom)"/>
-
-      {/* Concentric guide rings */}
-      {[0.3,0.6,0.9].map((s,i)=>(
-        <circle key={i} cx={cx} cy={cy} r={maxR*s} fill="none" stroke={C.ghost} strokeWidth="0.5" opacity="0.25"
-          strokeDasharray={i===2?"":"3,5"} />
-      ))}
-
-      {/* Quality petals — organic shapes radiating from center */}
-      {qualities.map((q,i) => {
-        const angle = i * step - Math.PI/2;
-        const level = q.level; // 0-1
-        const petalR = 30 + level * (maxR - 40);
-        const tipX = cx + Math.cos(angle) * petalR;
-        const tipY = cy + Math.sin(angle) * petalR;
-
-        // Bezier control points for organic petal shape
-        const spread = 0.32;
-        const cp1Angle = angle - spread;
-        const cp2Angle = angle + spread;
-        const cpR = petalR * 0.55;
-        const cp1x = cx + Math.cos(cp1Angle) * cpR;
-        const cp1y = cy + Math.sin(cp1Angle) * cpR;
-        const cp2x = cx + Math.cos(cp2Angle) * cpR;
-        const cp2y = cy + Math.sin(cp2Angle) * cpR;
-
-        const path = `M${cx},${cy} Q${cp1x},${cp1y} ${tipX},${tipY} Q${cp2x},${cp2y} ${cx},${cy}`;
-
-        // Glow orb at tip — scaled up
-        const glowR = 5 + level * 10;
-
-        return (
-          <g key={q.key}>
-            {/* Petal body */}
-            <path d={path} fill={`${q.color}${Math.round(8 + level * 15).toString(16).padStart(2,'0')}`}
-              stroke={q.color} strokeWidth={1 + level * 1.5} opacity={0.3 + level * 0.5}
-              style={{ transition:"all 1s ease" }}
-            />
-            {/* Glow trail along petal */}
-            <line x1={cx} y1={cy} x2={tipX} y2={tipY}
-              stroke={q.color} strokeWidth={level * 3} opacity={level * 0.12}
-              filter="url(#softBloom)"
-            />
-            {/* Tip orb */}
-            <circle cx={tipX} cy={tipY} r={glowR}
-              fill={q.color} opacity={0.2 + level * 0.5}
-              filter="url(#bloomGlow)"
-              style={{ animation:`breathe ${3 + i*0.4}s ease-in-out infinite ${i*0.3}s` }}
-            />
-            <circle cx={tipX} cy={tipY} r={glowR * 0.4}
-              fill={q.color} opacity={0.7 + level * 0.3}
-            />
-            {/* Label — larger, clearer */}
-            <text x={cx + Math.cos(angle) * (petalR + 24)} y={cy + Math.sin(angle) * (petalR + 24) + 4}
-              textAnchor="middle" fill={q.color} opacity={0.7 + level * 0.3}
-              style={{ fontSize:"11px", fontFamily:"'DM Sans',sans-serif", fontWeight:500, letterSpacing:"0.5px" }}>
-              {q.label}
-            </text>
-          </g>
-        );
-      })}
-
-      {/* Center core — the self */}
-      <circle cx={cx} cy={cy} r={18} fill={C.abyss} stroke={tier.color} strokeWidth="2"
-        style={{ animation:"pulseGlow 4s ease-in-out infinite" }}/>
-      <circle cx={cx} cy={cy} r={8} fill={tier.color} opacity="0.5"/>
-      <circle cx={cx} cy={cy} r={3} fill={C.light} opacity="0.8"/>
-    </svg>
-  );
-}
-
-function QualityExpandedView({ quality, onClose }) {
-  const q = quality;
-  const levelLabel = q.level > 0.7 ? "Flourishing" : q.level > 0.4 ? "Growing" : "Emerging";
-  const poeticText = q.level > 0.7 ? q.poeticHigh : q.level > 0.4 ? q.poeticMid : q.poeticLow;
-
-  return (
-    <div className="di" style={{
-      position:"absolute", inset:0, background:`${C.void}f8`, zIndex:200,
-      display:"flex", flexDirection:"column", padding:20, overflow:"auto",
-    }}>
-      {/* Close */}
-      <button onClick={onClose} style={{ alignSelf:"flex-start", color:C.mid, display:"flex", alignItems:"center", gap:4, fontSize:12, fontFamily:"'DM Sans',sans-serif", marginBottom:20 }}>
-        <ArrowLeft size={16}/> Back to bloom
-      </button>
-
-      {/* Quality header */}
-      <div style={{ textAlign:"center", marginBottom:28, position:"relative" }}>
-        {/* Background aura */}
-        <div style={{
-          position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)",
-          width:200, height:200, borderRadius:"50%",
-          background:`radial-gradient(circle, ${q.color}12 0%, transparent 70%)`,
-          filter:"blur(30px)", pointerEvents:"none",
-        }}/>
-
-        <div style={{
-          width:64, height:64, borderRadius:"50%", margin:"0 auto 16px",
-          background:`${q.color}12`, border:`1.5px solid ${q.color}30`,
-          display:"flex", alignItems:"center", justifyContent:"center",
-          boxShadow:`0 0 30px ${q.color}15`,
-        }}>
-          <q.icon size={28} color={q.color}/>
-        </div>
-
-        <h2 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:28, color:C.light, fontWeight:400, letterSpacing:1 }}>
-          {q.label}
-        </h2>
-
-        <div style={{
-          display:"inline-flex", alignItems:"center", gap:6, marginTop:8,
-          padding:"4px 14px", borderRadius:16,
-          background:`${q.color}10`, border:`1px solid ${q.color}20`,
-        }}>
-          <div style={{ width:6, height:6, borderRadius:3, background:q.color, boxShadow:`0 0 8px ${q.color}55` }}/>
-          <span style={{ fontSize:11, color:q.color, fontFamily:"'DM Sans',sans-serif" }}>{levelLabel}</span>
-          <span style={{ fontSize:10, color:C.dim, fontFamily:"'JetBrains Mono',monospace" }}>
-            {Math.round(q.level * 100)}%
-          </span>
-        </div>
-      </div>
-
-      {/* Growth visualization — organic fill */}
-      <div style={{ marginBottom:24, padding:"0 10px" }}>
-        <div style={{ width:"100%", height:6, borderRadius:3, background:`${C.ghost}33`, overflow:"hidden", position:"relative" }}>
-          <div style={{
-            width:`${q.level * 100}%`, height:"100%", borderRadius:3,
-            background:`linear-gradient(90deg, ${q.color}44, ${q.color})`,
-            transition:"width 1.5s ease",
-            boxShadow:`0 0 12px ${q.color}33`,
-          }}/>
-        </div>
-      </div>
-
-      {/* Poetic description */}
-      <div style={{
-        background:`${C.abyss}`, borderRadius:16, padding:"24px 20px",
-        border:`1px solid ${q.color}12`, marginBottom:20,
-        position:"relative", overflow:"hidden",
-      }}>
-        <div style={{
-          position:"absolute", top:-20, right:-20, width:80, height:80, borderRadius:"50%",
-          background:`radial-gradient(circle, ${q.color}08 0%, transparent 70%)`,
-          pointerEvents:"none",
-        }}/>
-        <p style={{
-          fontFamily:"'Cormorant Garamond',serif", fontSize:17, color:C.light,
-          lineHeight:1.85, fontStyle:"italic",
-        }}>
-          {poeticText}
-        </p>
-      </div>
-
-      {/* Key moments — what built this quality */}
-      <div style={{
-        background:C.abyss, borderRadius:14, padding:"18px 16px",
-        border:`1px solid ${C.ghost}`, marginBottom:20,
-      }}>
-        <div style={{ fontSize:10, color:q.color, fontFamily:"'DM Sans',sans-serif", letterSpacing:1, textTransform:"uppercase", marginBottom:14 }}>
-          What shaped this
-        </div>
-        {q.moments.map((m, i) => (
-          <div key={i} style={{
-            display:"flex", alignItems:"flex-start", gap:10, marginBottom:i < q.moments.length - 1 ? 12 : 0,
-          }}>
-            <div style={{
-              width:6, height:6, borderRadius:3, background:q.color,
-              marginTop:5, flexShrink:0, boxShadow:`0 0 6px ${q.color}44`,
-            }}/>
-            <p style={{ fontSize:13, color:C.light, fontFamily:"'Cormorant Garamond',serif", lineHeight:1.6 }}>
-              {m}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      {/* Invitation to grow */}
-      <div style={{
-        padding:"16px 18px", borderRadius:14,
-        background:`${q.color}06`, border:`1px solid ${q.color}12`,
-      }}>
-        <p style={{ fontSize:12, color:q.color, fontFamily:"'DM Sans',sans-serif", lineHeight:1.6 }}>
-          <Sparkles size={12} style={{ marginRight:6, verticalAlign:"middle" }}/>
-          {q.level < 0.5
-            ? `Continue reflecting on experiences that challenge your ${q.label.toLowerCase()}. Each spark accepted is a seed planted.`
-            : q.level < 0.8
-            ? `Your ${q.label.toLowerCase()} is becoming visible to others. Keep illuminating reflections that move you.`
-            : `You've reached a rare depth of ${q.label.toLowerCase()}. Your presence on LUCID is quietly transforming how others experience connection.`
-          }
-        </p>
-      </div>
-    </div>
-  );
-}
-
 
 /* ═══════════════════════════════════════════════════════════════
-   UNIFIED ESSENCE — Profile + Humanity Index as ONE organism
-   Photo at center of pentagon. Identity, metrics, qualities,
-   dynamic activity all flow as a single living representation.
+   THE DIGITAL SOUL — Unified Profile Experience
+   Created by Tony De Palma
+   
+   Not two charts. Not a dashboard. A living, breathing
+   representation of a human being — explored by moving
+   FORWARD through depth layers, not scrolling.
+   
+   Layer 0: Soul Surface — photo + unified trait ring
+   Layer 1: Active Soul — recent emotions, growth pulse
+   Layer 2: Connection Web — who shapes them
+   Layer 3: Life Reel — reflections and experiences
+   Layer 4: Core Essence — values, deepest insights
    ═══════════════════════════════════════════════════════════════ */
 
-function UnifiedProfileViz({ user, humanityData, size=320 }) {
-  const tier = getTier(user.essencePoints || 0);
-  const n = HI_AXES.length, step = (2*Math.PI)/n;
-  const cx=size/2, cy=size/2, maxR=size/2-38;
-  const photoR = 38;
+const SOUL_TRAITS = [
+  { key:"depth",     label:"Depth",     color:"#E8A838", angle:0 },
+  { key:"empathy",   label:"Empathy",   color:"#4AE8C4", angle:1 },
+  { key:"critical",  label:"Critical Thinking", color:"#5B8DEF", angle:2 },
+  { key:"mindfulness",label:"Mindfulness",color:"#5BB8EF", angle:3 },
+  { key:"courage",   label:"Courage",   color:"#E85B8D", angle:4 },
+  { key:"kindness",  label:"Kindness",  color:"#E88A5B", angle:5 },
+  { key:"morality",  label:"Morality",  color:"#E8C84A", angle:6 },
+  { key:"wisdom",    label:"Wisdom",    color:"#A86BDB", angle:7 },
+];
 
-  const path = HI_AXES.map((ax,i) => {
-    const angle = i*step - Math.PI/2;
-    const val = ((humanityData||{})[ax.key] || 50) / 100;
-    const r = val * maxR;
-    return `${i===0?"M":"L"}${cx+Math.cos(angle)*r},${cy+Math.sin(angle)*r}`;
-  }).join(" ") + " Z";
+function DigitalSoulViz({ user, size, traitData }) {
+  var cx = size/2, cy = size/2, maxR = size/2 - 50;
+  var n = SOUL_TRAITS.length;
+  var step = (2 * Math.PI) / n;
+  var tier = getTier(user.essencePoints || 0);
 
-  const avg = HI_AXES.reduce((s,ax) => s + ((humanityData||{})[ax.key]||50), 0) / n;
+  // Build the unified soul shape
+  var pathPoints = SOUL_TRAITS.map(function(trait, i) {
+    var angle = i * step - Math.PI/2;
+    var val = ((traitData || {})[trait.key] || 40) / 100;
+    var r = 0.3 * maxR + val * maxR * 0.7;
+    return { x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r, val: val };
+  });
+
+  var pathD = pathPoints.map(function(p, i) { return (i===0?"M":"L") + p.x + "," + p.y; }).join(" ") + " Z";
+
+  // Smooth path using bezier curves
+  var smoothD = "M" + pathPoints[0].x + "," + pathPoints[0].y;
+  for (var i = 0; i < pathPoints.length; i++) {
+    var curr = pathPoints[i];
+    var next = pathPoints[(i + 1) % pathPoints.length];
+    var cpx = (curr.x + next.x) / 2;
+    var cpy = (curr.y + next.y) / 2;
+    smoothD += " Q" + curr.x + "," + curr.y + " " + cpx + "," + cpy;
+  }
+  smoothD += " Z";
+
+  var photoR = size * 0.13;
 
   return (
     <div style={{ position:"relative", width:size, height:size, margin:"0 auto" }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ position:"absolute", inset:0 }}>
+      <svg width={size} height={size} viewBox={"0 0 "+size+" "+size} style={{ position:"absolute", inset:0 }}>
         <defs>
-          <clipPath id="profileClip"><circle cx={cx} cy={cy} r={photoR}/></clipPath>
-          <filter id="profileGlow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="soulGlow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="soulGlowL"><feGaussianBlur stdDeviation="12" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <radialGradient id="soulCenter">
+            <stop offset="0%" stopColor={tier.color} stopOpacity="0.15"/>
+            <stop offset="100%" stopColor={tier.color} stopOpacity="0"/>
+          </radialGradient>
         </defs>
 
-        {/* Grid rings */}
-        {[0.33, 0.66, 1].map((s,i) => {
-          const ring = HI_AXES.map((_, j) => {
-            const a = j*step - Math.PI/2;
-            return `${j===0?"M":"L"}${cx+Math.cos(a)*maxR*s},${cy+Math.sin(a)*maxR*s}`;
+        {/* Ambient glow */}
+        <circle cx={cx} cy={cy} r={maxR * 0.7} fill="url(#soulCenter)" filter="url(#soulGlowL)"/>
+
+        {/* Guide rings */}
+        {[0.33, 0.66, 1].map(function(s, ri) {
+          var ring = SOUL_TRAITS.map(function(_, j) {
+            var a = j * step - Math.PI/2;
+            return (j===0?"M":"L") + (cx+Math.cos(a)*maxR*s) + "," + (cy+Math.sin(a)*maxR*s);
           }).join(" ") + " Z";
-          return <path key={i} d={ring} fill="none" stroke={C.ghost} strokeWidth="0.5" opacity="0.2"/>;
+          return <path key={ri} d={ring} fill="none" stroke={C.ghost} strokeWidth="0.5" opacity="0.15"/>;
         })}
 
         {/* Axis lines */}
-        {HI_AXES.map((ax,i) => {
-          const a = i*step - Math.PI/2;
-          return <line key={i} x1={cx} y1={cy} x2={cx+Math.cos(a)*maxR} y2={cy+Math.sin(a)*maxR} stroke={C.ghost} strokeWidth="0.5" opacity="0.15"/>;
+        {SOUL_TRAITS.map(function(trait, i) {
+          var a = i * step - Math.PI/2;
+          return <line key={i} x1={cx} y1={cy} x2={cx+Math.cos(a)*maxR} y2={cy+Math.sin(a)*maxR} stroke={C.ghost} strokeWidth="0.3" opacity="0.12"/>;
         })}
 
-        {/* Humanity shape */}
-        <path d={path} fill={`${tier.color}10`} stroke={tier.color} strokeWidth="2" opacity="0.85"
-          style={{ animation:"breathe 5s ease-in-out infinite" }}/>
+        {/* Soul shape — the unified form */}
+        <path d={smoothD} fill={tier.color+"0D"} stroke={tier.color} strokeWidth="2" opacity="0.85"
+          filter="url(#soulGlow)" style={{ animation:"breathe 6s ease-in-out infinite" }}/>
 
-        {/* Axis endpoints + labels */}
-        {HI_AXES.map((ax,i) => {
-          const a = i*step - Math.PI/2;
-          const val = ((humanityData||{})[ax.key] || 50) / 100;
-          const r = val * maxR;
-          const px = cx+Math.cos(a)*r, py = cy+Math.sin(a)*r;
-          const lx = cx+Math.cos(a)*(maxR+22), ly = cy+Math.sin(a)*(maxR+22);
+        {/* Trait nodes + labels */}
+        {SOUL_TRAITS.map(function(trait, i) {
+          var angle = i * step - Math.PI/2;
+          var val = ((traitData || {})[trait.key] || 40) / 100;
+          var r = 0.3 * maxR + val * maxR * 0.7;
+          var px = cx + Math.cos(angle) * r;
+          var py = cy + Math.sin(angle) * r;
+          var lx = cx + Math.cos(angle) * (maxR + 28);
+          var ly = cy + Math.sin(angle) * (maxR + 28);
+          var nodeR = 4 + val * 6;
+
           return (
-            <g key={i}>
-              <circle cx={px} cy={py} r={5} fill={ax.color} opacity="0.85"/>
-              <circle cx={px} cy={py} r={10} fill={ax.color} opacity="0.1"/>
-              <text x={lx} y={ly+3} textAnchor="middle" fill={ax.color} opacity="0.8"
-                style={{ fontSize:"9px", fontFamily:"'DM Sans',sans-serif", fontWeight:500 }}>
-                {ax.label.replace("\n"," ")}
+            <g key={trait.key}>
+              {/* Glow */}
+              <circle cx={px} cy={py} r={nodeR + 5} fill={trait.color} opacity={0.1}
+                style={{ animation:"breathe "+(4+i*0.3)+"s ease-in-out infinite "+(i*0.2)+"s" }}/>
+              {/* Node */}
+              <circle cx={px} cy={py} r={nodeR} fill={trait.color} opacity={0.8}/>
+              <circle cx={px} cy={py} r={nodeR * 0.35} fill={C.light} opacity={0.7}/>
+              {/* Label */}
+              <text x={lx} y={ly} textAnchor="middle" fill={trait.color} opacity="0.85"
+                style={{ fontSize:"10px", fontFamily:"'DM Sans',sans-serif", fontWeight:500 }}>
+                {trait.label}
               </text>
-              <text x={lx} y={ly+15} textAnchor="middle" fill={ax.color}
+              {/* Value */}
+              <text x={lx} y={ly + 13} textAnchor="middle" fill={trait.color}
                 style={{ fontSize:"12px", fontFamily:"'JetBrains Mono',monospace", fontWeight:600 }}>
-                {(humanityData||{})[ax.key] || 50}
+                {(traitData || {})[trait.key] || 40}
               </text>
             </g>
           );
         })}
 
-        {/* Center: profile photo ring */}
-        <circle cx={cx} cy={cy} r={photoR+4} fill="none" stroke={tier.color} strokeWidth="2" opacity="0.4"/>
-        <circle cx={cx} cy={cy} r={photoR+8} fill="none" stroke={tier.color} strokeWidth="0.5" opacity="0.15"
-          style={{ animation:"breathe 4s ease-in-out infinite" }}/>
+        {/* Photo ring */}
+        <circle cx={cx} cy={cy} r={photoR + 4} fill="none" stroke={tier.color} strokeWidth="2.5" opacity="0.5"/>
+        <circle cx={cx} cy={cy} r={photoR + 10} fill="none" stroke={tier.color} strokeWidth="0.5" opacity="0.15"
+          style={{ animation:"breathe 5s ease-in-out infinite" }}/>
       </svg>
 
-      {/* Profile photo — HTML overlay at center of SVG */}
+      {/* Photo overlay */}
       <div style={{
         position:"absolute",
-        left:cx - photoR, top:cy - photoR,
-        width:photoR*2, height:photoR*2,
+        left: cx - photoR, top: cy - photoR,
+        width: photoR*2, height: photoR*2,
         borderRadius:"50%", overflow:"hidden",
-        border:`2.5px solid ${tier.color}55`,
-        boxShadow:`0 0 20px ${tier.color}18`,
+        border:"2.5px solid "+tier.color+"55",
+        boxShadow:"0 0 24px "+tier.color+"18",
       }}>
         {user.photo ? (
           <img src={user.photo} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
         ) : (
           <div style={{
             width:"100%", height:"100%",
-            background:`linear-gradient(135deg, ${tier.color}25, ${tier.color}08)`,
+            background:"linear-gradient(135deg, "+tier.color+"25, "+tier.color+"08)",
             display:"flex", alignItems:"center", justifyContent:"center",
-            fontSize:28, color:tier.color, fontFamily:"'Cormorant Garamond',serif", fontWeight:600,
+            fontSize: photoR * 0.7, color:tier.color,
+            fontFamily:"'Cormorant Garamond',serif", fontWeight:600,
           }}>
             {(user.name || "?")[0].toUpperCase()}
           </div>
@@ -2087,251 +1943,368 @@ function UnifiedProfileViz({ user, humanityData, size=320 }) {
   );
 }
 
-function MyEssence({user, lang}) {
-  const tier = getTier(user.essencePoints || 0);
-  const currentLang = lang || "en";
-  const [expanded, setExpanded] = useState(null);
-  const [userLocation, setUserLocation] = useState(null);
-  const [profileBg, setProfileBg] = useState(user.profileBg || null);
-  const bgRef = useRef(null);
+/* ═══════════════════════════════════════════════════════════════
+   SOUL REEL — Forward-moving exploration of a person
+   Each depth layer reveals more. Not scrolling — advancing.
+   ═══════════════════════════════════════════════════════════════ */
 
-  const handleBgUpload = (e) => {
-    const f = e.target.files[0]; if (!f) return;
-    const r = new FileReader(); r.onload = (ev) => setProfileBg(ev.target.result); r.readAsDataURL(f);
+function MyEssence({user, lang}) {
+  var tier = getTier(user.essencePoints || 0);
+  var currentLang = lang || "en";
+  var _depth = useState(0); var soulDepth = _depth[0]; var setSoulDepth = _depth[1];
+  var _loc = useState(null); var userLocation = _loc[0]; var setUserLocation = _loc[1];
+  var _bg = useState(user.profileBg || null); var profileBg = _bg[0]; var setProfileBg = _bg[1];
+  var bgRef = useRef(null);
+
+  var handleBgUpload = function(e) {
+    var f = e.target.files[0]; if (!f) return;
+    var r = new FileReader(); r.onload = function(ev) { setProfileBg(ev.target.result); }; r.readAsDataURL(f);
   };
 
-  useEffect(() => {
+  useEffect(function() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => setUserLocation({ display:`${pos.coords.latitude.toFixed(1)}°, ${pos.coords.longitude.toFixed(1)}°` }),
-        () => setUserLocation({ display:"Location not shared" }),
+        function(pos) { setUserLocation({ display:pos.coords.latitude.toFixed(1)+"°, "+pos.coords.longitude.toFixed(1)+"°" }); },
+        function() { setUserLocation({ display:"Location not shared" }); },
         { timeout:5000 }
       );
     }
   }, []);
 
-  const qualityLevels = useMemo(() => {
-    const pts = user.essencePoints || 0;
-    const base = Math.min(pts / 1400, 1);
-    return QUALITIES.map((q, i) => ({
-      ...q,
-      level: Math.min(1, base * (0.6 + Math.sin(i * 1.2 + 0.5) * 0.4 + 0.4)),
-    }));
-  }, [user.essencePoints]);
+  // Unified trait data — merges humanity index + qualities
+  var traitData = {
+    depth: (user.humanityIndex || {}).depth || 50,
+    empathy: (user.humanityIndex || {}).empathy || 50,
+    critical: (user.humanityIndex || {}).critical_thinking || 50,
+    mindfulness: 40 + Math.min(50, (user.essencePoints || 0) / 25),
+    courage: 35 + Math.min(55, (user.essencePoints || 0) / 20),
+    kindness: 45 + Math.min(45, (user.essencePoints || 0) / 22),
+    morality: 50 + Math.min(40, (user.essencePoints || 0) / 30),
+    wisdom: 30 + Math.min(60, (user.essencePoints || 0) / 18),
+  };
 
-  const avg = HI_AXES.reduce((s,ax) => s + (((user.humanityIndex||{})[ax.key])||50), 0) / HI_AXES.length;
+  var avg = SOUL_TRAITS.reduce(function(s, t) { return s + (traitData[t.key] || 40); }, 0) / SOUL_TRAITS.length;
 
-  // Dynamic activity content
-  const ACTIVITY = [
-    { type:"spark", text:"Your spark was accepted by 3 people", time:"2h ago", color:C.ember },
-    { type:"illuminate", text:"Solace illuminated your reflection", time:"4h ago", color:C.understanding },
-    { type:"stirred", text:"Your reflection stirred 12 people today", time:"6h ago", color:C.stirred },
-    { type:"growth", text:"Empathy score increased +3 this week", time:"1d ago", color:C.understanding },
+  var SOUL_LAYERS = ["Soul", "Growth", "Connections", "Experiences", "Core"];
+
+  // Dynamic activity
+  var ACTIVITY = [
+    { text:"Your spark was accepted by 3 people", time:"2h", color:C.ember },
+    { text:"Solace illuminated your reflection", time:"4h", color:C.illuminated },
+    { text:"12 people were stirred today", time:"6h", color:C.stirred },
+    { text:"Empathy score increased +3", time:"1d", color:C.understanding },
+    { text:"Courage growing from recent sparks", time:"2d", color:C.warmth },
   ];
 
-  if (expanded !== null) {
+  // ── Layer renderers ──
+  var renderLayer0 = function() {
     return (
-      <div style={{ position:"relative", height:"100%" }}>
-        <QualityExpandedView quality={qualityLevels[expanded]} onClose={() => setExpanded(null)}/>
-      </div>
-    );
-  }
+      <div className="di" style={{ textAlign:"center" }}>
+        {/* Background upload */}
+        <div onClick={function(){bgRef.current && bgRef.current.click()}} style={{
+          width:"100%", height:profileBg ? 100 : 40, cursor:"pointer",
+          background:profileBg ? "none" : C.abyss,
+          borderRadius:"16px 16px 0 0", overflow:"hidden", marginBottom:profileBg ? -30 : 0,
+          border:"1px solid "+C.ghost, borderBottom:"none",
+        }}>
+          {profileBg ? (
+            <img src={profileBg} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", filter:"brightness(0.5)" }}/>
+          ) : (
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:"100%", gap:6 }}>
+              <Camera size={12} color={C.dim}/><span style={{ fontSize:9, color:C.dim, fontFamily:"'DM Sans',sans-serif" }}>Add background</span>
+            </div>
+          )}
+        </div>
+        <input ref={bgRef} type="file" accept="image/*" onChange={handleBgUpload} style={{ display:"none" }}/>
 
-  return (
-    <div style={{ padding:16, paddingBottom:100, overflowY:"auto", maxHeight:"calc(100vh - 70px)" }}>
+        {/* The Digital Soul — unified visualization */}
+        <div style={{
+          background:C.abyss, borderRadius:profileBg?"0 0 20px 20px":20,
+          border:"1px solid "+C.ghost, padding:"12px 0 16px", marginBottom:16,
+          borderTop:profileBg?"none":"1px solid "+C.ghost,
+        }}>
+          <DigitalSoulViz user={user} size={340} traitData={traitData}/>
 
-      {/* ═══ PROFILE BACKGROUND BANNER ═══ */}
-      {/* Background image upload */}
-      <div onClick={() => bgRef.current && bgRef.current.click()} style={{
-        width:"100%", height: profileBg ? 120 : 50, cursor:"pointer",
-        background: profileBg ? "none" : C.abyss,
-        borderRadius:"20px 20px 0 0", overflow:"hidden", position:"relative",
-        border:"1px solid " + C.ghost, borderBottom:"none",
-      }}>
-        {profileBg ? (
-          <img src={profileBg} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", filter:"brightness(0.6)" }}/>
-        ) : (
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:"100%", gap:6 }}>
-            <Camera size={14} color={C.dim}/>
-            <span style={{ fontSize:10, color:C.dim, fontFamily:"'DM Sans',sans-serif" }}>Add background</span>
-          </div>
-        )}
-      </div>
-      <input ref={bgRef} type="file" accept="image/*" onChange={handleBgUpload} style={{ display:"none" }}/>
-
-      {/* ═══ UNIFIED PROFILE CARD ═══ */}
-      <div className="ri" style={{
-        padding:"0 12px 16px", marginBottom:16, textAlign:"center",
-        background: C.abyss,
-        borderRadius: profileBg ? "0 0 20px 20px" : 20,
-        border:"1px solid " + C.ghost,
-        borderTop: profileBg ? "none" : "1px solid " + C.ghost,
-      }}>
-        <div style={{ marginTop: profileBg ? -20 : 12, position:"relative", zIndex:2 }}>
-          <UnifiedProfileViz
-            user={user}
-            humanityData={user.humanityIndex || {depth:50,empathy:50,criticalThinking:50,impact:50,consistency:50}}
-            size={300}
-          />
-
-        {/* Name + Tier + Humanity score — below the visual */}
-        <div style={{ marginTop:4 }}>
-          <h2 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:26, color:C.light, fontWeight:400 }}>
-            {user.name}
-          </h2>
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:10, marginTop:6 }}>
-            <div style={{
-              display:"inline-flex", alignItems:"center", gap:5,
-              padding:"4px 12px", borderRadius:14,
-              background:`${tier.color}10`, border:`1px solid ${tier.color}18`,
-            }}>
-              <div style={{ width:5, height:5, borderRadius:3, background:tier.color, boxShadow:`0 0 6px ${tier.color}44` }}/>
+          {/* Name + badges */}
+          <h2 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:28, color:C.light, fontWeight:400, marginTop:4 }}>{user.name}</h2>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginTop:6 }}>
+            <div style={{ display:"inline-flex", alignItems:"center", gap:5, padding:"4px 14px", borderRadius:14, background:tier.color+"10", border:"1px solid "+tier.color+"20" }}>
+              <div style={{ width:5, height:5, borderRadius:3, background:tier.color, boxShadow:"0 0 6px "+tier.color+"44" }}/>
               <span style={{ fontSize:11, color:tier.color, fontFamily:"'JetBrains Mono',monospace" }}>{tier.name}</span>
             </div>
-            <div style={{
-              display:"inline-flex", alignItems:"center", gap:4,
-              padding:"4px 12px", borderRadius:14,
-              background:`${C.ember}08`, border:`1px solid ${C.ember}15`,
-            }}>
-              <span style={{ fontSize:11, color:C.ember, fontFamily:"'JetBrains Mono',monospace" }}>{Math.round(avg)}</span>
-              <span style={{ fontSize:9, color:C.dim, fontFamily:"'DM Sans',sans-serif" }}>humanity</span>
+            <div style={{ display:"inline-flex", alignItems:"center", gap:4, padding:"4px 14px", borderRadius:14, background:C.ember+"08", border:"1px solid "+C.ember+"15" }}>
+              <span style={{ fontSize:12, color:C.ember, fontFamily:"'JetBrains Mono',monospace", fontWeight:600 }}>{Math.round(avg)}</span>
+              <span style={{ fontSize:9, color:C.dim, fontFamily:"'DM Sans',sans-serif" }}>soul</span>
             </div>
           </div>
-        </div>
 
-        {/* Bio */}
-        <p style={{
-          fontFamily:"'Cormorant Garamond',serif", fontSize:14, color:C.mid,
-          lineHeight:1.7, maxWidth:300, margin:"12px auto 0",
-        }}>
-          {user.bio || "Your essence emerges through reflection..."}
-        </p>
+          <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:14, color:C.mid, lineHeight:1.7, maxWidth:300, margin:"12px auto 0" }}>
+            {user.bio || "Your essence emerges through reflection..."}
+          </p>
 
-        {/* Location + Values row */}
-        <div style={{ marginTop:12 }}>
           {userLocation && (
-            <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:4, marginBottom:8 }}>
-              <Compass size={11} color={C.dim}/>
-              <span style={{ fontSize:10, color:C.dim, fontFamily:"'DM Sans',sans-serif" }}>{userLocation.display}</span>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:4, marginTop:8 }}>
+              <Compass size={10} color={C.dim}/><span style={{ fontSize:10, color:C.dim, fontFamily:"'DM Sans',sans-serif" }}>{userLocation.display}</span>
             </div>
           )}
-          {(user.values||[]).length > 0 && (
-            <div style={{ display:"flex", flexWrap:"wrap", gap:5, justifyContent:"center" }}>
-              {user.values.map(v => (
-                <span key={v} style={{
-                  fontSize:10, color:C.ember, padding:"4px 10px", borderRadius:8,
-                  background:`${C.ember}08`, border:`1px solid ${C.ember}12`,
-                  fontFamily:"'DM Sans',sans-serif",
-                }}>{v}</span>
-              ))}
+
+          {(user.values || []).length > 0 && (
+            <div style={{ display:"flex", flexWrap:"wrap", gap:5, justifyContent:"center", marginTop:10, padding:"0 16px" }}>
+              {user.values.map(function(v) { return (
+                <span key={v} style={{ fontSize:10, color:C.ember, padding:"4px 10px", borderRadius:8, background:C.ember+"08", border:"1px solid "+C.ember+"12", fontFamily:"'DM Sans',sans-serif" }}>{v}</span>
+              ); })}
             </div>
           )}
+
+          {/* Reward stats */}
+          <div style={{ display:"flex", justifyContent:"center", gap:16, marginTop:14, paddingTop:12, borderTop:"1px solid "+C.ghost+"15" }}>
+            {[
+              { val:(user.rewards||{}).witnessed||0, label:"Witnessed", color:C.witnessed },
+              { val:(user.rewards||{}).stirred||0, label:"Stirred", color:C.stirred },
+              { val:(user.rewards||{}).illuminated||0, label:"Illuminated", color:C.illuminated },
+              { val:(user.rewards||{}).rippled||0, label:"Rippled", color:C.rippled },
+            ].map(function(s, i) { return (
+              <div key={i} style={{ textAlign:"center" }}>
+                <div style={{ fontSize:15, color:s.color, fontFamily:"'Cormorant Garamond',serif", fontWeight:600 }}>{s.val}</div>
+                <div style={{ fontSize:7, color:C.dim, fontFamily:"'DM Sans',sans-serif", textTransform:"uppercase", letterSpacing:0.5 }}>{s.label}</div>
+              </div>
+            ); })}
+          </div>
         </div>
 
-        {/* Quick stats row */}
-        <div style={{ display:"flex", justifyContent:"center", gap:20, marginTop:14, paddingTop:12, borderTop:`1px solid ${C.ghost}15` }}>
-          {[
-            { val:(user.rewards||{}).witnessed||0, label:"Witnessed", color:C.witnessed },
-            { val:(user.rewards||{}).stirred||0, label:"Stirred", color:C.stirred },
-            { val:(user.rewards||{}).illuminated||0, label:"Illuminated", color:C.illuminated },
-            { val:(user.rewards||{}).rippled||0, label:"Rippled", color:C.rippled },
-          ].map((s,i) => (
-            <div key={i} style={{ textAlign:"center" }}>
-              <div style={{ fontSize:16, color:s.color, fontFamily:"'Cormorant Garamond',serif", fontWeight:600 }}>{s.val}</div>
-              <div style={{ fontSize:7, color:C.dim, fontFamily:"'DM Sans',sans-serif", textTransform:"uppercase", letterSpacing:0.5, marginTop:1 }}>{s.label}</div>
+        {/* Advance deeper */}
+        <button onClick={function(){setSoulDepth(1)}} style={{
+          width:"100%", padding:14, borderRadius:14, border:"1px solid "+C.ember+"25",
+          background:C.ember+"08", color:C.ember, fontSize:13,
+          fontFamily:"'DM Sans',sans-serif", fontWeight:500,
+          display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+        }}>
+          <Layers size={16}/> Go deeper into your soul
+        </button>
+      </div>
+    );
+  };
+
+  var renderLayer1 = function() {
+    return (
+      <div className="di">
+        <div style={{ fontSize:10, color:C.mid, fontFamily:"'DM Sans',sans-serif", letterSpacing:1.5, textTransform:"uppercase", marginBottom:14, textAlign:"center" }}>
+          Growth Pulse — What's Alive Now
+        </div>
+
+        {/* Dynamic activity reel */}
+        <div style={{ background:C.abyss, borderRadius:16, padding:"14px 14px", border:"1px solid "+C.ghost, marginBottom:16 }}>
+          {ACTIVITY.map(function(a, i) { return (
+            <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 0", borderBottom:i<ACTIVITY.length-1?"1px solid "+C.ghost+"15":"none" }}>
+              <div style={{ width:7, height:7, borderRadius:4, background:a.color, boxShadow:"0 0 8px "+a.color+"33", flexShrink:0 }}/>
+              <span style={{ fontSize:12, color:C.light, fontFamily:"'DM Sans',sans-serif", flex:1 }}>{a.text}</span>
+              <span style={{ fontSize:9, color:C.dim, fontFamily:"'JetBrains Mono',monospace" }}>{a.time}</span>
             </div>
-          ))}
+          ); })}
         </div>
-      </div>
-      </div>
 
-      {/* ═══ DYNAMIC ACTIVITY FEED ═══ */}
-      <div className="ri ri1" style={{
-        background:C.abyss, borderRadius:16, padding:"14px 14px",
-        border:`1px solid ${C.ghost}`, marginBottom:16,
-      }}>
-        <div style={{ fontSize:10, color:C.mid, fontFamily:"'DM Sans',sans-serif", letterSpacing:1.5, textTransform:"uppercase", marginBottom:10 }}>
-          Recent activity
+        {/* Trait breakdown — expandable cards */}
+        <div style={{ fontSize:10, color:C.mid, fontFamily:"'DM Sans',sans-serif", letterSpacing:1, textTransform:"uppercase", marginBottom:10 }}>
+          Your soul traits
         </div>
-        {ACTIVITY.map((a, i) => (
-          <div key={i} style={{
-            display:"flex", alignItems:"center", gap:10, padding:"8px 0",
-            borderBottom: i < ACTIVITY.length-1 ? `1px solid ${C.ghost}15` : "none",
-          }}>
-            <div style={{ width:6, height:6, borderRadius:3, background:a.color, boxShadow:`0 0 6px ${a.color}33`, flexShrink:0 }}/>
-            <span style={{ fontSize:12, color:C.light, fontFamily:"'DM Sans',sans-serif", flex:1 }}>{a.text}</span>
-            <span style={{ fontSize:9, color:C.dim, fontFamily:"'JetBrains Mono',monospace", flexShrink:0 }}>{a.time}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* ═══ JOURNEY MAP ═══ */}
-      {user.journey && user.journey.length > 0 && (
-        <div className="ri ri2" style={{ marginBottom:16 }}>
-          <div style={{ fontSize:10, color:C.mid, fontFamily:"'DM Sans',sans-serif", letterSpacing:1, textTransform:"uppercase", marginBottom:10 }}>
-            Your journey
-          </div>
-          <JourneyMap person={user}/>
-        </div>
-      )}
-
-      {/* ═══ ESSENCE BLOOM — Qualities ═══ */}
-      <div className="ri ri3" style={{
-        background:C.abyss, borderRadius:18, padding:"16px 0 12px",
-        border:`1px solid ${C.ghost}`, textAlign:"center", marginBottom:16,
-      }}>
-        <div style={{ fontSize:10, color:C.mid, fontFamily:"'DM Sans',sans-serif", letterSpacing:1.5, textTransform:"uppercase", marginBottom:2 }}>
-          Essence bloom
-        </div>
-        <p style={{ fontSize:11, color:C.dim, fontFamily:"'Cormorant Garamond',serif", fontStyle:"italic", marginBottom:4 }}>
-          Tap any quality to explore
-        </p>
-        <EssenceBloomViz qualities={qualityLevels} size={340} tier={tier}/>
-      </div>
-
-      {/* Quality cards — tappable */}
-      <div style={{ marginBottom:8 }}>
-        <div style={{ fontSize:10, color:C.mid, fontFamily:"'DM Sans',sans-serif", letterSpacing:1, textTransform:"uppercase", marginBottom:10, paddingLeft:4 }}>
-          The qualities within you
-        </div>
-        {qualityLevels.map((q, i) => {
-          const levelLabel = q.level > 0.7 ? "Flourishing" : q.level > 0.4 ? "Growing" : "Emerging";
-          const poeticText = q.level > 0.7 ? q.poeticHigh : q.level > 0.4 ? q.poeticMid : q.poeticLow;
+        {SOUL_TRAITS.map(function(trait, i) {
+          var val = traitData[trait.key] || 40;
+          var levelLabel = val > 70 ? "Flourishing" : val > 45 ? "Growing" : "Emerging";
           return (
-            <div key={q.key} className={`ri ri${Math.min(i+1,4)}`}
-              onClick={() => setExpanded(i)}
-              style={{
-                background:C.abyss, borderRadius:14, padding:"14px 14px",
-                marginBottom:8, cursor:"pointer",
-                border:`1px solid ${C.ghost}`,
-                borderLeft:`3px solid ${q.color}55`,
-                position:"relative", overflow:"hidden",
-              }}>
+            <div key={trait.key} className={"ri ri"+Math.min(i+1,4)} style={{
+              background:C.abyss, borderRadius:14, padding:"14px 14px", marginBottom:8,
+              border:"1px solid "+C.ghost, borderLeft:"3px solid "+trait.color+"55",
+            }}>
               <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:6 }}>
-                <div style={{
-                  width:30, height:30, borderRadius:"50%",
-                  background:`${q.color}10`, border:`1px solid ${q.color}20`,
-                  display:"flex", alignItems:"center", justifyContent:"center",
-                }}>
-                  <q.icon size={14} color={q.color}/>
-                </div>
-                <div style={{ flex:1 }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                    <span style={{ fontSize:13, color:C.light, fontFamily:"'DM Sans',sans-serif", fontWeight:500 }}>{q.label}</span>
-                    <span style={{ fontSize:9, color:q.color, fontFamily:"'JetBrains Mono',monospace", padding:"2px 7px", borderRadius:6, background:`${q.color}10` }}>{levelLabel}</span>
-                  </div>
-                </div>
-                <ChevronRight size={14} color={C.dim}/>
+                <div style={{ width:8, height:8, borderRadius:4, background:trait.color, boxShadow:"0 0 8px "+trait.color+"33" }}/>
+                <span style={{ fontSize:13, color:C.light, fontFamily:"'DM Sans',sans-serif", fontWeight:500, flex:1 }}>{trait.label}</span>
+                <span style={{ fontSize:10, color:trait.color, fontFamily:"'JetBrains Mono',monospace", fontWeight:600 }}>{val}</span>
+                <span style={{ fontSize:9, color:trait.color, fontFamily:"'DM Sans',sans-serif", padding:"2px 8px", borderRadius:6, background:trait.color+"10" }}>{levelLabel}</span>
               </div>
-              <div style={{ width:"100%", height:3, borderRadius:2, background:`${C.ghost}33`, marginBottom:6 }}>
-                <div style={{ width:`${q.level * 100}%`, height:"100%", borderRadius:2, background:`linear-gradient(90deg, ${q.color}55, ${q.color})`, boxShadow:`0 0 8px ${q.color}22` }}/>
+              <div style={{ width:"100%", height:4, borderRadius:2, background:C.ghost+"33" }}>
+                <div style={{ width:val+"%", height:"100%", borderRadius:2, background:"linear-gradient(90deg, "+trait.color+"55, "+trait.color+")", boxShadow:"0 0 8px "+trait.color+"22" }}/>
               </div>
-              <p style={{ fontSize:12, color:C.mid, fontFamily:"'Cormorant Garamond',serif", fontStyle:"italic", lineHeight:1.5 }}>
-                {poeticText.substring(0, 80)}{poeticText.length > 80 ? "..." : ""}
-              </p>
             </div>
           );
         })}
+
+        <button onClick={function(){setSoulDepth(2)}} style={{
+          width:"100%", padding:14, borderRadius:14, border:"1px solid "+C.appreciation+"25",
+          background:C.appreciation+"08", color:C.appreciation, fontSize:13, marginTop:8,
+          fontFamily:"'DM Sans',sans-serif", fontWeight:500,
+          display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+        }}>
+          <Orbit size={16}/> See your connections
+        </button>
+      </div>
+    );
+  };
+
+  var renderLayer2 = function() {
+    return (
+      <div className="di">
+        <div style={{ fontSize:10, color:C.mid, fontFamily:"'DM Sans',sans-serif", letterSpacing:1.5, textTransform:"uppercase", marginBottom:14, textAlign:"center" }}>
+          Your Connection Web
+        </div>
+
+        {/* Connection spectrum */}
+        <div style={{ background:C.abyss, borderRadius:16, padding:18, border:"1px solid "+C.ghost, marginBottom:16 }}>
+          <div style={{ fontSize:10, color:C.mid, fontFamily:"'DM Sans',sans-serif", letterSpacing:1, textTransform:"uppercase", marginBottom:12 }}>How you connect</div>
+          {SPECTRUMS.map(function(s) { return (
+            <div key={s.key} style={{ display:"flex", alignItems:"center", gap:8, marginBottom:10 }}>
+              <s.icon size={14} color={s.color} style={{ flexShrink:0 }}/>
+              <span style={{ fontSize:11, color:C.light, fontFamily:"'DM Sans',sans-serif", width:80 }}>{s.label}</span>
+              <div style={{ flex:1, height:5, borderRadius:3, background:C.ghost+"33" }}>
+                <div style={{ width:((user.spectrum||{})[s.key]||50)+"%", height:"100%", borderRadius:3, background:s.color }}/>
+              </div>
+              <span style={{ fontSize:11, color:s.color, fontFamily:"'JetBrains Mono',monospace", width:26, textAlign:"right" }}>{(user.spectrum||{})[s.key]||50}</span>
+            </div>
+          ); })}
+        </div>
+
+        {/* Connected people */}
+        <div style={{ fontSize:10, color:C.mid, fontFamily:"'DM Sans',sans-serif", letterSpacing:1, textTransform:"uppercase", marginBottom:10 }}>People in your constellation</div>
+        {Object.keys(PEOPLE).slice(0,4).map(function(id) {
+          var p = PEOPLE[id]; var pTier = getTier(p.essencePoints);
+          return (
+            <div key={id} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 12px", background:C.abyss, borderRadius:12, border:"1px solid "+C.ghost, marginBottom:8 }}>
+              <Avatar name={p.name} size={36} color={pTier.color} photo={p.photo}/>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:13, color:C.light, fontFamily:"'DM Sans',sans-serif", fontWeight:500 }}>{p.name}</div>
+                <div style={{ fontSize:10, color:C.dim, fontFamily:"'Cormorant Garamond',serif", fontStyle:"italic" }}>{p.bio}</div>
+              </div>
+              {p.torchbearer && <Sun size={14} color="#FFD700"/>}
+            </div>
+          );
+        })}
+
+        <button onClick={function(){setSoulDepth(3)}} style={{
+          width:"100%", padding:14, borderRadius:14, border:"1px solid "+C.understanding+"25",
+          background:C.understanding+"08", color:C.understanding, fontSize:13, marginTop:8,
+          fontFamily:"'DM Sans',sans-serif", fontWeight:500,
+          display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+        }}>
+          <BookOpen size={16}/> Your life experiences
+        </button>
+      </div>
+    );
+  };
+
+  var renderLayer3 = function() {
+    return (
+      <div className="di">
+        <div style={{ fontSize:10, color:C.mid, fontFamily:"'DM Sans',sans-serif", letterSpacing:1.5, textTransform:"uppercase", marginBottom:14, textAlign:"center" }}>
+          Your Soul Reel — Life Experiences
+        </div>
+
+        {/* Journey map */}
+        {user.journey && user.journey.length > 0 && (
+          <div style={{ marginBottom:16 }}>
+            <JourneyMap person={user}/>
+          </div>
+        )}
+
+        {/* Recent reflections summary */}
+        <div style={{ background:C.abyss, borderRadius:16, padding:18, border:"1px solid "+C.ghost, marginBottom:16 }}>
+          <div style={{ fontSize:10, color:C.ember, fontFamily:"'DM Sans',sans-serif", letterSpacing:1, textTransform:"uppercase", marginBottom:12 }}>Your reflections</div>
+          <div style={{ display:"flex", justifyContent:"space-around" }}>
+            {[
+              { val:"0", label:"Written", color:C.ember },
+              { val:"0", label:"Sparks lit", color:C.kindle },
+              { val:"0", label:"Perspectives", color:C.intelligence },
+            ].map(function(s, i) { return (
+              <div key={i} style={{ textAlign:"center" }}>
+                <div style={{ fontSize:22, color:s.color, fontFamily:"'Cormorant Garamond',serif", fontWeight:600 }}>{s.val}</div>
+                <div style={{ fontSize:8, color:C.dim, fontFamily:"'DM Sans',sans-serif", textTransform:"uppercase" }}>{s.label}</div>
+              </div>
+            ); })}
+          </div>
+        </div>
+
+        <button onClick={function(){setSoulDepth(4)}} style={{
+          width:"100%", padding:14, borderRadius:14, border:"1px solid "+C.appreciation+"25",
+          background:C.appreciation+"08", color:C.appreciation, fontSize:13,
+          fontFamily:"'DM Sans',sans-serif", fontWeight:500,
+          display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+        }}>
+          <Eye size={16}/> Your core essence
+        </button>
+      </div>
+    );
+  };
+
+  var renderLayer4 = function() {
+    return (
+      <div className="di" style={{ textAlign:"center" }}>
+        <div style={{ fontSize:10, color:C.appreciation, fontFamily:"'DM Sans',sans-serif", letterSpacing:2, textTransform:"uppercase", marginBottom:20 }}>
+          Core Essence
+        </div>
+
+        <div style={{
+          background:C.abyss, borderRadius:20, padding:"28px 20px", border:"1px solid "+C.ghost,
+          position:"relative", overflow:"hidden", marginBottom:16,
+        }}>
+          <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", width:200, height:200, borderRadius:"50%", background:"radial-gradient(circle, "+tier.color+"08 0%, transparent 70%)", filter:"blur(30px)", pointerEvents:"none" }}/>
+
+          <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:18, color:C.light, lineHeight:1.9, fontStyle:"italic", position:"relative" }}>
+            {user.bio || "Every reflection you write, every spark you light, every connection you make — it all converges here. Your digital soul is forming. Keep going."}
+          </p>
+        </div>
+
+        {/* Essence tiers */}
+        <div style={{ background:C.abyss, borderRadius:16, padding:"16px 14px", border:"1px solid "+C.ghost, textAlign:"left" }}>
+          {TIERS.map(function(t, i) {
+            var reached = (user.essencePoints||0) >= t.min;
+            var current = tier.name === t.name;
+            return (
+              <div key={i} style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10, opacity:reached?1:0.3 }}>
+                <div style={{ width:8, height:8, borderRadius:4, background:current?t.color:reached?t.color+"55":C.ghost, boxShadow:current?"0 0 10px "+t.color+"40":"none" }}/>
+                <span style={{ fontSize:12, color:reached?t.color:C.dim, fontFamily:"'DM Sans',sans-serif", fontWeight:current?600:400, flex:1 }}>{t.name}</span>
+                {current && <span style={{ fontSize:9, color:t.color, fontFamily:"'JetBrains Mono',monospace" }}>YOU</span>}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Credit */}
+        <div style={{ marginTop:20, padding:"12px 16px", borderRadius:12, background:C.surface, border:"1px solid "+C.ghost }}>
+          <p style={{ fontSize:10, color:C.dim, fontFamily:"'DM Sans',sans-serif", lineHeight:1.5 }}>
+            LUCID was created by <span style={{ color:C.ember }}>Tony De Palma</span> — built on the belief that technology should make us more human, not less.
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  var layers = [renderLayer0, renderLayer1, renderLayer2, renderLayer3, renderLayer4];
+
+  return (
+    <div style={{ padding:16, paddingBottom:100, overflowY:"auto", maxHeight:"calc(100vh - 70px)" }}>
+      {/* Depth navigation */}
+      <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:16 }}>
+        {soulDepth > 0 && (
+          <button onClick={function(){setSoulDepth(soulDepth - 1)}} style={{ color:C.mid, display:"flex", alignItems:"center", gap:4, fontSize:12, fontFamily:"'DM Sans',sans-serif" }}>
+            <ArrowLeft size={16}/> Back
+          </button>
+        )}
+        <div style={{ display:"flex", alignItems:"center", gap:4, marginLeft:soulDepth>0?"auto":0 }}>
+          {SOUL_LAYERS.map(function(label, i) { return (
+            <div key={i} style={{ display:"flex", alignItems:"center", gap:4 }}>
+              <div style={{
+                width:i<=soulDepth?7:4, height:i<=soulDepth?7:4, borderRadius:"50%",
+                background:i<=soulDepth?C.ember:C.ghost,
+                boxShadow:i===soulDepth?"0 0 8px "+C.ember+"44":"none",
+              }}/>
+              {i===soulDepth && <span style={{ fontSize:8, color:C.ember, fontFamily:"'JetBrains Mono',monospace", letterSpacing:1, textTransform:"uppercase" }}>{label}</span>}
+              {i<SOUL_LAYERS.length-1 && <div style={{ width:8, height:1, background:i<soulDepth?C.ember:C.ghost }}/>}
+            </div>
+          ); })}
+        </div>
+      </div>
+
+      {/* Current depth layer */}
+      <div key={"soul-"+soulDepth}>
+        {layers[soulDepth]()}
       </div>
     </div>
   );
@@ -3088,7 +3061,18 @@ function ThreadsView({ user }) {
    ═══════════════════════════════════════════════════════════════ */
 
 export default function LucidApp(){
-  var _st = useState(null); var user = _st[0]; var setUser = _st[1];
+  // Persistent session — load from localStorage
+  var _st = useState(function() {
+    try { var saved = localStorage.getItem("lucid_user"); return saved ? JSON.parse(saved) : null; } catch(e) { return null; }
+  }); var user = _st[0]; var setUser = _st[1];
+
+  // Save user to localStorage whenever it changes
+  useEffect(function() {
+    if (user) { try { localStorage.setItem("lucid_user", JSON.stringify(user)); } catch(e) {} }
+  }, [user]);
+
+  var handleAuth = function(userData) { setUser(userData); };
+  var handleLogout = function() { setUser(null); try { localStorage.removeItem("lucid_user"); } catch(e) {} };
   var _st2 = useState("depth"); var screen = _st2[0]; var setScreen = _st2[1];
   var _st3 = useState(false); var showLangPicker = _st3[0]; var setShowLangPicker = _st3[1];
   var _st4 = useState(false); var showNotifs = _st4[0]; var setShowNotifs = _st4[1];
@@ -3111,7 +3095,7 @@ export default function LucidApp(){
     {text:"Your Empathy score increased +3",time:"2d",color:C.understanding,icon:Heart},
   ];
 
-  if(!user)return React.createElement("div",null,React.createElement("style",null,css),React.createElement(AuthScreen,{onAuth:setUser,lang:lang,setLang:setLang}));
+  if(!user)return React.createElement("div",null,React.createElement("style",null,css),React.createElement(AuthScreen,{onAuth:handleAuth,lang:lang,setLang:setLang}));
 
   var tier = getTier(user.essencePoints || 0);
 
@@ -3204,10 +3188,10 @@ export default function LucidApp(){
       </div>
 
       <div style={{
-        display:"flex", justifyContent:"space-around",
-        padding:"5px 2px 20px",
-        background:C.void+"f0", backdropFilter:"blur(16px)",
-        borderTop:"1px solid "+C.ghost+"12", flexShrink:0,
+        display:"flex", justifyContent:"space-around", alignItems:"center",
+        padding:"8px 4px 24px",
+        background:C.void+"f5", backdropFilter:"blur(20px)",
+        borderTop:"1px solid "+C.ghost+"20", flexShrink:0,
       }}>
         {[
           {id:"spark",icon:Flame,label:"Spark"},
@@ -3216,15 +3200,20 @@ export default function LucidApp(){
           {id:"threads",icon:MessageCircle,label:"Threads"},
           {id:"dna",icon:Fingerprint,label:"DNA"},
           {id:"essence",icon:Eye,label:"Me"},
-        ].map(function(n){return (
+        ].map(function(n){
+          var active = screen===n.id;
+          return (
           <button key={n.id} onClick={function(){setScreen(n.id);setShowLangPicker(false);setShowNotifs(false)}} style={{
-            display:"flex", flexDirection:"column", alignItems:"center", gap:2,
-            padding:"4px 4px",
-            color:screen===n.id?C.ember:C.dim,
-            opacity:screen===n.id?1:0.4,
+            display:"flex", flexDirection:"column", alignItems:"center", gap:3,
+            padding: active ? "6px 12px" : "6px 8px",
+            borderRadius: 12,
+            background: active ? C.ember+"18" : "transparent",
+            border: active ? "1px solid "+C.ember+"30" : "1px solid transparent",
+            color: active ? C.ember : C.mid,
+            transition:"all 0.25s ease",
           }}>
-            <n.icon size={16} strokeWidth={screen===n.id?2:1.5}/>
-            <span style={{ fontSize:7, fontFamily:"'DM Sans',sans-serif", letterSpacing:0.5, textTransform:"uppercase" }}>{n.label}</span>
+            <n.icon size={20} strokeWidth={active?2.2:1.5}/>
+            <span style={{ fontSize:9, fontWeight: active ? 600 : 400, fontFamily:"'DM Sans',sans-serif", letterSpacing:0.8, textTransform:"uppercase" }}>{n.label}</span>
           </button>
         )})}
       </div>

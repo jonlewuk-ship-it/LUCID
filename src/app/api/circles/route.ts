@@ -19,7 +19,7 @@ export async function GET() {
 
 // POST /api/circles — create or join
 export async function POST(req: Request) {
-  const session = await getSession()
+  const session = await getSession(req)
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { action, circle_id, name, description, challenge, total_days } = await req.json()

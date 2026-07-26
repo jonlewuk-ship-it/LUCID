@@ -4,7 +4,7 @@ import { getSession } from '@/lib/auth'
 
 // GET /api/notifications — list user's notifications
 export async function GET() {
-  const session = await getSession()
+  const session = await getSession(req)
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const supabase = createServerClient()
@@ -21,7 +21,7 @@ export async function GET() {
 
 // PATCH /api/notifications — mark as read
 export async function PATCH(req: Request) {
-  const session = await getSession()
+  const session = await getSession(req)
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { ids } = await req.json()

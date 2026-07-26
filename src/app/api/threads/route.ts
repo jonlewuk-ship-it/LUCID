@@ -5,7 +5,7 @@ import { moderateContent } from '@/lib/moderation'
 
 // GET /api/threads — list user's threads
 export async function GET() {
-  const session = await getSession()
+  const session = await getSession(req)
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const supabase = createServerClient()
@@ -25,7 +25,7 @@ export async function GET() {
 
 // POST /api/threads — send a message (with 2-hour delay)
 export async function POST(req: Request) {
-  const session = await getSession()
+  const session = await getSession(req)
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
