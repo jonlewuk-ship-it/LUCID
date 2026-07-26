@@ -1,3 +1,4 @@
+import React from "react";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   Eye, Flame, Brain, Heart, Users, BookOpen, ArrowRight, ArrowLeft,
