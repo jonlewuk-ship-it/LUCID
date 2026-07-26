@@ -1012,65 +1012,115 @@ const HI_AXES = [
 
 function HumanityIndexViz({ data, size=340 }) {
   const n = HI_AXES.length, step = (2*Math.PI)/n;
-  const cx=size/2, cy=size/2, maxR=size/2-44;
+  const cx=size/2, cy=size/2, maxR=size/2-50;
+  const avg = HI_AXES.reduce(function(s,ax){return s + ((data||{})[ax.key]||50)},0) / n;
 
-  const path = HI_AXES.map((ax,i) => {
-    const angle = i*step - Math.PI/2;
-    const val = ((data||{})[ax.key] || 50) / 100;
-    const r = val * maxR;
-    return `${i===0?"M":"L"}${cx+Math.cos(angle)*r},${cy+Math.sin(angle)*r}`;
-  }).join(" ") + " Z";
+  // Generate organic aura blobs for each axis
+  var auraPaths = HI_AXES.map(function(ax,i) {
+    var val = ((data||{})[ax.key] || 50) / 100;
+    var baseR = 30 + val * maxR * 0.65;
+    var pts = [];
+    for (var j = 0; j < 60; j++) {
+      var a = (j/60) * 2 * Math.PI;
+      // Bulge toward this axis direction
+      var axAngle = i * step - Math.PI/2;
+      var angleDiff = Math.abs(a - axAngle);
+      if (angleDiff > Math.PI) angleDiff = 2*Math.PI - angleDiff;
+      var bulge = Math.max(0, 1 - angleDiff/1.2);
+      var r = baseR * (0.4 + bulge * 0.6) + Math.sin(a*3+i*2)*4;
+      pts.push((cx + Math.cos(a)*r) + "," + (cy + Math.sin(a)*r));
+    }
+    return "M" + pts.join("L") + "Z";
+  });
 
-  const avg = HI_AXES.reduce((s,ax) => s + ((data||{})[ax.key]||50), 0) / n;
+  // Composite soul shape
+  var soulPts = [];
+  for (var j = 0; j < 120; j++) {
+    var a = (j/120) * 2 * Math.PI;
+    var r = 0;
+    HI_AXES.forEach(function(ax,i) {
+      var val = ((data||{})[ax.key] || 50) / 100;
+      var axAngle = i * step - Math.PI/2;
+      var angleDiff = Math.abs(a - axAngle);
+      if (angleDiff > Math.PI) angleDiff = 2*Math.PI - angleDiff;
+      var influence = Math.max(0, 1 - angleDiff/1.3);
+      r += val * maxR * 0.8 * influence;
+    });
+    r = Math.max(r, 25);
+    soulPts.push((cx + Math.cos(a)*r) + "," + (cy + Math.sin(a)*r));
+  }
+  var soulPath = "M" + soulPts.join("L") + "Z";
 
   return (
-    <div style={{ textAlign:"center" }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        {/* Grid rings */}
-        {[0.25, 0.5, 0.75, 1].map((s,i) => {
-          const ring = HI_AXES.map((_, j) => {
-            const a = j*step - Math.PI/2;
-            return `${j===0?"M":"L"}${cx+Math.cos(a)*maxR*s},${cy+Math.sin(a)*maxR*s}`;
-          }).join(" ") + " Z";
-          return <path key={i} d={ring} fill="none" stroke={C.ghost} strokeWidth="0.5" opacity="0.25"/>;
+    <div style={{ textAlign:"center", position:"relative" }}>
+      <svg width={size} height={size} viewBox={"0 0 "+size+" "+size}>
+        <defs>
+          <filter id="soulGlow"><feGaussianBlur stdDeviation="12" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="auraGlow"><feGaussianBlur stdDeviation="18" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <radialGradient id="soulCore" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor={C.ember} stopOpacity="0.15"/>
+            <stop offset="70%" stopColor={C.ember} stopOpacity="0.03"/>
+            <stop offset="100%" stopColor={C.ember} stopOpacity="0"/>
+          </radialGradient>
+        </defs>
+
+        {/* Background pulse rings */}
+        {[0.3, 0.5, 0.7, 0.9].map(function(s,i) {
+          return <circle key={"ring"+i} cx={cx} cy={cy} r={maxR*s} fill="none" stroke={C.ghost} strokeWidth="0.3" opacity="0.12"
+            style={{ animation: "breathe "+(5+i)+"s ease-in-out infinite", animationDelay: i*0.5+"s" }}/>;
         })}
-        {/* Axis lines */}
-        {HI_AXES.map((ax,i) => {
-          const a = i*step - Math.PI/2;
-          return <line key={i} x1={cx} y1={cy} x2={cx+Math.cos(a)*maxR} y2={cy+Math.sin(a)*maxR} stroke={C.ghost} strokeWidth="0.5" opacity="0.2"/>;
+
+        {/* Aura layers per axis - breathing blobs */}
+        {auraPaths.map(function(d,i) {
+          return <path key={"aura"+i} d={d} fill={HI_AXES[i].color+"08"} stroke={HI_AXES[i].color} strokeWidth="0.8" opacity="0.3"
+            filter="url(#auraGlow)"
+            style={{ animation: "breathe "+(4+i*0.7)+"s ease-in-out infinite", animationDelay: i*0.3+"s" }}/>;
         })}
-        {/* Data shape */}
-        <path d={path} fill={`${C.ember}12`} stroke={C.ember} strokeWidth="2" opacity="0.8"
-          style={{ animation:"breathe 5s ease-in-out infinite" }}/>
-        {/* Axis endpoints with glow */}
-        {HI_AXES.map((ax,i) => {
-          const a = i*step - Math.PI/2;
-          const val = ((data||{})[ax.key] || 50) / 100;
-          const r = val * maxR;
-          const px = cx+Math.cos(a)*r, py = cy+Math.sin(a)*r;
-          const lx = cx+Math.cos(a)*(maxR+26), ly = cy+Math.sin(a)*(maxR+26);
+
+        {/* Main soul shape */}
+        <path d={soulPath} fill={"url(#soulCore)"} stroke={C.ember} strokeWidth="1.5" opacity="0.7"
+          filter="url(#soulGlow)"
+          style={{ animation: "breathe 6s ease-in-out infinite" }}/>
+
+        {/* Axis energy nodes - placed at soul edge */}
+        {HI_AXES.map(function(ax,i) {
+          var val = ((data||{})[ax.key] || 50) / 100;
+          var angle = i * step - Math.PI/2;
+          var r = 25 + val * maxR * 0.75;
+          var px = cx + Math.cos(angle) * r;
+          var py = cy + Math.sin(angle) * r;
+          var lx = cx + Math.cos(angle) * (maxR + 28);
+          var ly = cy + Math.sin(angle) * (maxR + 28);
+          var nodeR = 3 + val * 6;
           return (
-            <g key={i}>
-              <circle cx={px} cy={py} r={6} fill={ax.color} opacity="0.8"/>
-              <circle cx={px} cy={py} r={12} fill={ax.color} opacity="0.12"/>
-              <text x={lx} y={ly+3} textAnchor="middle" fill={ax.color} opacity="0.8"
-                style={{ fontSize:"11px", fontFamily:"'DM Sans',sans-serif", fontWeight:500 }}>
+            <g key={"node"+i}>
+              <circle cx={px} cy={py} r={nodeR+10} fill={ax.color} opacity="0.06"
+                style={{ animation: "breathe "+(3+i*0.5)+"s ease-in-out infinite" }}/>
+              <circle cx={px} cy={py} r={nodeR+4} fill={ax.color} opacity="0.12"/>
+              <circle cx={px} cy={py} r={nodeR} fill={ax.color} opacity="0.9"/>
+              <line x1={cx} y1={cy} x2={px} y2={py} stroke={ax.color} strokeWidth="0.4" opacity="0.15" strokeDasharray="3,6"/>
+              <text x={lx} y={ly} textAnchor="middle" fill={ax.color} opacity="0.85"
+                style={{ fontSize:"10px", fontFamily:"'DM Sans',sans-serif", fontWeight:500 }}>
                 {ax.label.replace("\n"," ")}
               </text>
-              <text x={lx} y={ly+16} textAnchor="middle" fill={ax.color}
-                style={{ fontSize:"13px", fontFamily:"'JetBrains Mono',monospace", fontWeight:600 }}>
+              <text x={lx} y={ly+14} textAnchor="middle" fill={ax.color}
+                style={{ fontSize:"14px", fontFamily:"'JetBrains Mono',monospace", fontWeight:700 }}>
                 {(data||{})[ax.key] || 50}
               </text>
             </g>
           );
         })}
-        {/* Center score */}
-        <text x={cx} y={cy-4} textAnchor="middle" fill={C.light}
-          style={{ fontSize:"30px", fontFamily:"'Cormorant Garamond',serif", fontWeight:600 }}>
+
+        {/* Center soul score */}
+        <circle cx={cx} cy={cy} r={28} fill={C.void} opacity="0.7"/>
+        <circle cx={cx} cy={cy} r={28} fill="none" stroke={C.ember} strokeWidth="1" opacity="0.3"
+          style={{ animation: "breathe 4s ease-in-out infinite" }}/>
+        <text x={cx} y={cy-2} textAnchor="middle" fill={C.light}
+          style={{ fontSize:"26px", fontFamily:"'Cormorant Garamond',serif", fontWeight:600 }}>
           {Math.round(avg)}
         </text>
-        <text x={cx} y={cy+16} textAnchor="middle" fill={C.dim}
-          style={{ fontSize:"9px", fontFamily:"'DM Sans',sans-serif", letterSpacing:2 }}>
+        <text x={cx} y={cy+14} textAnchor="middle" fill={C.dim}
+          style={{ fontSize:"7px", fontFamily:"'DM Sans',sans-serif", letterSpacing:3, textTransform:"uppercase" }}>
           HUMANITY
         </text>
       </svg>
@@ -2962,6 +3012,7 @@ function SparkView({ user, lang }) {
 
 function WitnessCirclesView({ user }) {
   const [selectedCircle, setSelectedCircle] = useState(null);
+  const [joinedCircles, setJoinedCircles] = useState({});
 
   const CIRCLES = [
     {
@@ -3019,7 +3070,7 @@ function WitnessCirclesView({ user }) {
               <span style={{ fontSize:11, color:C.light, fontFamily:"'DM Sans',sans-serif" }}>{m.name}</span>
             </div>
           ))}
-          <button style={{ padding:"6px 14px", borderRadius:10, border:"1px dashed "+C.ember+"44", color:C.ember, fontSize:11, fontFamily:"'DM Sans',sans-serif" }}>+ Join</button>
+          {joinedCircles[circle.id] ? <div style={{ padding:"6px 14px", borderRadius:10, background:C.ember+"15", border:"1px solid "+C.ember+"30", color:C.ember, fontSize:11, fontFamily:"'DM Sans',sans-serif", display:"flex", alignItems:"center", gap:4 }}><Check size={12}/> Joined</div> : <button onClick={function(){setJoinedCircles(function(p){var n={};Object.keys(p).forEach(function(k){n[k]=p[k]});n[circle.id]=true;return n})}} style={{ padding:"6px 14px", borderRadius:10, border:"1px dashed "+C.ember+"44", color:C.ember, fontSize:11, fontFamily:"'DM Sans',sans-serif", cursor:"pointer" }}>+ Join</button>}
         </div>
         {circle.recentReflections.length > 0 && (
           <div>
