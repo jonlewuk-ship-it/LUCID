@@ -3240,18 +3240,40 @@ function ThreadsView({ user }) {
    ═══════════════════════════════════════════════════════════════ */
 
 export default function LucidApp(){
-  // Persistent session — load from localStorage
+  // Persistent session — load from localStorage (never expires until logout)
   var _st = useState(function() {
-    try { var saved = localStorage.getItem("lucid_user"); return saved ? JSON.parse(saved) : null; } catch(e) { return null; }
+    try {
+      var saved = localStorage.getItem("lucid_user");
+      if (saved) { return JSON.parse(saved); }
+    } catch(e) {}
+    return null;
   }); var user = _st[0]; var setUser = _st[1];
 
-  // Save user to localStorage whenever it changes
+  // Save user to localStorage whenever it changes — belt and suspenders
   useEffect(function() {
-    if (user) { try { localStorage.setItem("lucid_user", JSON.stringify(user)); } catch(e) {} }
+    if (user) {
+      try {
+        localStorage.setItem("lucid_user", JSON.stringify(user));
+        localStorage.setItem("lucid_session_active", "true");
+      } catch(e) {}
+    }
   }, [user]);
 
-  var handleAuth = function(userData) { setUser(userData); };
-  var handleLogout = function() { setUser(null); try { localStorage.removeItem("lucid_user"); } catch(e) {} };
+  var handleAuth = function(userData) {
+    // Save immediately on auth — don't wait for useEffect
+    try {
+      localStorage.setItem("lucid_user", JSON.stringify(userData));
+      localStorage.setItem("lucid_session_active", "true");
+    } catch(e) {}
+    setUser(userData);
+  };
+  var handleLogout = function() {
+    setUser(null);
+    try {
+      localStorage.removeItem("lucid_user");
+      localStorage.removeItem("lucid_session_active");
+    } catch(e) {}
+  };
   var _st2 = useState("depth"); var screen = _st2[0]; var setScreen = _st2[1];
   var _st3 = useState(false); var showLangPicker = _st3[0]; var setShowLangPicker = _st3[1];
   var _st4 = useState(false); var showNotifs = _st4[0]; var setShowNotifs = _st4[1];
