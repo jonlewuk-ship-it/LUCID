@@ -396,6 +396,73 @@ const PEOPLE = {
       {month:"Jul",milestone:"Most impactful voice in LUCID community",type:"impact",emotion:"Reverence"},
     ],
   },
+  emberglow: {
+    id:"emberglow",name:"Emberglow",photo:"https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face",
+    bio:"Former doom-scroller. Now I watch sunsets on purpose.",
+    evolvedBio:"I deleted Instagram, TikTok, and Twitter on the same day. The silence was deafening for two weeks. Then I started hearing my own thoughts again. LUCID gave me a place to put them where they'd grow instead of drown in noise.",
+    values:["Mindfulness","Gratitude","Simplicity"],essencePoints:380,
+    topEmotions:["Serenity","Gratitude","Wonder"],reflCount:28,connections:15,depthReach:78,
+    soulprint:[65,70,58,82,45,88,72,60],
+    spectrum:{intelligence:65,understanding:78,communication:72,appreciation:88},
+    rewards:{witnessed:640,stirred:178,illuminated:32,rippled:6},
+    torchbearer:false,
+    humanityIndex:{depth:68,empathy:78,criticalThinking:62,impact:55,consistency:75},
+    journey:[
+      {month:"Mar",milestone:"Deleted all social media in one afternoon",type:"start",emotion:"Courage"},
+      {month:"Apr",milestone:"First sunset watched fully without phone",type:"breakthrough",emotion:"Serenity"},
+      {month:"May",milestone:"Reached Beacon tier",type:"tier",emotion:"Gratitude"},
+    ],
+  },
+  atlas: {
+    id:"atlas",name:"Atlas",photo:"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+    bio:"17. Trying to figure out who I am before the algorithm decides for me.",
+    evolvedBio:"Everyone my age performs a version of themselves online. LUCID is the first place I have written what I actually think instead of what gets likes. It is terrifying and addictive in the best way.",
+    values:["Authenticity","Freedom","Courage"],essencePoints:210,
+    topEmotions:["Courage","Curiosity","Tension"],reflCount:19,connections:12,depthReach:72,
+    soulprint:[55,60,70,45,78,50,65,42],
+    spectrum:{intelligence:70,understanding:55,communication:65,appreciation:60},
+    rewards:{witnessed:380,stirred:95,illuminated:18,rippled:3},
+    torchbearer:false,
+    humanityIndex:{depth:55,empathy:60,criticalThinking:70,impact:42,consistency:58},
+    journey:[
+      {month:"May",milestone:"Joined after a friend showed me a reflection",type:"start",emotion:"Curiosity"},
+      {month:"Jun",milestone:"Wrote about performative identity online",type:"breakthrough",emotion:"Courage"},
+    ],
+  },
+  wren: {
+    id:"wren",name:"Wren",photo:"https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face",
+    bio:"Nurse. I hold other people's pain all day. Here I set mine down.",
+    evolvedBio:"Twelve-hour shifts, other peoples emergencies, going home empty. LUCID became the place I finally processed my own feelings instead of just managing everyone elses.",
+    values:["Compassion","Resilience","Honesty"],essencePoints:650,
+    topEmotions:["Empathy","Exhaustion","Hope"],reflCount:43,connections:27,depthReach:91,
+    soulprint:[58,95,48,72,85,92,78,55],
+    spectrum:{intelligence:68,understanding:95,communication:78,appreciation:72},
+    rewards:{witnessed:1180,stirred:312,illuminated:55,rippled:15},
+    torchbearer:false,
+    humanityIndex:{depth:78,empathy:95,criticalThinking:65,impact:72,consistency:88},
+    journey:[
+      {month:"Feb",milestone:"Joined after a particularly hard shift",type:"start",emotion:"Exhaustion"},
+      {month:"Mar",milestone:"First reflection about compassion fatigue",type:"impact",emotion:"Vulnerability"},
+      {month:"Jul",milestone:"Approaching Luminary tier",type:"tier",emotion:"Hope"},
+    ],
+  },
+  quietstorm: {
+    id:"quietstorm",name:"Quietstorm",photo:"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face",
+    bio:"Ex-Marine. Learning that strength includes softness.",
+    evolvedBio:"Twenty years of being told emotions are weakness. LUCID is where I practice being human without armor. Every reflection here costs me something and gives me something better back.",
+    values:["Courage","Honesty","Growth"],essencePoints:440,
+    topEmotions:["Courage","Vulnerability","Determination"],reflCount:31,connections:20,depthReach:85,
+    soulprint:[82,55,75,60,95,48,88,65],
+    spectrum:{intelligence:75,understanding:68,communication:60,appreciation:82},
+    rewards:{witnessed:820,stirred:215,illuminated:38,rippled:9},
+    torchbearer:false,
+    humanityIndex:{depth:75,empathy:62,criticalThinking:78,impact:68,consistency:80},
+    journey:[
+      {month:"Jan",milestone:"Joined anonymously at first",type:"start",emotion:"Tension"},
+      {month:"Mar",milestone:"Wrote about crying for the first time in 15 years",type:"breakthrough",emotion:"Vulnerability"},
+      {month:"Jul",milestone:"Stopped hiding behind anonymity",type:"growth",emotion:"Courage"},
+    ],
+  },
 };
 
 const REFLECTIONS = [
@@ -444,6 +511,66 @@ const REFLECTIONS = [
       {userId:"solace",spectrum:"intelligence",text:"The insight that fear, not malice, drives most division is something I needed today. I've been angry at people I should be understanding."},
     ],
   },
+  {
+    id:"r4",authorId:"wren",spark:"Tell someone what they mean to you",
+    photo:"https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?w=600&h=300&fit=crop",
+    text:"I told my patient\'s daughter she was the bravest person I had seen all year. She was just sitting there, holding her mother\'s hand through chemo, singing softly. She started crying. I started crying. Two strangers sharing something social media will never understand because it cannot be performed.",
+    emotions:["Empathy","Gratitude","Vulnerability"],depthScore:96,
+    rewards:{witnessed:623,stirred:198,illuminated:52,rippled:11},
+    connections:[
+      {toId:"r1",sharedPhrase:"beauty found in unexpected moments",spectrum:"appreciation",strength:88},
+      {toId:"r3",sharedPhrase:"connection beyond words",spectrum:"understanding",strength:85},
+    ],
+    illuminations:[
+      {userId:"kindling",spectrum:"appreciation",text:"This is what connection actually looks like. Not curated, not performed. Just two humans seeing each other."},
+      {userId:"solace",spectrum:"understanding",text:"Social media cannot understand because it cannot be performed. That sentence changed how I think about what is real."},
+    ],
+  },
+  {
+    id:"r5",authorId:"quietstorm",spark:"Write down what you are afraid of",
+    photo:"https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600&h=300&fit=crop",
+    text:"I am afraid of silence because in silence I hear the version of myself I buried under twenty years of discipline. He is softer than I expected. He writes poetry. He cries at movies. He has been waiting patiently for me to stop running. Today I sat with him for fifteen minutes. Tomorrow maybe twenty.",
+    emotions:["Courage","Vulnerability","Hope"],depthScore:95,
+    rewards:{witnessed:547,stirred:176,illuminated:41,rippled:8},
+    connections:[
+      {toId:"r2",sharedPhrase:"what we discover in stillness",spectrum:"intelligence",strength:80},
+      {toId:"r3",sharedPhrase:"fear as a door not a wall",spectrum:"understanding",strength:87},
+    ],
+    illuminations:[
+      {userId:"northlight",spectrum:"understanding",text:"He has been waiting patiently. That line undid me. We all have a buried self waiting."},
+      {userId:"meridian",spectrum:"appreciation",text:"An ex-Marine writing about softness underneath strength. This is what courage actually looks like."},
+    ],
+  },
+  {
+    id:"r6",authorId:"emberglow",spark:"Watch a sunrise or sunset with full attention",
+    photo:"https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=600&h=300&fit=crop",
+    text:"I watched a sunset for 47 minutes without touching my phone. At minute twelve I wanted to photograph it. At minute twenty I wanted to tweet something clever. At minute thirty I stopped wanting to share it and just had it. By minute forty I was crying and I still do not fully understand why. Maybe that is the point.",
+    emotions:["Wonder","Serenity","Gratitude"],depthScore:90,
+    rewards:{witnessed:412,stirred:134,illuminated:28,rippled:5},
+    connections:[
+      {toId:"r2",sharedPhrase:"what happens when we stop reaching for the phone",spectrum:"intelligence",strength:92},
+      {toId:"r1",sharedPhrase:"beauty that does not need to be captured",spectrum:"appreciation",strength:79},
+    ],
+    illuminations:[
+      {userId:"atlas",spectrum:"communication",text:"Stopped wanting to share it and just had it. I have never experienced that. I want to."},
+      {userId:"wren",spectrum:"understanding",text:"Maybe not understanding is the whole gift. I needed this today."},
+    ],
+  },
+  {
+    id:"r7",authorId:"atlas",spark:"Write one honest thing you have never said online",
+    photo:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&h=300&fit=crop",
+    text:"I have 2,400 followers and zero people who know I cry myself to sleep sometimes. Every post is a performance. Every story is a highlight reel. I am seventeen and already exhausted by my own brand. This is the first thing I have written online that I did not calculate first. It feels like jumping off a cliff and finding wings.",
+    emotions:["Courage","Vulnerability","Relief"],depthScore:93,
+    rewards:{witnessed:489,stirred:156,illuminated:35,rippled:7},
+    connections:[
+      {toId:"r5",sharedPhrase:"the cost of wearing armor",spectrum:"understanding",strength:84},
+      {toId:"r2",sharedPhrase:"performing vs being",spectrum:"intelligence",strength:90},
+    ],
+    illuminations:[
+      {userId:"emberglow",spectrum:"understanding",text:"Seventeen and already exhausted by your own brand. This generation deserves better than what we built for them."},
+      {userId:"quietstorm",spectrum:"appreciation",text:"Finding wings. From someone who jumped off his own cliff at 40. You are braver at 17 than I was for decades."},
+    ],
+  },
 ];
 
 /* ═══════════════════════════════════════════════════════════════
@@ -451,7 +578,7 @@ const REFLECTIONS = [
    ═══════════════════════════════════════════════════════════════ */
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap');
-*{box-sizing:border-box;margin:0;padding:0}body{background:${C.void};overflow:hidden}
+*{box-sizing:border-box;margin:0;padding:0}body{background:${C.void};overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 textarea::placeholder,input::placeholder{color:${C.dim}}input:focus,textarea:focus{outline:none}
 button{font-family:inherit;border:none;background:none;cursor:pointer}
 select{font-family:inherit}
