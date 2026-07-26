@@ -1517,7 +1517,7 @@ function DepthExperience({ user }) {
 
   // ── Surface ──
   const L0=()=>(
-    <div className="di" style={{padding:"0 20px",paddingBottom:100}}>
+    <div className="di" style={{padding:"0 20px",paddingBottom:100,overflowY:"auto",maxHeight:"calc(100vh - 140px)"}}>
       <div className="ri" style={{marginBottom:24}}>
         <p style={{fontSize:14,color:C.mid,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",lineHeight:1.6}}>Three chapters today. Each holds a human experience and its own visual aura — born from the emotions within.</p>
       </div>
@@ -1767,12 +1767,12 @@ function DepthExperience({ user }) {
   };
 
   const layers=[L0,L1,L2,L3];
-  return(<div style={{height:"100%"}}>
+  return(<div style={{height:"100%",display:"flex",flexDirection:"column",overflow:"hidden"}}>
     <div style={{padding:"10px 20px",display:"flex",alignItems:"center",gap:12}}>
       {depth>0&&<button onClick={goBack} style={{color:C.mid,display:"flex",alignItems:"center",gap:4,fontSize:12,fontFamily:"'DM Sans'"}}><ArrowLeft size={16}/>Back</button>}
       <div style={{marginLeft:depth>0?"auto":0}}><DepthNav depth={depth} labels={labels}/></div>
     </div>
-    <div key={`d${depth}-${(selRef||{}).id}-${(selPerson||{}).id}`}>{layers[depth]()}</div>
+    <div style={{flex:1,overflowY:"auto"}} key={`d${depth}-${(selRef||{}).id}-${(selPerson||{}).id}`}>{layers[depth]()}</div>
   </div>);
 }
 
