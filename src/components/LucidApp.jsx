@@ -3146,7 +3146,7 @@ function SparkView({ user, lang }) {
           </div>
 
           {phase === "view" && (
-            <button onClick={() => setPhase(t("accepted",lang)} style={{ width:"100%", padding:14, borderRadius:14, background:`linear-gradient(135deg,${C.ember},${C.kindle})`, color:C.void, fontSize:14, fontFamily:"'DM Sans',sans-serif", fontWeight:600, boxShadow:`0 8px 24px ${C.glow}` }}>
+            <button onClick={() => setPhase("accepted")} style={{ width:"100%", padding:14, borderRadius:14, background:`linear-gradient(135deg,${C.ember},${C.kindle})`, color:C.void, fontSize:14, fontFamily:"'DM Sans',sans-serif", fontWeight:600, boxShadow:`0 8px 24px ${C.glow}` }}>
               Accept this Spark
             </button>
           )}
