@@ -1380,7 +1380,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
   );
 }
 
-function DNAView({ user }) {
+function DNAView({ user, lang }) {
   const [viewPerson, setViewPerson] = useState(null);
 
   if (viewPerson) {
@@ -2099,7 +2099,7 @@ function AuthScreen({ onAuth, lang, setLang }) {
    DEPTH EXPERIENCE
    ═══════════════════════════════════════════════════════════════ */
 
-function DepthExperience({ user }) {
+function DepthExperience({ user, lang }) {
   const [depth,setDepth]=useState(0);
   const [selRef,setSelRef]=useState(null);
   const [selPerson,setSelPerson]=useState(null);
@@ -3442,7 +3442,7 @@ function SparkView({ user, lang }) {
    Max 12 people. Shared challenge over weeks.
    ═══════════════════════════════════════════════════════════════ */
 
-function WitnessCirclesView({ user }) {
+function WitnessCirclesView({ user, lang }) {
   const [selectedCircle, setSelectedCircle] = useState(null);
   const [joinedCircles, setJoinedCircles] = useState({});
 
@@ -3558,7 +3558,7 @@ function WitnessCirclesView({ user }) {
    Think pen-pal, not chat. Depth over speed.
    ═══════════════════════════════════════════════════════════════ */
 
-function ThreadsView({ user }) {
+function ThreadsView({ user, lang }) {
   const [activeThread, setActiveThread] = useState(null);
   const [newMsg, setNewMsg] = useState("");
 
@@ -3817,9 +3817,9 @@ export default function LucidApp(){
       <div style={{ flex:1, overflow:"hidden" }}>
         {screen==="depth" && <DepthExperience user={user} lang={lang}/>}
         {screen==="spark" && <SparkView user={user} lang={lang}/>}
-        {screen==="circles" && <WitnessCirclesView user={user}/>}
-        {screen==="threads" && <ThreadsView user={user}/>}
-        {screen==="dna" && <DNAView user={user}/>}
+        {screen==="circles" && <WitnessCirclesView user={user} lang={lang}/>}
+        {screen==="threads" && <ThreadsView user={user} lang={lang}/>}
+        {screen==="dna" && <DNAView user={user} lang={lang}/>}
         {screen==="essence" && <MyEssence user={user} lang={lang}/>}
       </div>
 
