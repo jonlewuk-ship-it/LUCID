@@ -1,9 +1,6 @@
 'use client'
+import dynamic from 'next/dynamic'
 
-// During development, this imports the full prototype.
-// In production, break this into individual page routes.
-import LucidApp from '@/components/LucidApp'
+const LucidApp = dynamic(() => import('@/components/LucidApp'), { ssr: false })
 
-export default function Home() {
-  return <LucidApp />
-}
+export default function Home() { return <LucidApp /> }
