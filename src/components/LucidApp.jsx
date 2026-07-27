@@ -528,10 +528,10 @@ const SPECTRUMS = [
 
 // ── Reward tiers (pyramid: many witness, few ripple) ──
 const REWARDS = [
-  { key:"witnessed",   label:t("witnessed",lang),   icon:Eye,       color:C.witnessed,   lp:1,  desc:"Someone read your reflection fully" },
-  { key:"stirred",     label:t("stirred",lang),     icon:Ripple,    color:C.stirred,     lp:5,  desc:"It moved something in them" },
-  { key:"illuminated", label:t("illuminated",lang), icon:Sparkles,  color:C.illuminated, lp:15, desc:"They wrote why it resonated" },
-  { key:"rippled",     label:t("rippled",lang),     icon:Orbit,     color:C.rippled,     lp:30, desc:"It inspired a new reflection" },
+  { key:"witnessed",   label:"Witnessed",   icon:Eye,       color:C.witnessed,   lp:1,  desc:"Someone read your reflection fully" },
+  { key:"stirred",     label:"Stirred",     icon:Ripple,    color:C.stirred,     lp:5,  desc:"It moved something in them" },
+  { key:"illuminated", label:"Illuminated", icon:Sparkles,  color:C.illuminated, lp:15, desc:"They wrote why it resonated" },
+  { key:"rippled",     label:"Rippled",     icon:Orbit,     color:C.rippled,     lp:30, desc:"It inspired a new reflection" },
 ];
 
 const TIERS = [
@@ -2669,10 +2669,10 @@ function MyEssence({user, lang}) {
           {/* Reward stats */}
           <div style={{ display:"flex", justifyContent:"center", gap:16, marginTop:14, paddingTop:12, borderTop:"1px solid "+C.ghost+"15" }}>
             {[
-              { val:(user.rewards||{}).witnessed||0, label:t("witnessed",lang), color:C.witnessed },
-              { val:(user.rewards||{}).stirred||0, label:t("stirred",lang), color:C.stirred },
-              { val:(user.rewards||{}).illuminated||0, label:t("illuminated",lang), color:C.illuminated },
-              { val:(user.rewards||{}).rippled||0, label:t("rippled",lang), color:C.rippled },
+              { val:(user.rewards||{}).witnessed||0, label:"Witnessed", color:C.witnessed },
+              { val:(user.rewards||{}).stirred||0, label:"Stirred", color:C.stirred },
+              { val:(user.rewards||{}).illuminated||0, label:"Illuminated", color:C.illuminated },
+              { val:(user.rewards||{}).rippled||0, label:"Rippled", color:C.rippled },
             ].map(function(s, i) { return (
               <div key={i} style={{ textAlign:"center" }}>
                 <div style={{ fontSize:15, color:s.color, fontFamily:"'Cormorant Garamond',serif", fontWeight:600 }}>{s.val}</div>
