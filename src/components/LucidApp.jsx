@@ -767,6 +767,319 @@ function AchievementToast({ message, onDone }) {
 }
 
 
+/* ═══════════════════════════════════════════════════════════════
+   EMBERS — Earned moments, not performances
+   ═══════════════════════════════════════════════════════════════ */
+
+var EMBERS_DATA = [
+  {
+    id:"e1", userId:"atlas", sparkTitle:"Write one honest thing you have never said online",
+    photo:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&h=1200&fit=crop",
+    caption:"2,400 followers. Zero people who know the real me. Until now.",
+    timeAgo:"3h", warmth:87, warming:true,
+    emotions:["Courage","Vulnerability"],
+  },
+  {
+    id:"e2", userId:"emberglow", sparkTitle:"Watch a sunset with full attention",
+    photo:"https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=800&h=1200&fit=crop",
+    caption:"47 minutes. No phone. At minute 30 I stopped wanting to share it and just had it.",
+    timeAgo:"5h", warmth:92, warming:false,
+    emotions:["Wonder","Serenity"],
+  },
+  {
+    id:"e3", userId:"wren", sparkTitle:"Tell someone what they mean to you",
+    photo:"https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?w=800&h=1200&fit=crop",
+    caption:"Told a stranger's daughter she was brave. We both cried. Social media will never get this.",
+    timeAgo:"8h", warmth:96, warming:true,
+    emotions:["Empathy","Gratitude"],
+  },
+  {
+    id:"e4", userId:"quietstorm", sparkTitle:"Write down what you are afraid of",
+    photo:"https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&h=1200&fit=crop",
+    caption:"Found the softer version of me I buried under 20 years of armor. He writes poetry.",
+    timeAgo:"12h", warmth:89, warming:false,
+    emotions:["Courage","Hope"],
+  },
+  {
+    id:"e5", userId:"meridian", sparkTitle:"Walk somewhere new within 1km",
+    photo:"https://images.unsplash.com/photo-1510270929535-95beaf534379?w=800&h=1200&fit=crop",
+    caption:"A hidden garden between buildings. An old man watering roses. We talked about grief.",
+    timeAgo:"1d", warmth:78, warming:false, fading:true,
+    emotions:["Wonder","Gratitude"],
+  },
+  {
+    id:"e6", userId:"kindling", sparkTitle:"Talk to one stranger per week",
+    photo:"https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&h=1200&fit=crop",
+    caption:"Week 6. The bus driver is named Marcus. Nobody ever asked. That broke my heart.",
+    timeAgo:"2d", warmth:65, warming:false, fading:true,
+    emotions:["Connection","Vulnerability"],
+  },
+];
+
+function EmbersReel({ onOpenEmber }) {
+  var scrollRef = useRef(null);
+
+  return React.createElement("div", {
+    style: {
+      padding: "12px 0 8px",
+      borderBottom: "1px solid " + C.ghost + "12",
+    }
+  },
+    React.createElement("div", {
+      style: { display: "flex", alignItems: "center", gap: 6, padding: "0 16px", marginBottom: 10 }
+    },
+      React.createElement("div", { style: { width: 6, height: 6, borderRadius: 3, background: C.ember, animation: "breathe 2s ease-in-out infinite" } }),
+      React.createElement("span", { style: { fontSize: 10, color: C.ember, fontFamily: "'DM Sans',sans-serif", fontWeight: 600, letterSpacing: 2, textTransform: "uppercase" } }, "EMBERS"),
+      React.createElement("span", { style: { fontSize: 9, color: C.dim, fontFamily: "'DM Sans',sans-serif", marginLeft: 4 } }, "moments earned, not performed")
+    ),
+    React.createElement("div", {
+      ref: scrollRef,
+      style: {
+        display: "flex", gap: 12, overflowX: "auto", padding: "0 16px 4px",
+        scrollbarWidth: "none", msOverflowStyle: "none",
+        WebkitOverflowScrolling: "touch",
+      }
+    },
+      EMBERS_DATA.map(function(ember, i) {
+        var person = PEOPLE[ember.userId] || {};
+        var glowIntensity = ember.warmth / 100;
+        var ringColor = ember.warming ? C.ember : (ember.fading ? C.ghost : C.kindle);
+        var pulseAnim = ember.warming ? "breathe 2s ease-in-out infinite" : "none";
+
+        return React.createElement("div", {
+          key: ember.id,
+          onClick: function() { haptic("light"); if (onOpenEmber) onOpenEmber(ember, i); },
+          style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 4, cursor: "pointer", flexShrink: 0 }
+        },
+          React.createElement("div", {
+            style: {
+              position: "relative", width: 62, height: 62,
+            }
+          },
+            React.createElement("div", {
+              style: {
+                position: "absolute", inset: -3,
+                borderRadius: "50%",
+                background: "conic-gradient(from 0deg, " + ringColor + " 0%, " + ringColor + Math.round(glowIntensity * 60) + " " + Math.round(ember.warmth) + "%, transparent " + Math.round(ember.warmth) + "%)",
+                animation: pulseAnim,
+                opacity: 0.4 + glowIntensity * 0.6,
+              }
+            }),
+            React.createElement("div", {
+              style: {
+                position: "absolute", inset: -6,
+                borderRadius: "50%",
+                boxShadow: "0 0 " + Math.round(12 * glowIntensity) + "px " + Math.round(4 * glowIntensity) + "px " + ringColor + Math.round(glowIntensity * 40),
+                animation: pulseAnim,
+              }
+            }),
+            React.createElement("div", {
+              style: {
+                width: 62, height: 62, borderRadius: "50%", overflow: "hidden",
+                border: "2px solid " + C.void,
+                position: "relative", zIndex: 1,
+              }
+            },
+              person.photo
+                ? React.createElement("img", { src: person.photo, alt: "", style: { width: "100%", height: "100%", objectFit: "cover" } })
+                : React.createElement("div", { style: { width: "100%", height: "100%", background: "linear-gradient(135deg," + C.ember + "30," + C.ember + "10)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, color: C.ember, fontFamily: "'Cormorant Garamond',serif" } }, (person.name || "?")[0])
+            )
+          ),
+          React.createElement("span", {
+            style: { fontSize: 9, color: ember.fading ? C.ghost : C.mid, fontFamily: "'DM Sans',sans-serif", maxWidth: 62, textAlign: "center", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }
+          }, person.name || "?")
+        );
+      })
+    )
+  );
+}
+
+function EmberViewer({ embers, startIndex, onClose }) {
+  var _idx = useState(startIndex || 0); var idx = _idx[0]; var setIdx = _idx[1];
+  var _paused = useState(true); var paused = _paused[0]; var setPaused = _paused[1];
+  var _timer = useState(3); var timer = _timer[0]; var setTimer = _timer[1];
+  var _warmed = useState({}); var warmed = _warmed[0]; var setWarmed = _warmed[1];
+  var _showPrompt = useState(false); var showPrompt = _showPrompt[0]; var setShowPrompt = _showPrompt[1];
+
+  var ember = embers[idx];
+  var person = PEOPLE[ember.userId] || {};
+
+  // 3 second forced pause then auto-advance after 8s
+  useEffect(function() {
+    setPaused(true);
+    setTimer(3);
+    setShowPrompt(false);
+    var countdown = setInterval(function() {
+      setTimer(function(t) {
+        if (t <= 1) { setPaused(false); clearInterval(countdown); return 0; }
+        return t - 1;
+      });
+    }, 1000);
+    return function() { clearInterval(countdown); };
+  }, [idx]);
+
+  // Auto-advance after pause ends (8 seconds to read)
+  useEffect(function() {
+    if (paused) return;
+    var advance = setTimeout(function() {
+      if (idx < embers.length - 1) setIdx(idx + 1);
+      else onClose();
+    }, 8000);
+    return function() { clearTimeout(advance); };
+  }, [paused, idx]);
+
+  var goNext = function() { if (idx < embers.length - 1) { setIdx(idx + 1); } else { onClose(); } };
+  var goPrev = function() { if (idx > 0) setIdx(idx - 1); };
+
+  var handleWarm = function() {
+    haptic("heavy");
+    var n = {};
+    Object.keys(warmed).forEach(function(k) { n[k] = warmed[k]; });
+    n[ember.id] = true;
+    setWarmed(n);
+    setShowPrompt(true);
+  };
+
+  return React.createElement("div", {
+    style: {
+      position: "fixed", inset: 0, zIndex: 10000, background: C.void,
+      display: "flex", flexDirection: "column",
+    }
+  },
+    // Progress bars
+    React.createElement("div", { style: { display: "flex", gap: 3, padding: "8px 12px 0", zIndex: 2 } },
+      embers.map(function(e, i) {
+        return React.createElement("div", { key: e.id, style: { flex: 1, height: 2, borderRadius: 1, background: C.ghost + "40", overflow: "hidden" } },
+          React.createElement("div", { style: {
+            height: "100%", borderRadius: 1,
+            background: i < idx ? C.ember : (i === idx ? C.ember : "transparent"),
+            width: i < idx ? "100%" : (i === idx && !paused ? "100%" : (i === idx ? "0%" : "0%")),
+            transition: i === idx && !paused ? "width 8s linear" : "none",
+          }})
+        );
+      })
+    ),
+
+    // Header
+    React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", zIndex: 2 } },
+      React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
+        React.createElement("div", { style: { width: 36, height: 36, borderRadius: "50%", overflow: "hidden", border: "2px solid " + C.ember + "40" } },
+          person.photo
+            ? React.createElement("img", { src: person.photo, alt: "", style: { width: "100%", height: "100%", objectFit: "cover" } })
+            : React.createElement("div", { style: { width: "100%", height: "100%", background: C.ember + "20", display: "flex", alignItems: "center", justifyContent: "center", color: C.ember, fontSize: 14 } }, (person.name || "?")[0])
+        ),
+        React.createElement("div", null,
+          React.createElement("div", { style: { fontSize: 13, color: C.light, fontFamily: "'DM Sans',sans-serif", fontWeight: 500 } }, person.name),
+          React.createElement("div", { style: { fontSize: 10, color: C.dim, fontFamily: "'DM Sans',sans-serif" } }, ember.timeAgo + " ago")
+        )
+      ),
+      React.createElement("button", { onClick: onClose, style: { color: C.light, padding: 8 } },
+        React.createElement(X, { size: 22 })
+      )
+    ),
+
+    // Photo
+    React.createElement("div", {
+      style: { flex: 1, position: "relative", overflow: "hidden" }
+    },
+      React.createElement("img", {
+        src: ember.photo, alt: "",
+        style: { width: "100%", height: "100%", objectFit: "cover", filter: paused ? "brightness(0.4)" : "brightness(0.7)" , transition: "filter 1s ease" }
+      }),
+
+      // Forced pause overlay
+      paused && React.createElement("div", {
+        style: {
+          position: "absolute", inset: 0, display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center", zIndex: 3,
+        }
+      },
+        React.createElement("div", { style: {
+          width: 64, height: 64, borderRadius: "50%",
+          border: "2px solid " + C.ember + "60", display: "flex", alignItems: "center", justifyContent: "center",
+          animation: "breathe 1s ease-in-out infinite",
+        }},
+          React.createElement("span", { style: { fontSize: 28, color: C.ember, fontFamily: "'Cormorant Garamond',serif", fontWeight: 300 } }, timer)
+        ),
+        React.createElement("p", { style: { fontSize: 11, color: C.mid, fontFamily: "'Cormorant Garamond',serif", fontStyle: "italic", marginTop: 12 } }, "pause. breathe. arrive.")
+      ),
+
+      // Tap zones for prev/next
+      !paused && React.createElement("div", { onClick: goPrev, style: { position: "absolute", left: 0, top: 0, width: "30%", height: "100%", zIndex: 2 } }),
+      !paused && React.createElement("div", { onClick: goNext, style: { position: "absolute", right: 0, top: 0, width: "30%", height: "100%", zIndex: 2 } }),
+
+      // Bottom content overlay
+      React.createElement("div", {
+        style: {
+          position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 3,
+          padding: "60px 20px 24px",
+          background: "linear-gradient(transparent, " + C.void + "dd 40%, " + C.void + ")",
+        }
+      },
+        // Spark that earned this
+        React.createElement("div", { style: { display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 12px", borderRadius: 8, background: C.ember + "12", border: "1px solid " + C.ember + "20", marginBottom: 10 } },
+          React.createElement(Flame, { size: 10, color: C.ember }),
+          React.createElement("span", { style: { fontSize: 9, color: C.ember, fontFamily: "'DM Sans',sans-serif" } }, ember.sparkTitle)
+        ),
+
+        // Caption
+        React.createElement("p", { style: { fontFamily: "'Cormorant Garamond',serif", fontSize: 18, color: C.light, lineHeight: 1.6, marginBottom: 12 } }, ember.caption),
+
+        // Emotions
+        React.createElement("div", { style: { display: "flex", gap: 6, marginBottom: 16 } },
+          ember.emotions.map(function(em) {
+            return React.createElement("span", { key: em, style: { fontSize: 10, padding: "3px 10px", borderRadius: 12, background: C.ghost + "30", border: "1px solid " + C.ghost + "20", color: C.mid, fontFamily: "'DM Sans',sans-serif" } }, em);
+          })
+        ),
+
+        // Warmth bar + warm button
+        React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12 } },
+          React.createElement("div", { style: { flex: 1 } },
+            React.createElement("div", { style: { display: "flex", justifyContent: "space-between", marginBottom: 4 } },
+              React.createElement("span", { style: { fontSize: 9, color: C.dim, fontFamily: "'DM Sans',sans-serif", letterSpacing: 1, textTransform: "uppercase" } }, "warmth"),
+              React.createElement("span", { style: { fontSize: 11, color: C.ember, fontFamily: "'JetBrains Mono',monospace" } }, ember.warmth + (warmed[ember.id] ? 1 : 0))
+            ),
+            React.createElement("div", { style: { height: 3, borderRadius: 2, background: C.ghost + "30", overflow: "hidden" } },
+              React.createElement("div", { style: {
+                height: "100%", borderRadius: 2, width: (ember.warmth + (warmed[ember.id] ? 1 : 0)) + "%",
+                background: "linear-gradient(90deg, " + C.kindle + ", " + C.ember + ")",
+                boxShadow: "0 0 8px " + C.ember + "40",
+                transition: "width 0.6s ease",
+              }})
+            )
+          ),
+          warmed[ember.id]
+            ? React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 4, padding: "8px 14px", borderRadius: 12, background: C.ember + "15" } },
+                React.createElement(Flame, { size: 14, color: C.ember }),
+                React.createElement("span", { style: { fontSize: 11, color: C.ember, fontFamily: "'DM Sans',sans-serif" } }, "warmed")
+              )
+            : React.createElement("button", {
+                onClick: handleWarm,
+                style: { display: "flex", alignItems: "center", gap: 5, padding: "8px 16px", borderRadius: 12, background: "linear-gradient(135deg," + C.ember + "," + C.kindle + ")", color: C.void }
+              },
+                React.createElement(Flame, { size: 14 }),
+                React.createElement("span", { style: { fontSize: 11, fontFamily: "'DM Sans',sans-serif", fontWeight: 600 } }, "warm")
+              )
+        ),
+
+        // Reflection prompt (shows after warming)
+        showPrompt && React.createElement("div", {
+          className: "di",
+          style: { marginTop: 14, padding: "12px 14px", borderRadius: 12, background: C.abyss, border: "1px solid " + C.ember + "15" }
+        },
+          React.createElement("p", { style: { fontSize: 12, color: C.mid, fontFamily: "'Cormorant Garamond',serif", fontStyle: "italic", lineHeight: 1.6 } },
+            "This ember stirred something in you. Tomorrow it becomes a reflection prompt: ",
+            React.createElement("span", { style: { color: C.light } }, "What did " + person.name + " make you feel?")
+          )
+        )
+      )
+    )
+  );
+}
+
+
+
+
 
 /* ═══════════════════════════════════════════════════════════════
    EXPERIENCE PHOTO — Users attach their own photo to reflections
@@ -3386,6 +3699,7 @@ function ThreadsView({ user }) {
             style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 16px", background:C.abyss, borderRadius:14, marginBottom:10, border:"1px solid "+C.ghost, cursor:"pointer" }}>
             <Avatar name={(person||{}).name} size={40} color={pTier.color} photo={(person||{}).photo}/>
             <ActivityTicker/>
+            <EmbersReel onOpenEmber={function(ember, i) { setEmberView({ embers: EMBERS_DATA, startIndex: i }); }}/>
           <div style={{ flex:1, overflow:"hidden", overflowY:"auto" }}>
             {screen==="depth" && <SparkOfTheDay onAccept={function(s){ haptic("heavy"); setToast("Spark accepted! Live it, then come back."); setTimeout(function(){setToast(null)},4000); }}/>}
               <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:2 }}>
@@ -3443,6 +3757,7 @@ export default function LucidApp(){
     } catch(e) {}
   };
   var _toast = useState(null); var toast = _toast[0]; var setToast = _toast[1];
+  var _emberView = useState(null); var emberView = _emberView[0]; var setEmberView = _emberView[1];
   var _st2 = useState("depth"); var screen = _st2[0]; var setScreen = _st2[1];
   var _st3 = useState(false); var showLangPicker = _st3[0]; var setShowLangPicker = _st3[1];
   var _st4 = useState(false); var showNotifs = _st4[0]; var setShowNotifs = _st4[1];
@@ -3587,6 +3902,7 @@ export default function LucidApp(){
           </button>
         )})}
       </div>
+      {emberView&&<EmberViewer embers={EMBERS_DATA} startIndex={emberView.startIndex} onClose={function(){setEmberView(null)}}/>}
     </div>
   );
 }
