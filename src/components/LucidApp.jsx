@@ -960,7 +960,7 @@ function ActivityTicker() {
   );
 }
 
-function SparkOfTheDay({ onAccept }) {
+function SparkOfTheDay({ onAccept, lang }) {
   var today = new Date().getDay();
   var spark = DAILY_SPARKS[today % DAILY_SPARKS.length];
   var _acc = useState(false); var accepted = _acc[0]; var setAccepted = _acc[1];
@@ -3146,7 +3146,7 @@ function SparkView({ user, lang }) {
           </div>
 
           {phase === "view" && (
-            <button onClick={() => setPhase(t("accepted",lang))} style={{ width:"100%", padding:14, borderRadius:14, background:`linear-gradient(135deg,${C.ember},${C.kindle})`, color:C.void, fontSize:14, fontFamily:"'DM Sans',sans-serif", fontWeight:600, boxShadow:`0 8px 24px ${C.glow}` }}>
+            <button onClick={() => setPhase(t("accepted",lang)} style={{ width:"100%", padding:14, borderRadius:14, background:`linear-gradient(135deg,${C.ember},${C.kindle})`, color:C.void, fontSize:14, fontFamily:"'DM Sans',sans-serif", fontWeight:600, boxShadow:`0 8px 24px ${C.glow}` }}>
               Accept this Spark
             </button>
           )}
@@ -3653,7 +3653,7 @@ function ThreadsView({ user, lang }) {
             <Avatar name={(person||{}).name} size={40} color={pTier.color} photo={(person||{}).photo}/>
             <ActivityTicker/>
           <div style={{ flex:1, overflow:"hidden", overflowY:"auto" }}>
-            {screen==="depth" && <SparkOfTheDay onAccept={function(s){ haptic("heavy"); setToast("Spark accepted! Live it, then come back."); setTimeout(function(){setToast(null)},4000); }}/>}
+            {screen==="depth" && <SparkOfTheDay lang={lang} onAccept={function(s){ haptic("heavy"); setToast("Spark accepted! Live it, then come back."); setTimeout(function(){setToast(null)},4000); }}/>}
               <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:2 }}>
                 <span style={{ fontSize:13, color:C.light, fontFamily:"'DM Sans',sans-serif", fontWeight:500 }}>{(person||{}).name}</span>
                 <span style={{ fontSize:10, color:C.dim, fontFamily:"'JetBrains Mono',monospace" }}>{thread.messages.length} exchanges</span>
