@@ -603,6 +603,172 @@ select{font-family:inherit}
 `;
 
 /* ═══════════════════════════════════════════════════════════════
+   ENGAGEMENT UTILITIES
+   ═══════════════════════════════════════════════════════════════ */
+
+function haptic(style) {
+  try {
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      if (style === "light") navigator.vibrate(10);
+      else if (style === "medium") navigator.vibrate(25);
+      else if (style === "heavy") navigator.vibrate([30,20,30]);
+      else navigator.vibrate(15);
+    }
+  } catch(e) {}
+}
+
+var DAILY_SPARKS = [
+  { prompt: "Tell someone what they mean to you — without any occasion.", category: "Connection", creator: "Kindling" },
+  { prompt: "Sit in silence for 10 minutes. Write what surfaces.", category: "Mindfulness", creator: "Northlight" },
+  { prompt: "Find beauty in something you walk past every day.", category: "Wonder", creator: "Meridian" },
+  { prompt: "Ask someone older what they wish they had known at your age.", category: "Wisdom", creator: "Solace" },
+  { prompt: "Do something kind for a stranger without them knowing.", category: "Empathy", creator: "Wren" },
+  { prompt: "Write a letter to your future self. Be honest.", category: "Growth", creator: "Atlas" },
+  { prompt: "Put your phone away for one hour. Notice what happens.", category: "Presence", creator: "Emberglow" },
+];
+
+var ACTIVITY_FEED = [
+  { user: "Wren", action: "illuminated", target: "Quietstorm", detail: "reflection on vulnerability", time: "2m" },
+  { user: "Atlas", action: "accepted", target: null, detail: "a new Spark from Emberglow", time: "5m" },
+  { user: "Meridian", action: "witnessed", target: "Northlight", detail: "reflection on solitude", time: "8m" },
+  { user: "Kindling", action: "completed", target: null, detail: "Stranger Conversations challenge", time: "12m" },
+  { user: "Emberglow", action: "joined", target: null, detail: "Digital Sunset circle", time: "15m" },
+  { user: "Solace", action: "stirred by", target: "Wren", detail: "reflection on compassion fatigue", time: "18m" },
+  { user: "Quietstorm", action: "rippled", target: "Atlas", detail: "reflection on identity", time: "23m" },
+  { user: "Northlight", action: "created", target: null, detail: "a new Spark: Listen to rain without music", time: "31m" },
+  { user: "Wren", action: "reached", target: null, detail: "Luminary tier", time: "45m" },
+  { user: "Atlas", action: "witnessed", target: "Emberglow", detail: "sunset reflection", time: "1h" },
+];
+
+var ACTION_COLORS = {
+  illuminated: "#4AE8C4",
+  witnessed: "#6B7DB3",
+  stirred: "#E8A838",
+  "stirred by": "#E8A838",
+  rippled: "#C45EDB",
+  accepted: "#5B8DEF",
+  completed: "#4AE8C4",
+  joined: "#E87840",
+  created: "#F0A830",
+  reached: "#FFD700",
+};
+
+function ActivityTicker() {
+  var _idx = useState(0); var idx = _idx[0]; var setIdx = _idx[1];
+  var _vis = useState(true); var vis = _vis[0]; var setVis = _vis[1];
+
+  useEffect(function() {
+    var interval = setInterval(function() {
+      setVis(false);
+      setTimeout(function() {
+        setIdx(function(i) { return (i + 1) % ACTIVITY_FEED.length; });
+        setVis(true);
+      }, 400);
+    }, 4000);
+    return function() { clearInterval(interval); };
+  }, []);
+
+  var item = ACTIVITY_FEED[idx];
+  var color = ACTION_COLORS[item.action] || C.mid;
+
+  return React.createElement("div", {
+    style: {
+      padding: "8px 16px",
+      background: C.abyss,
+      borderBottom: "1px solid " + C.ghost + "15",
+      display: "flex", alignItems: "center", gap: 6,
+      opacity: vis ? 1 : 0,
+      transform: vis ? "translateY(0)" : "translateY(-8px)",
+      transition: "all 0.4s ease",
+      minHeight: 32,
+    }
+  },
+    React.createElement("div", { style: { width: 4, height: 4, borderRadius: 2, background: color, flexShrink: 0, animation: "breathe 2s ease-in-out infinite" } }),
+    React.createElement("span", { style: { fontSize: 10, color: C.mid, fontFamily: "'DM Sans',sans-serif", lineHeight: 1.4 } },
+      React.createElement("span", { style: { color: C.ember } }, item.user),
+      " " + item.action + " ",
+      item.target ? React.createElement("span", { style: { color: color } }, item.target + "'s ") : "",
+      item.detail
+    ),
+    React.createElement("span", { style: { fontSize: 9, color: C.ghost, fontFamily: "'JetBrains Mono',monospace", marginLeft: "auto", flexShrink: 0 } }, item.time)
+  );
+}
+
+function SparkOfTheDay({ onAccept }) {
+  var today = new Date().getDay();
+  var spark = DAILY_SPARKS[today % DAILY_SPARKS.length];
+  var _acc = useState(false); var accepted = _acc[0]; var setAccepted = _acc[1];
+  var _show = useState(true); var show = _show[0]; var setShow = _show[1];
+
+  if (!show) return null;
+
+  return React.createElement("div", {
+    className: "di",
+    style: {
+      margin: "0 16px 12px",
+      padding: "16px 18px",
+      borderRadius: 16,
+      background: "linear-gradient(135deg, " + C.ember + "08, " + C.kindle + "05)",
+      border: "1px solid " + C.ember + "20",
+      position: "relative",
+    }
+  },
+    React.createElement("button", {
+      onClick: function() { setShow(false); },
+      style: { position: "absolute", top: 8, right: 10, color: C.dim, padding: 4 }
+    }, React.createElement(X, { size: 14 })),
+    React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, marginBottom: 8 } },
+      React.createElement(Flame, { size: 14, color: C.ember }),
+      React.createElement("span", { style: { fontSize: 10, color: C.ember, fontFamily: "'DM Sans',sans-serif", fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase" } }, "Spark of the day")
+    ),
+    React.createElement("p", { style: { fontFamily: "'Cormorant Garamond',serif", fontSize: 15, color: C.light, lineHeight: 1.7, marginBottom: 10 } },
+      '"' + spark.prompt + '"'
+    ),
+    React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" } },
+      React.createElement("span", { style: { fontSize: 10, color: C.dim, fontFamily: "'DM Sans',sans-serif" } },
+        "by " + spark.creator + " · " + spark.category
+      ),
+      accepted
+        ? React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 4, padding: "6px 14px", borderRadius: 10, background: C.ember + "15", border: "1px solid " + C.ember + "30" } },
+            React.createElement(Check, { size: 12, color: C.ember }),
+            React.createElement("span", { style: { fontSize: 11, color: C.ember, fontFamily: "'DM Sans',sans-serif", fontWeight: 500 } }, "Accepted")
+          )
+        : React.createElement("button", {
+            onClick: function() { haptic("medium"); setAccepted(true); if (onAccept) onAccept(spark); },
+            style: { padding: "6px 16px", borderRadius: 10, background: C.ember, color: C.void, fontSize: 11, fontFamily: "'DM Sans',sans-serif", fontWeight: 600 }
+          }, "Accept Spark")
+    )
+  );
+}
+
+function AchievementToast({ message, onDone }) {
+  var _v = useState(false); var visible = _v[0]; var setVisible = _v[1];
+  useEffect(function() {
+    setTimeout(function() { setVisible(true); }, 50);
+    setTimeout(function() { setVisible(false); }, 3000);
+    setTimeout(function() { if (onDone) onDone(); }, 3500);
+  }, []);
+
+  return React.createElement("div", {
+    style: {
+      position: "fixed", top: 60, left: "50%", transform: "translateX(-50%) " + (visible ? "translateY(0)" : "translateY(-20px)"),
+      opacity: visible ? 1 : 0, transition: "all 0.5s cubic-bezier(.16,1,.3,1)",
+      padding: "10px 20px", borderRadius: 14,
+      background: "linear-gradient(135deg, " + C.ember + "20, " + C.kindle + "15)",
+      border: "1px solid " + C.ember + "30",
+      backdropFilter: "blur(12px)", zIndex: 9999,
+      display: "flex", alignItems: "center", gap: 8,
+      boxShadow: "0 8px 32px " + C.ember + "15",
+    }
+  },
+    React.createElement(Sparkles, { size: 16, color: C.ember }),
+    React.createElement("span", { style: { fontSize: 12, color: C.light, fontFamily: "'DM Sans',sans-serif", fontWeight: 500 } }, message)
+  );
+}
+
+
+
+/* ═══════════════════════════════════════════════════════════════
    EXPERIENCE PHOTO — Users attach their own photo to reflections
    Real moments > generated art. Your photo, your experience.
    ═══════════════════════════════════════════════════════════════ */
@@ -3219,7 +3385,9 @@ function ThreadsView({ user }) {
           <div key={thread.id} className={"ri ri"+(Math.min(i+1,4))} onClick={function(){setActiveThread(thread)}}
             style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 16px", background:C.abyss, borderRadius:14, marginBottom:10, border:"1px solid "+C.ghost, cursor:"pointer" }}>
             <Avatar name={(person||{}).name} size={40} color={pTier.color} photo={(person||{}).photo}/>
-            <div style={{ flex:1, overflow:"hidden" }}>
+            <ActivityTicker/>
+          <div style={{ flex:1, overflow:"hidden", overflowY:"auto" }}>
+            {screen==="depth" && <SparkOfTheDay onAccept={function(s){ haptic("heavy"); setToast("Spark accepted! Live it, then come back."); setTimeout(function(){setToast(null)},4000); }}/>}
               <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:2 }}>
                 <span style={{ fontSize:13, color:C.light, fontFamily:"'DM Sans',sans-serif", fontWeight:500 }}>{(person||{}).name}</span>
                 <span style={{ fontSize:10, color:C.dim, fontFamily:"'JetBrains Mono',monospace" }}>{thread.messages.length} exchanges</span>
@@ -3274,6 +3442,7 @@ export default function LucidApp(){
       localStorage.removeItem("lucid_session_active");
     } catch(e) {}
   };
+  var _toast = useState(null); var toast = _toast[0]; var setToast = _toast[1];
   var _st2 = useState("depth"); var screen = _st2[0]; var setScreen = _st2[1];
   var _st3 = useState(false); var showLangPicker = _st3[0]; var setShowLangPicker = _st3[1];
   var _st4 = useState(false); var showNotifs = _st4[0]; var setShowNotifs = _st4[1];
