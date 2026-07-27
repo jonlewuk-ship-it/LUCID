@@ -88,10 +88,10 @@ const TRANSLATIONS = {
     spark:"Spark",
     depth:"Depth",
     dna:"DNA",
-    witnessed:t("witnessed",lang),
-    stirred:t("stirred",lang),
-    illuminated:t("illuminated",lang),
-    rippled:t("rippled",lang),
+    witnessed:"Witnessed",
+    stirred:"Stirred",
+    illuminated:"Illuminated",
+    rippled:"Rippled",
     illuminate:"Illuminate — go deeper than stirred",
     choosePathPrompt:"Choose the path of connection and tell them why.",
     stirredMe:"This stirred me",
@@ -111,77 +111,9 @@ const TRANSLATIONS = {
     essenceName:"Essence name",
     community:"Community soul contract",
     enterLucid:"Enter LUCID",
-    presence:t("yourPresence",lang),
-    whatMatters:t("whatMattersToYou",lang),
-    openingLine:t("yourOpeningLine",lang),
-    circles:"Circles",
-    threads:"Threads",
-    me:"Me",
-    allCircles:t("allCircles",lang),
-    members:"Members",
-    recentReflections:"Recent Reflections",
-    challenge:"Challenge",
-    day:"Day",
-    of:"of",
-    join:"+ Join",
-    joined:"Joined",
-    deeper:t("deeper",lang),
-    communitySparks:t("communitySparks",lang),
-    communitySparksDesc:t("communitySparksDesc",lang),
-    activeSparks:"Active Sparks",
-    mySparks:"My Sparks",
-    create:"Create",
-    browse:"Browse",
-    verify:"Verify",
-    accepted:"accepted",
-    returned:"returned",
-    createSpark:"Create a Spark",
-    sparkPromptLabel:"Write a challenge that makes someone live something real",
-    sparkCategory:"Category",
-    publishSpark:"Publish Spark",
-    connectionThreads:"Connection Threads",
-    threadDelay:"Messages arrive after 2 hours — like real letters",
-    writeMessage:"Write a message...",
-    send:"Send",
-    hoursUntil:"hours until delivery",
-    notifications:t("notifications",lang),
-    noNotifications:"No notifications yet",
-    chaptersToday:"Three chapters today. Each holds a human experience and its own visual aura — born from the emotions within.",
-    skipForNow:"Skip for now",
-    continue_:"Continue",
-    chooseAtLeast:"Choose at least 2",
-    yourPresence:t("yourPresence",lang),
-    whatMattersToYou:t("whatMattersToYou",lang),
-    yourOpeningLine:t("yourOpeningLine",lang),
-    imSomeoneWho:"I'm someone who...",
-    createdBy:"Created by Tony De Palma",
-    techMoreHuman:"technology should make us more human, not less.",
-    sparkOfTheDay:t("sparkOfTheDay",lang),
-    acceptThisSpark:"Accept Spark",
-    sparkAcceptedToast:"Spark accepted! Live it, then come back.",
-    yourEssence:t("yourEssence",lang),
-    soulLayer:"Soul",
-    growthLayer:"Growth",
-    connectionsLayer:"Connections",
-    experiencesLayer:"Experiences",
-    coreLayer:"Core",
-    connectionDna:"Connection DNA",
-    yourDnaHelix:"Your bright helix at center",
-    noResponsesYet:"No responses yet — be the first to live this spark",
-    profileBackground:"Profile background",
-    logout:"Log out",
-    mindfulness:"Mindfulness",
-    empathy:"Empathy",
-    courage:"Courage",
-    creativity:"Creativity",
-    connection:"Connection",
-    reflection:"Reflection",
-    wonder:"Wonder",
-    gratitude:"Gratitude",
-    vulnerability:"Vulnerability",
-    hope:"Hope",
-    serenity:"Serenity",
-    determination:"Determination",
+    presence:"Your presence",
+    whatMatters:"What matters to you?",
+    openingLine:"Your opening line",
     antiScroll:"Your most interesting thought today is still waiting outside this screen.",
   },
   es: {
@@ -227,72 +159,6 @@ const TRANSLATIONS = {
     emerging:"Emergiendo", growing:"Creciendo", flourishing:"Floreciendo",
     torchbearer:"Portador de la Antorcha",
     createEssence:"Crea tu esencia", welcomeBack:"Bienvenido de vuelta",
-    circles:"Círculos",
-    threads:"Hilos",
-    me:"Yo",
-    allCircles:"Todos los círculos",
-    members:"Miembros",
-    recentReflections:"Reflexiones recientes",
-    challenge:"Desafío",
-    day:"Día",
-    of:"de",
-    join:"+ Unirse",
-    joined:"Unido",
-    deeper:"Más profundo",
-    communitySparks:"Chispas comunitarias",
-    communitySparksDesc:"Desafíos reales de personas reales. Acepta uno, vívelo, vuelve.",
-    activeSparks:"Chispas activas",
-    mySparks:"Mis chispas",
-    create:"Crear",
-    browse:"Explorar",
-    verify:"Verificar",
-    accepted:"aceptadas",
-    returned:"regresaron",
-    createSpark:"Crear una Chispa",
-    sparkPromptLabel:"Escribe un desafío que haga vivir algo real",
-    sparkCategory:"Categoría",
-    publishSpark:"Publicar Chispa",
-    connectionThreads:"Hilos de Conexión",
-    threadDelay:"Los mensajes llegan después de 2 horas — como cartas reales",
-    writeMessage:"Escribe un mensaje...",
-    send:"Enviar",
-    hoursUntil:"horas para la entrega",
-    notifications:"Notificaciones",
-    noNotifications:"Sin notificaciones aún",
-    chaptersToday:"Tres capítulos hoy. Cada uno guarda una experiencia humana y su propia aura visual — nacida de las emociones internas.",
-    skipForNow:"Saltar por ahora",
-    continue_:"Continuar",
-    chooseAtLeast:"Elige al menos 2",
-    yourPresence:"Tu presencia",
-    whatMattersToYou:"¿Qué te importa?",
-    yourOpeningLine:"Tu primera línea",
-    imSomeoneWho:"Soy alguien que...",
-    createdBy:"Creado por Tony De Palma",
-    techMoreHuman:"la tecnología debería hacernos más humanos, no menos.",
-    sparkOfTheDay:"CHISPA DEL DÍA",
-    acceptThisSpark:"Aceptar Chispa",
-    sparkAcceptedToast:"¡Chispa aceptada! Vívela y luego vuelve.",
-    yourEssence:"Tu esencia",
-    soulLayer:"Alma",
-    growthLayer:"Crecimiento",
-    connectionsLayer:"Conexiones",
-    experiencesLayer:"Experiencias",
-    coreLayer:"Esencia",
-    connectionDna:"ADN de Conexión",
-    noResponsesYet:"Sin respuestas aún — sé el primero en vivir esta chispa",
-    logout:"Cerrar sesión",
-    mindfulness:"Atención plena",
-    empathy:"Empatía",
-    courage:"Valentía",
-    creativity:"Creatividad",
-    connection:"Conexión",
-    reflection:"Reflexión",
-    wonder:"Asombro",
-    gratitude:"Gratitud",
-    vulnerability:"Vulnerabilidad",
-    hope:"Esperanza",
-    serenity:"Serenidad",
-    determination:"Determinación",
     antiScroll:"Tu pensamiento más interesante de hoy todavía te espera fuera de esta pantalla.",
   },
   it: {
@@ -338,72 +204,6 @@ const TRANSLATIONS = {
     emerging:"Emergente", growing:"In crescita", flourishing:"In fiore",
     torchbearer:"Portatore di Luce",
     createEssence:"Crea la tua essenza", welcomeBack:"Bentornato",
-        circles:"Cerchie",
-    threads:"Fili",
-    me:"Io",
-    allCircles:"Tutte le cerchie",
-    members:"Membri",
-    recentReflections:"Riflessioni recenti",
-    challenge:"Sfida",
-    day:"Giorno",
-    of:"di",
-    join:"+ Unisciti",
-    joined:"Iscritto",
-    deeper:"Più profondo",
-    communitySparks:"Scintille della comunità",
-    communitySparksDesc:"Sfide reali da persone reali. Accettane una, vivila, torna.",
-    activeSparks:"Scintille attive",
-    mySparks:"Le mie scintille",
-    create:"Crea",
-    browse:"Esplora",
-    verify:"Verifica",
-    accepted:"accettate",
-    returned:"tornati",
-    createSpark:"Crea una Scintilla",
-    sparkPromptLabel:"Scrivi una sfida che faccia vivere qualcosa di vero",
-    sparkCategory:"Categoria",
-    publishSpark:"Pubblica Scintilla",
-    connectionThreads:"Fili di Connessione",
-    threadDelay:"I messaggi arrivano dopo 2 ore — come vere lettere",
-    writeMessage:"Scrivi un messaggio...",
-    send:"Invia",
-    hoursUntil:"ore alla consegna",
-    notifications:"Notifiche",
-    noNotifications:"Nessuna notifica ancora",
-    chaptersToday:"Tre capitoli oggi. Ognuno racchiude un'esperienza umana e la propria aura visiva — nata dalle emozioni interiori.",
-    skipForNow:"Salta per ora",
-    continue_:"Continua",
-    chooseAtLeast:"Scegli almeno 2",
-    yourPresence:"La tua presenza",
-    whatMattersToYou:"Cosa conta per te?",
-    yourOpeningLine:"La tua prima riga",
-    imSomeoneWho:"Sono qualcuno che...",
-    createdBy:"Creato da Tony De Palma",
-    techMoreHuman:"la tecnologia dovrebbe renderci più umani, non meno.",
-    sparkOfTheDay:"SCINTILLA DEL GIORNO",
-    acceptThisSpark:"Accetta Scintilla",
-    sparkAcceptedToast:"Scintilla accettata! Vivila e poi torna.",
-    yourEssence:"La tua essenza",
-    soulLayer:"Anima",
-    growthLayer:"Crescita",
-    connectionsLayer:"Connessioni",
-    experiencesLayer:"Esperienze",
-    coreLayer:"Nucleo",
-    connectionDna:"DNA di Connessione",
-    noResponsesYet:"Nessuna risposta ancora — sii il primo a vivere questa scintilla",
-    logout:"Esci",
-    mindfulness:"Consapevolezza",
-    empathy:"Empatia",
-    courage:"Coraggio",
-    creativity:"Creatività",
-    connection:"Connessione",
-    reflection:"Riflessione",
-    wonder:"Meraviglia",
-    gratitude:"Gratitudine",
-    vulnerability:"Vulnerabilità",
-    hope:"Speranza",
-    serenity:"Serenità",
-    determination:"Determinazione",
     antiScroll:"Il tuo pensiero più interessante di oggi ti sta ancora aspettando fuori da questo schermo.",
   },
   fr: {
@@ -434,72 +234,6 @@ const TRANSLATIONS = {
     torchbearer:"Porteur de Flamme",
     createEssence:"Créez votre essence", welcomeBack:"Bienvenue",
     antiScroll:"Votre pensée la plus intéressante vous attend encore dehors.",
-    circles:"Cercles",
-    threads:"Fils",
-    me:"Moi",
-    allCircles:"Tous les cercles",
-    members:"Membres",
-    recentReflections:"Réflexions récentes",
-    challenge:"Défi",
-    day:"Jour",
-    of:"de",
-    join:"+ Rejoindre",
-    joined:"Rejoint",
-    deeper:"Plus profond",
-    communitySparks:"Étincelles communautaires",
-    communitySparksDesc:"De vrais défis de vraies personnes. Accepte-en un, vis-le, reviens.",
-    activeSparks:"Étincelles actives",
-    mySparks:"Mes étincelles",
-    create:"Créer",
-    browse:"Parcourir",
-    verify:"Vérifier",
-    accepted:"acceptées",
-    returned:"revenus",
-    createSpark:"Créer une Étincelle",
-    sparkPromptLabel:"Écris un défi qui fait vivre quelque chose de réel",
-    sparkCategory:"Catégorie",
-    publishSpark:"Publier l'Étincelle",
-    connectionThreads:"Fils de Connexion",
-    threadDelay:"Les messages arrivent après 2 heures — comme de vraies lettres",
-    writeMessage:"Écris un message...",
-    send:"Envoyer",
-    hoursUntil:"heures avant livraison",
-    notifications:t("notifications",lang),
-    noNotifications:"Aucune notification encore",
-    chaptersToday:"Trois chapitres aujourd'hui. Chacun contient une expérience humaine et sa propre aura visuelle — née des émotions intérieures.",
-    skipForNow:"Passer pour l'instant",
-    continue_:"Continuer",
-    chooseAtLeast:"Choisis au moins 2",
-    yourPresence:"Ta présence",
-    whatMattersToYou:"Qu'est-ce qui compte pour toi?",
-    yourOpeningLine:"Ta première ligne",
-    imSomeoneWho:"Je suis quelqu'un qui...",
-    createdBy:"Créé par Tony De Palma",
-    techMoreHuman:"la technologie devrait nous rendre plus humains, pas moins.",
-    sparkOfTheDay:"ÉTINCELLE DU JOUR",
-    acceptThisSpark:"Accepter l'Étincelle",
-    sparkAcceptedToast:"Étincelle acceptée! Vis-la puis reviens.",
-    yourEssence:"Ton essence",
-    soulLayer:"Âme",
-    growthLayer:"Croissance",
-    connectionsLayer:"Connexions",
-    experiencesLayer:"Expériences",
-    coreLayer:"Noyau",
-    connectionDna:"ADN de Connexion",
-    noResponsesYet:"Aucune réponse encore — sois le premier à vivre cette étincelle",
-    logout:"Déconnexion",
-    mindfulness:"Pleine conscience",
-    empathy:"Empathie",
-    courage:"Courage",
-    creativity:"Créativité",
-    connection:"Connexion",
-    reflection:"Réflexion",
-    wonder:"Émerveillement",
-    gratitude:"Gratitude",
-    vulnerability:"Vulnérabilité",
-    hope:"Espoir",
-    serenity:"Sérénité",
-    determination:"Détermination",
   },
   pt:{tagline:"Veja com clareza. Sinta profundamente. Conecte-se de verdade.",begin:"COMECE SUA JORNADA",todaySpark:"Fagulha de hoje",spark:"Fagulha",depth:"Profundidade",dna:"DNA",essence:"Essência",back:"Voltar",goDeep:"Ir mais fundo",humanityIndex:"Seu Índice de Humanidade",torchbearer:"Portador da Tocha",createEssence:"Crie sua essência",antiScroll:"Seu pensamento mais interessante ainda está te esperando lá fora."},
   de:{tagline:"Klar sehen. Tief fühlen. Echt verbinden.",begin:"BEGINNE DEINE REISE",todaySpark:"Heutiger Funke",spark:"Funke",depth:"Tiefe",dna:"DNS",essence:"Essenz",back:"Zurück",goDeep:"Tiefer gehen",humanityIndex:"Dein Menschlichkeitsindex",torchbearer:"Fackelträger",createEssence:"Erstelle deine Essenz",antiScroll:"Dein interessantester Gedanke wartet noch draußen."},
@@ -960,7 +694,7 @@ function ActivityTicker() {
   );
 }
 
-function SparkOfTheDay({ onAccept, lang }) {
+function SparkOfTheDay({ onAccept }) {
   var today = new Date().getDay();
   var spark = DAILY_SPARKS[today % DAILY_SPARKS.length];
   var _acc = useState(false); var accepted = _acc[0]; var setAccepted = _acc[1];
@@ -1002,7 +736,7 @@ function SparkOfTheDay({ onAccept, lang }) {
         : React.createElement("button", {
             onClick: function() { haptic("medium"); setAccepted(true); if (onAccept) onAccept(spark); },
             style: { padding: "6px 16px", borderRadius: 10, background: C.ember, color: C.void, fontSize: 11, fontFamily: "'DM Sans',sans-serif", fontWeight: 600 }
-          }, t("acceptThisSpark",lang))
+          }, "Accept Spark")
     )
   );
 }
@@ -1380,7 +1114,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
   );
 }
 
-function DNAView({ user, lang }) {
+function DNAView({ user }) {
   const [viewPerson, setViewPerson] = useState(null);
 
   if (viewPerson) {
@@ -1943,7 +1677,7 @@ function StirredButton({ refId, count, onStir }) {
         }}/>
       )}
       <Ripple size={14}/>
-      <span>{isStirred ? t("stirred",lang) : "This stirred me"}</span>
+      <span>{isStirred ? "Stirred" : "This stirred me"}</span>
       <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10 }}>{count + (isStirred?1:0)}</span>
     </button>
   );
@@ -2031,7 +1765,7 @@ function AuthScreen({ onAuth, lang, setLang }) {
           {photo?<img src={photo} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<Camera size={26} color={C.dim}/>}
         </div>
         <input ref={fileRef} type="file" accept="image/*" onChange={handlePhoto} style={{display:"none"}}/>
-        <button onClick={()=>setStep(1)} style={{padding:"12px 40px",borderRadius:12,background:C.ember,color:C.void,fontSize:13,fontFamily:"'DM Sans'",fontWeight:600}}>{photo?t("continue_",lang):t("skipForNow",lang)}</button>
+        <button onClick={()=>setStep(1)} style={{padding:"12px 40px",borderRadius:12,background:C.ember,color:C.void,fontSize:13,fontFamily:"'DM Sans'",fontWeight:600}}>{photo?"Continue":"Skip for now"}</button>
       </div>,
       <div key="v" className="di">
         <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,color:C.light,fontWeight:400,marginBottom:6,textAlign:"center"}}>What matters to you?</h2>
@@ -2039,7 +1773,7 @@ function AuthScreen({ onAuth, lang, setLang }) {
         <div style={{display:"flex",flexWrap:"wrap",gap:7,justifyContent:"center",marginBottom:24}}>
           {VALUES_OPTIONS.map(v=>(<button key={v} onClick={()=>setValues(p=>p.includes(v)?p.filter(x=>x!==v):p.length<5?[...p,v]:p)} style={{padding:"7px 16px",borderRadius:22,border:`1px solid ${values.includes(v)?C.ember:C.ghost}`,background:values.includes(v)?`${C.ember}12`:"transparent",color:values.includes(v)?C.ember:C.dim,fontSize:13,fontFamily:"'DM Sans'"}}>{v}</button>))}
         </div>
-        <button onClick={()=>values.length>=2&&setStep(2)} style={{width:"100%",padding:14,borderRadius:12,background:values.length>=2?C.ember:C.ghost,color:values.length>=2?C.void:C.dim,fontSize:13,fontFamily:"'DM Sans'",fontWeight:600}}>{values.length<2?t("chooseAtLeast",lang)+" ("+values.length+"/5)":t("continue_",lang)}</button>
+        <button onClick={()=>values.length>=2&&setStep(2)} style={{width:"100%",padding:14,borderRadius:12,background:values.length>=2?C.ember:C.ghost,color:values.length>=2?C.void:C.dim,fontSize:13,fontFamily:"'DM Sans'",fontWeight:600}}>{values.length<2?`Choose at least 2 (${values.length}/5)`:"Continue"}</button>
       </div>,
       <div key="b" className="di">
         <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,color:C.light,fontWeight:400,marginBottom:6,textAlign:"center"}}>Your essence</h2>
@@ -2099,7 +1833,7 @@ function AuthScreen({ onAuth, lang, setLang }) {
    DEPTH EXPERIENCE
    ═══════════════════════════════════════════════════════════════ */
 
-function DepthExperience({ user, lang }) {
+function DepthExperience({ user }) {
   const [depth,setDepth]=useState(0);
   const [selRef,setSelRef]=useState(null);
   const [selPerson,setSelPerson]=useState(null);
@@ -2595,7 +2329,7 @@ function MyEssence({user, lang}) {
 
   var avg = SOUL_TRAITS.reduce(function(s, t) { return s + (traitData[t.key] || 40); }, 0) / SOUL_TRAITS.length;
 
-  var SOUL_LAYERS = [t("soulLayer",lang), t("growthLayer",lang), t("connectionsLayer",lang), t("experiencesLayer",lang), t("coreLayer",lang)];
+  var SOUL_LAYERS = ["Soul", "Growth", "Connections", "Experiences", "Core"];
 
   // Dynamic activity
   var ACTIVITY = [
@@ -3402,8 +3136,8 @@ function SparkView({ user, lang }) {
   // ── Spark tab navigation ──
   const sparkTabs = [
     { id:"browse", label:"Explore", icon:Compass },
-    { id:"create", label:t("create",lang), icon:Plus },
-    { id:"mySparks", label:t("mySparks",lang), icon:Flame },
+    { id:"create", label:"Create", icon:Plus },
+    { id:"mySparks", label:"My Sparks", icon:Flame },
   ];
 
   return (
@@ -3442,7 +3176,7 @@ function SparkView({ user, lang }) {
    Max 12 people. Shared challenge over weeks.
    ═══════════════════════════════════════════════════════════════ */
 
-function WitnessCirclesView({ user, lang }) {
+function WitnessCirclesView({ user }) {
   const [selectedCircle, setSelectedCircle] = useState(null);
   const [joinedCircles, setJoinedCircles] = useState({});
 
@@ -3558,7 +3292,7 @@ function WitnessCirclesView({ user, lang }) {
    Think pen-pal, not chat. Depth over speed.
    ═══════════════════════════════════════════════════════════════ */
 
-function ThreadsView({ user, lang }) {
+function ThreadsView({ user }) {
   const [activeThread, setActiveThread] = useState(null);
   const [newMsg, setNewMsg] = useState("");
 
@@ -3653,7 +3387,7 @@ function ThreadsView({ user, lang }) {
             <Avatar name={(person||{}).name} size={40} color={pTier.color} photo={(person||{}).photo}/>
             <ActivityTicker/>
           <div style={{ flex:1, overflow:"hidden", overflowY:"auto" }}>
-            {screen==="depth" && <SparkOfTheDay lang={lang} onAccept={function(s){ haptic("heavy"); setToast("Spark accepted! Live it, then come back."); setTimeout(function(){setToast(null)},4000); }}/>}
+            {screen==="depth" && <SparkOfTheDay onAccept={function(s){ haptic("heavy"); setToast("Spark accepted! Live it, then come back."); setTimeout(function(){setToast(null)},4000); }}/>}
               <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:2 }}>
                 <span style={{ fontSize:13, color:C.light, fontFamily:"'DM Sans',sans-serif", fontWeight:500 }}>{(person||{}).name}</span>
                 <span style={{ fontSize:10, color:C.dim, fontFamily:"'JetBrains Mono',monospace" }}>{thread.messages.length} exchanges</span>
@@ -3817,9 +3551,9 @@ export default function LucidApp(){
       <div style={{ flex:1, overflow:"hidden" }}>
         {screen==="depth" && <DepthExperience user={user} lang={lang}/>}
         {screen==="spark" && <SparkView user={user} lang={lang}/>}
-        {screen==="circles" && <WitnessCirclesView user={user} lang={lang}/>}
-        {screen==="threads" && <ThreadsView user={user} lang={lang}/>}
-        {screen==="dna" && <DNAView user={user} lang={lang}/>}
+        {screen==="circles" && <WitnessCirclesView user={user}/>}
+        {screen==="threads" && <ThreadsView user={user}/>}
+        {screen==="dna" && <DNAView user={user}/>}
         {screen==="essence" && <MyEssence user={user} lang={lang}/>}
       </div>
 
@@ -3830,12 +3564,12 @@ export default function LucidApp(){
         borderTop:"1px solid "+C.ghost+"20", flexShrink:0,
       }}>
         {[
-          {id:"spark",icon:Flame,label:t("spark",lang)},
-          {id:"depth",icon:Layers,label:t("depth",lang)},
-          {id:"circles",icon:Users,label:t("circles",lang)},
-          {id:"threads",icon:MessageCircle,label:t("threads",lang)},
+          {id:"spark",icon:Flame,label:"Spark"},
+          {id:"depth",icon:Layers,label:"Depth"},
+          {id:"circles",icon:Users,label:"Circles"},
+          {id:"threads",icon:MessageCircle,label:"Threads"},
           {id:"dna",icon:Fingerprint,label:"DNA"},
-          {id:"essence",icon:Eye,label:t("me",lang)},
+          {id:"essence",icon:Eye,label:"Me"},
         ].map(function(n){
           var active = screen===n.id;
           return (
