@@ -821,12 +821,15 @@ function EmbersReel({ onOpenEmber }) {
 
   return React.createElement("div", {
     style: {
-      padding: "12px 0 8px",
-      borderBottom: "1px solid " + C.ghost + "12",
+      margin: "8px 12px 4px",
+      padding: "12px 14px 10px",
+      borderRadius: 16,
+      background: C.abyss,
+      border: "1px solid " + C.ghost + "25",
     }
   },
     React.createElement("div", {
-      style: { display: "flex", alignItems: "center", gap: 6, padding: "0 16px", marginBottom: 10 }
+      style: { display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }
     },
       React.createElement("div", { style: { width: 6, height: 6, borderRadius: 3, background: C.ember, animation: "breathe 2s ease-in-out infinite" } }),
       React.createElement("span", { style: { fontSize: 10, color: C.ember, fontFamily: "'DM Sans',sans-serif", fontWeight: 600, letterSpacing: 2, textTransform: "uppercase" } }, "EMBERS"),
@@ -849,7 +852,7 @@ function EmbersReel({ onOpenEmber }) {
         return React.createElement("div", {
           key: ember.id,
           onClick: function() { haptic("light"); if (onOpenEmber) onOpenEmber(ember, i); },
-          style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 4, cursor: "pointer", flexShrink: 0 }
+          style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 4, cursor: "pointer", flexShrink: 0, scrollSnapAlign: "start" }
         },
           React.createElement("div", {
             style: {
@@ -3698,10 +3701,7 @@ function ThreadsView({ user }) {
           <div key={thread.id} className={"ri ri"+(Math.min(i+1,4))} onClick={function(){setActiveThread(thread)}}
             style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 16px", background:C.abyss, borderRadius:14, marginBottom:10, border:"1px solid "+C.ghost, cursor:"pointer" }}>
             <Avatar name={(person||{}).name} size={40} color={pTier.color} photo={(person||{}).photo}/>
-            <ActivityTicker/>
-            <EmbersReel onOpenEmber={function(ember, i) { setEmberView({ embers: EMBERS_DATA, startIndex: i }); }}/>
-          <div style={{ flex:1, overflow:"hidden", overflowY:"auto" }}>
-            {screen==="depth" && <SparkOfTheDay onAccept={function(s){ haptic("heavy"); setToast("Spark accepted! Live it, then come back."); setTimeout(function(){setToast(null)},4000); }}/>}
+          <div style={{ flex:1, overflow:"hidden" }}>
               <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:2 }}>
                 <span style={{ fontSize:13, color:C.light, fontFamily:"'DM Sans',sans-serif", fontWeight:500 }}>{(person||{}).name}</span>
                 <span style={{ fontSize:10, color:C.dim, fontFamily:"'JetBrains Mono',monospace" }}>{thread.messages.length} exchanges</span>
@@ -3863,7 +3863,10 @@ export default function LucidApp(){
         </div>
       </div>
 
-      <div style={{ flex:1, overflow:"hidden" }}>
+      <ActivityTicker/>
+      <EmbersReel onOpenEmber={function(ember, i) { setEmberView({ embers: EMBERS_DATA, startIndex: i }); }}/>
+      <div style={{ flex:1, overflowY:"auto", overflowX:"hidden" }}>
+        {screen==="depth" && <SparkOfTheDay lang={lang} onAccept={function(s){ haptic("heavy"); setToast("Spark accepted! Live it, then come back."); setTimeout(function(){setToast(null)},4000); }}/>}
         {screen==="depth" && <DepthExperience user={user} lang={lang}/>}
         {screen==="spark" && <SparkView user={user} lang={lang}/>}
         {screen==="circles" && <WitnessCirclesView user={user}/>}
