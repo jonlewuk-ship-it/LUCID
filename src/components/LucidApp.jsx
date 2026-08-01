@@ -46,7 +46,7 @@ const LANGUAGES = [
 
 const TRANSLATIONS = {
   en: {
-    tagline:"See clearly. Feel deeply. Connect truly.",
+    tagline:"The Digital Human Social Platform // Expressing True Emotions",
     landingBody:"No scroll. You go deeper — into experiences, emotions, and the people who feel what you feel.",
     begin:"BEGIN YOUR JOURNEY",
     signIn:"Already have an essence? Sign in",
@@ -117,7 +117,7 @@ const TRANSLATIONS = {
     antiScroll:"Your most interesting thought today is still waiting outside this screen.",
   },
   es: {
-    tagline:"Ve con claridad. Siente profundamente. Conéctate de verdad.",
+    tagline:"La Plataforma Social Humana Digital // Expresando Emociones Reales",
     landingBody:"Sin scroll. Vas más profundo — en experiencias, emociones y las personas que sienten lo que tú sientes.",
     begin:"COMIENZA TU VIAJE",
     signIn:"¿Ya tienes una esencia? Inicia sesión",
@@ -162,7 +162,7 @@ const TRANSLATIONS = {
     antiScroll:"Tu pensamiento más interesante de hoy todavía te espera fuera de esta pantalla.",
   },
   it: {
-    tagline:"Vedi con chiarezza. Senti profondamente. Connettiti davvero.",
+    tagline:"La Piattaforma Social Umana Digitale // Esprimere Emozioni Vere",
     landingBody:"Nessuno scroll. Vai in profondità — nelle esperienze, nelle emozioni e nelle persone che sentono ciò che senti tu.",
     begin:"INIZIA IL TUO VIAGGIO",
     signIn:"Hai già un'essenza? Accedi",
@@ -207,7 +207,7 @@ const TRANSLATIONS = {
     antiScroll:"Il tuo pensiero più interessante di oggi ti sta ancora aspettando fuori da questo schermo.",
   },
   fr: {
-    tagline:"Voir clairement. Ressentir profondément. Se connecter vraiment.",
+    tagline:"La Plateforme Sociale Humaine Digitale // Exprimer des Émotions Vraies",
     landingBody:"Pas de scroll. Vous allez plus profond — dans les expériences, les émotions et les personnes qui ressentent ce que vous ressentez.",
     begin:"COMMENCEZ VOTRE VOYAGE",
     signIn:"Vous avez déjà une essence? Connectez-vous",
@@ -235,11 +235,11 @@ const TRANSLATIONS = {
     createEssence:"Créez votre essence", welcomeBack:"Bienvenue",
     antiScroll:"Votre pensée la plus intéressante vous attend encore dehors.",
   },
-  pt:{tagline:"Veja com clareza. Sinta profundamente. Conecte-se de verdade.",begin:"COMECE SUA JORNADA",todaySpark:"Fagulha de hoje",spark:"Fagulha",depth:"Profundidade",dna:"DNA",essence:"Essência",back:"Voltar",goDeep:"Ir mais fundo",humanityIndex:"Seu Índice de Humanidade",torchbearer:"Portador da Tocha",createEssence:"Crie sua essência",antiScroll:"Seu pensamento mais interessante ainda está te esperando lá fora."},
-  de:{tagline:"Klar sehen. Tief fühlen. Echt verbinden.",begin:"BEGINNE DEINE REISE",todaySpark:"Heutiger Funke",spark:"Funke",depth:"Tiefe",dna:"DNS",essence:"Essenz",back:"Zurück",goDeep:"Tiefer gehen",humanityIndex:"Dein Menschlichkeitsindex",torchbearer:"Fackelträger",createEssence:"Erstelle deine Essenz",antiScroll:"Dein interessantester Gedanke wartet noch draußen."},
-  ar:{tagline:"انظر بوضوح. اشعر بعمق. تواصل بصدق.",begin:"ابدأ رحلتك",todaySpark:"شرارة اليوم",spark:"شرارة",depth:"عمق",essence:"جوهر",back:"رجوع",goDeep:"اذهب أعمق",humanityIndex:"مؤشر إنسانيتك",torchbearer:"حامل المشعل",createEssence:"أنشئ جوهرك"},
-  zh:{tagline:"清晰地看。深深地感受。真诚地连接。",begin:"开始你的旅程",todaySpark:"今日火花",spark:"火花",depth:"深度",essence:"本质",back:"返回",goDeep:"深入探索",humanityIndex:"你的人性指数",torchbearer:"火炬手",createEssence:"创建你的本质"},
-  ja:{tagline:"明確に見る。深く感じる。真につながる。",begin:"旅を始める",todaySpark:"今日のスパーク",spark:"スパーク",depth:"深さ",essence:"本質",back:"戻る",goDeep:"より深く",humanityIndex:"ヒューマニティインデックス",torchbearer:"トーチベアラー",createEssence:"エッセンスを作成"},
+  pt:{tagline:"A Plataforma Social Humana Digital // Expressando Emoções Reais",begin:"COMECE SUA JORNADA",todaySpark:"Fagulha de hoje",spark:"Fagulha",depth:"Profundidade",dna:"DNA",essence:"Essência",back:"Voltar",goDeep:"Ir mais fundo",humanityIndex:"Seu Índice de Humanidade",torchbearer:"Portador da Tocha",createEssence:"Crie sua essência",antiScroll:"Seu pensamento mais interessante ainda está te esperando lá fora."},
+  de:{tagline:"Die Digitale Menschliche Soziale Plattform // Wahre Emotionen Ausdrücken",begin:"BEGINNE DEINE REISE",todaySpark:"Heutiger Funke",spark:"Funke",depth:"Tiefe",dna:"DNS",essence:"Essenz",back:"Zurück",goDeep:"Tiefer gehen",humanityIndex:"Dein Menschlichkeitsindex",torchbearer:"Fackelträger",createEssence:"Erstelle deine Essenz",antiScroll:"Dein interessantester Gedanke wartet noch draußen."},
+  ar:{tagline:"المنصة الاجتماعية الإنسانية الرقمية // التعبير عن المشاعر الحقيقية",begin:"ابدأ رحلتك",todaySpark:"شرارة اليوم",spark:"شرارة",depth:"عمق",essence:"جوهر",back:"رجوع",goDeep:"اذهب أعمق",humanityIndex:"مؤشر إنسانيتك",torchbearer:"حامل المشعل",createEssence:"أنشئ جوهرك"},
+  zh:{tagline:"数字化人类社交平台 // 表达真实情感",begin:"开始你的旅程",todaySpark:"今日火花",spark:"火花",depth:"深度",essence:"本质",back:"返回",goDeep:"深入探索",humanityIndex:"你的人性指数",torchbearer:"火炬手",createEssence:"创建你的本质"},
+  ja:{tagline:"デジタル・ヒューマン・ソーシャルプラットフォーム // 本当の感情を表現する",begin:"旅を始める",todaySpark:"今日のスパーク",spark:"スパーク",depth:"深さ",essence:"本質",back:"戻る",goDeep:"より深く",humanityIndex:"ヒューマニティインデックス",torchbearer:"トーチベアラー",createEssence:"エッセンスを作成"},
 };
 
 // Translation helper — falls back to English

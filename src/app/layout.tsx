@@ -1,21 +1,14 @@
-import type { Metadata } from 'next'
 import './globals.css'
 
-export const metadata: Metadata = {
-  title: 'LUCID — See clearly. Feel deeply. Connect truly.',
-  description: 'The social platform that rewards you for becoming a better human. No scroll. No likes. Real connection.',
-  keywords: ['social media', 'mindfulness', 'connection', 'humanity', 'critical thinking'],
+export const metadata = {
+  title: 'LUCID — The Digital Human Social Platform',
+  description: 'Expressing True Emotions. Created by Tony De Palma.',
   openGraph: {
-    title: 'LUCID',
-    description: 'See clearly. Feel deeply. Connect truly.',
-    type: 'website',
+    title: 'LUCID — The Digital Human Social Platform',
+    description: 'Expressing True Emotions. No scroll. No likes. Real connection.',
   },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  )
+  return (<html lang="en"><body>{children}</body></html>)
 }
