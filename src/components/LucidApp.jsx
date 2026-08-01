@@ -2068,6 +2068,14 @@ function AuthScreen({ onAuth, lang, setLang }) {
           ))}
         </div>
       </div>
+      <div style={{ marginTop:40, paddingTop:20, borderTop:"1px solid "+C.ghost+"15", width:"100%", maxWidth:320, textAlign:"center" }}>
+        <p style={{ fontSize:10, color:C.ghost, fontFamily:"'DM Sans',sans-serif", lineHeight:1.6 }}>
+          Created by <span style={{ color:C.ember, fontWeight:500 }}>Tony De Palma</span>
+        </p>
+        <p style={{ fontSize:9, color:C.ghost, fontFamily:"'DM Sans',sans-serif", marginTop:4, letterSpacing:0.5 }}>
+          The Digital Human Social Platform
+        </p>
+      </div>
     </div>
   );
 
@@ -2926,12 +2934,7 @@ function MyEssence({user, lang}) {
           })}
         </div>
 
-        {/* Credit */}
-        <div style={{ marginTop:20, padding:"12px 16px", borderRadius:12, background:C.surface, border:"1px solid "+C.ghost }}>
-          <p style={{ fontSize:10, color:C.dim, fontFamily:"'DM Sans',sans-serif", lineHeight:1.5 }}>
-            LUCID was created by <span style={{ color:C.ember }}>Tony De Palma</span> — built on the belief that technology should make us more human, not less.
-          </p>
-        </div>
+
       </div>
     );
   };
