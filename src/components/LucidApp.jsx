@@ -3785,23 +3785,34 @@ export default function LucidApp(){
   var tier = getTier(user.essencePoints || 0);
 
   return (
-    <div style={{background:C.void,height:"100vh",maxWidth:480,margin:"0 auto",position:"relative",overflow:"hidden",display:"flex",flexDirection:"column"}}>
+    <div style={{background:C.void,height:"100vh",maxWidth:480,margin:"0 auto",position:"relative",overflow:"hidden",display:"flex",flexDirection:"column",paddingTop:"env(safe-area-inset-top, 0px)"}}>
       <style>{css}</style>
 
       <div style={{
-        display:"flex", alignItems:"center", justifyContent:"space-between",
-        padding:"10px 12px", borderBottom:"1px solid "+C.ghost+"12",
-        background:C.void+"ee", backdropFilter:"blur(16px)", flexShrink:0,
+        padding:"12px 16px 10px", borderBottom:"1px solid "+C.ghost+"10",
+        background:C.void+"f8", backdropFilter:"blur(20px)", flexShrink:0,
         position:"relative", zIndex:1000,
       }}>
-        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-          <div style={{ width:26, height:26, borderRadius:"50%", background:C.ember+"10", border:"1px solid "+C.ember+"25", display:"flex", alignItems:"center", justifyContent:"center" }}>
-            <Eye size={13} color={C.ember}/>
+        {/* Top row: Logo + actions */}
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+            {/* Humanized logo — soul silhouette */}
+            <svg width="28" height="28" viewBox="0 0 28 28">
+              <defs>
+                <radialGradient id="soulLogo" cx="50%" cy="40%" r="50%">
+                  <stop offset="0%" stopColor={C.ember} stopOpacity="0.9"/>
+                  <stop offset="60%" stopColor={C.kindle} stopOpacity="0.5"/>
+                  <stop offset="100%" stopColor={C.ember} stopOpacity="0"/>
+                </radialGradient>
+              </defs>
+              <circle cx="14" cy="10" r="5" fill={C.ember} opacity="0.85"/>
+              <ellipse cx="14" cy="20" rx="8" ry="6" fill={C.ember} opacity="0.5"/>
+              <circle cx="14" cy="14" r="12" fill="none" stroke={C.ember} strokeWidth="0.8" opacity="0.3" style={{animation:"breathe 4s ease-in-out infinite"}}/>
+              <circle cx="14" cy="14" r="10" fill="url(#soulLogo)" opacity="0.15"/>
+            </svg>
+            <span style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:20, color:C.light, fontWeight:400, letterSpacing:3 }}>LUCID</span>
           </div>
-          <span style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:16, color:C.light, fontWeight:500, letterSpacing:2 }}>LUCID</span>
-        </div>
-
-        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
           {/* Language */}
           <div style={{ position:"relative", zIndex:1001 }}>
             <button onClick={function(){setShowLangPicker(!showLangPicker);setShowNotifs(false)}} style={{ padding:"4px 7px", borderRadius:8, background:C.surface, border:"1px solid "+C.ghost, fontSize:13, lineHeight:1 }}>
@@ -3852,14 +3863,34 @@ export default function LucidApp(){
             <span style={{ fontSize:9, color:tier.color, fontFamily:"'JetBrains Mono',monospace" }}>{user.essencePoints||0}</span>
           </div>
 
-          {/* Profile */}
-          <button onClick={function(){setScreen("essence")}} style={{ width:30, height:30, borderRadius:"50%", overflow:"hidden", padding:0, border:screen==="essence"?"2px solid "+tier.color:"2px solid "+C.ghost+"33", background:user.photo?"none":"linear-gradient(135deg,"+tier.color+"30,"+tier.color+"10)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+          </div>
+        </div>
+
+        {/* Profile bar — large avatar + name + tier (iPhone style) */}
+        <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+          <button onClick={function(){setScreen("essence")}} style={{ width:44, height:44, borderRadius:"50%", overflow:"hidden", padding:0, border:screen==="essence"?"2.5px solid "+tier.color:"2.5px solid "+C.ghost+"40", background:user.photo?"none":"linear-gradient(135deg,"+tier.color+"30,"+tier.color+"10)", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 2px 12px "+tier.color+"20", transition:"all 0.3s ease" }}>
             {user.photo ? (
               <img src={user.photo} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
             ) : (
-              <span style={{ fontSize:12, color:tier.color, fontFamily:"'Cormorant Garamond',serif", fontWeight:600 }}>{(user.name||"?")[0].toUpperCase()}</span>
+              <span style={{ fontSize:17, color:tier.color, fontFamily:"'Cormorant Garamond',serif", fontWeight:600 }}>{(user.name||"?")[0].toUpperCase()}</span>
             )}
           </button>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:15, color:C.light, fontFamily:"'DM Sans',sans-serif", fontWeight:500 }}>{user.name}</div>
+            <div style={{ display:"flex", alignItems:"center", gap:6, marginTop:2 }}>
+              <div style={{ display:"inline-flex", alignItems:"center", gap:4, padding:"2px 8px", borderRadius:8, background:tier.color+"10", border:"1px solid "+tier.color+"15" }}>
+                <div style={{ width:4, height:4, borderRadius:2, background:tier.color }}/>
+                <span style={{ fontSize:9, color:tier.color, fontFamily:"'JetBrains Mono',monospace" }}>{tier.name}</span>
+              </div>
+              <span style={{ fontSize:9, color:C.dim, fontFamily:"'JetBrains Mono',monospace" }}>{user.essencePoints||0} LP</span>
+            </div>
+          </div>
+          <div style={{ display:"flex", gap:4 }}>
+            <button onClick={function(){setShowNotifs(!showNotifs);setShowLangPicker(false)}} style={{ width:36, height:36, borderRadius:12, background:C.surface, border:"1px solid "+C.ghost+"30", display:"flex", alignItems:"center", justifyContent:"center", position:"relative" }}>
+              <Bell size={16} color={C.mid}/>
+              <div style={{ position:"absolute", top:6, right:6, width:6, height:6, borderRadius:3, background:C.ember }}/>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -3877,9 +3908,9 @@ export default function LucidApp(){
 
       <div style={{
         display:"flex", justifyContent:"space-around", alignItems:"center",
-        padding:"8px 4px 24px",
-        background:C.void+"f5", backdropFilter:"blur(20px)",
-        borderTop:"1px solid "+C.ghost+"20", flexShrink:0,
+        padding:"6px 8px 28px",
+        background:C.void+"f5", backdropFilter:"blur(24px)",
+        borderTop:"1px solid "+C.ghost+"12", flexShrink:0,
       }}>
         {[
           {id:"spark",icon:Flame,label:"Spark"},
