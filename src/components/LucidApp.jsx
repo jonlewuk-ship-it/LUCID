@@ -49,7 +49,7 @@ const TRANSLATIONS = {
     tagline:"The Digital Human Social Platform // Expressing True Emotions",
     landingBody:"No scroll. You go deeper — into experiences, emotions, and the people who feel what you feel.",
     begin:"BEGIN YOUR JOURNEY",
-    signIn:t("alreadyHaveEssence",lang),
+    signIn:"Already have an essence? Sign in",
     todaySpark:"Today's Spark",
     acceptSpark:"Accept this Spark",
     sparkAccepted:"Spark accepted — go live it",
@@ -114,25 +114,7 @@ const TRANSLATIONS = {
     presence:"Your presence",
     whatMatters:"What matters to you?",
     openingLine:"Your opening line",
-    circles:"Circles",threads:"Threads",me:"Me",
-    allCircles:"All circles",members:"MEMBERS",recentReflections:"RECENT REFLECTIONS",
-    challenge:"Challenge",dayOf:"Day {d} of {t}",joinCircle:"+ Join",joinedCircle:"Joined",
-    deeper:"Deeper",communitySparks:"Community Sparks",
-    communitySparksDesc:"Real challenges from real people. Accept one, live it, come back.",
-    activeSparks:"Active Sparks",mySparks:"My Sparks",createLabel:"Create",
-    browseLabel:"Browse",verifyLabel:"Verify",acceptedLabel:"accepted",returnedLabel:"returned",
-    sparkOfDay:"SPARK OF THE DAY",acceptSpark:"Accept Spark",
-    skipForNow:"Skip for now",continueBtn:"Continue",chooseAtLeast:"Choose at least 2",
-    faceBehinWords:t("faceBehinWords",lang),
-    connectionThreads:"Connection Threads",threadDelay:"2-hour minimum between messages. Think before you write. These aren't chats — they're letters.",
-    notificationsLabel:"Notifications",
-    surfaceLabel:"SURFACE",currentLabel:"CURRENT",connectionLabel:"CONNECTION",essenceLabel:"ESSENCE",
-    embersTagline:"moments earned, not performed",pauseBreath:"pause. breathe. arrive.",
-    warmthLabel:"warmth",warmBtn:"warm",warmedBtn:"warmed",
-    reflections:"Reflections",connections:"Connections",depthReach:"Depth Reach",
-    acceptedStatus:"Accepted",
-    alreadyHaveEssence:t("alreadyHaveEssence",lang),needEssence:t("needEssence",lang),
-        antiScroll:"Your most interesting thought today is still waiting outside this screen.",
+    antiScroll:"Your most interesting thought today is still waiting outside this screen.",
   },
   es: {
     tagline:"La Plataforma Social Humana Digital // Expresando Emociones Reales",
@@ -177,25 +159,7 @@ const TRANSLATIONS = {
     emerging:"Emergiendo", growing:"Creciendo", flourishing:"Floreciendo",
     torchbearer:"Portador de la Antorcha",
     createEssence:"Crea tu esencia", welcomeBack:"Bienvenido de vuelta",
-    circles:"Círculos",threads:"Hilos",me:"Yo",
-    allCircles:"Todos los círculos",members:"MIEMBROS",recentReflections:"REFLEXIONES RECIENTES",
-    challenge:"Desafío",dayOf:"Día {d} de {t}",joinCircle:"+ Unirse",joinedCircle:"Unido",
-    deeper:"Más profundo",communitySparks:"Chispas comunitarias",
-    communitySparksDesc:"Desafíos reales de personas reales. Acepta uno, vívelo, vuelve.",
-    activeSparks:"Chispas activas",mySparks:"Mis chispas",createLabel:"Crear",
-    browseLabel:"Explorar",verifyLabel:"Verificar",acceptedLabel:"aceptadas",returnedLabel:"regresaron",
-    sparkOfDay:"CHISPA DEL DÍA",acceptSpark:"Aceptar Chispa",
-    skipForNow:"Saltar por ahora",continueBtn:"Continuar",chooseAtLeast:"Elige al menos 2",
-    faceBehinWords:"Un rostro detrás de las palabras.",
-    connectionThreads:"Hilos de Conexión",threadDelay:"2 horas mínimo entre mensajes. Piensa antes de escribir. No son chats — son cartas.",
-    notificationsLabel:"Notificaciones",
-    surfaceLabel:"SUPERFICIE",currentLabel:"CORRIENTE",connectionLabel:"CONEXIÓN",essenceLabel:"ESENCIA",
-    embersTagline:"momentos ganados, no actuados",pauseBreath:"pausa. respira. llega.",
-    warmthLabel:"calidez",warmBtn:"calentar",warmedBtn:"calentado",
-    reflections:"Reflexiones",connections:"Conexiones",depthReach:"Alcance",
-    acceptedStatus:"Aceptado",
-    alreadyHaveEssence:"¿Ya tienes una esencia? Inicia sesión",needEssence:"¿Necesitas una esencia? Crea una",
-        antiScroll:"Tu pensamiento más interesante de hoy todavía te espera fuera de esta pantalla.",
+    antiScroll:"Tu pensamiento más interesante de hoy todavía te espera fuera de esta pantalla.",
   },
   it: {
     tagline:"La Piattaforma Social Umana Digitale // Esprimere Emozioni Vere",
@@ -240,25 +204,7 @@ const TRANSLATIONS = {
     emerging:"Emergente", growing:"In crescita", flourishing:"In fiore",
     torchbearer:"Portatore di Luce",
     createEssence:"Crea la tua essenza", welcomeBack:"Bentornato",
-    circles:"Cerchie",threads:"Fili",me:"Io",
-    allCircles:"Tutte le cerchie",members:"MEMBRI",recentReflections:"RIFLESSIONI RECENTI",
-    challenge:"Sfida",dayOf:"Giorno {d} di {t}",joinCircle:"+ Unisciti",joinedCircle:"Iscritto",
-    deeper:"Più profondo",communitySparks:"Scintille della comunità",
-    communitySparksDesc:"Sfide reali da persone reali. Accettane una, vivila, torna.",
-    activeSparks:"Scintille attive",mySparks:"Le mie scintille",createLabel:"Crea",
-    browseLabel:"Esplora",verifyLabel:"Verifica",acceptedLabel:"accettate",returnedLabel:"tornati",
-    sparkOfDay:"SCINTILLA DEL GIORNO",acceptSpark:"Accetta Scintilla",
-    skipForNow:"Salta per ora",continueBtn:"Continua",chooseAtLeast:"Scegli almeno 2",
-    faceBehinWords:"Un volto dietro le parole.",
-    connectionThreads:"Fili di Connessione",threadDelay:"2 ore minimo tra i messaggi. Pensa prima di scrivere. Non sono chat — sono lettere.",
-    notificationsLabel:"Notifiche",
-    surfaceLabel:"SUPERFICIE",currentLabel:"CORRENTE",connectionLabel:"CONNESSIONE",essenceLabel:"ESSENZA",
-    embersTagline:"momenti guadagnati, non recitati",pauseBreath:"pausa. respira. arriva.",
-    warmthLabel:"calore",warmBtn:"scalda",warmedBtn:"scaldato",
-    reflections:"Riflessioni",connections:"Connessioni",depthReach:"Portata",
-    acceptedStatus:"Accettato",
-    alreadyHaveEssence:"Hai già un'essenza? Accedi",needEssence:"Serve un'essenza? Creane una",
-        antiScroll:"Il tuo pensiero più interessante di oggi ti sta ancora aspettando fuori da questo schermo.",
+    antiScroll:"Il tuo pensiero più interessante di oggi ti sta ancora aspettando fuori da questo schermo.",
   },
   fr: {
     tagline:"La Plateforme Sociale Humaine Digitale // Exprimer des Émotions Vraies",
@@ -287,25 +233,7 @@ const TRANSLATIONS = {
     spark:"Étincelle", depth:"Profondeur", dna:"ADN",
     torchbearer:"Porteur de Flamme",
     createEssence:"Créez votre essence", welcomeBack:"Bienvenue",
-    circles:"Cercles",threads:"Fils",me:"Moi",
-    allCircles:"Tous les cercles",members:"MEMBRES",recentReflections:"RÉFLEXIONS RÉCENTES",
-    challenge:"Défi",dayOf:"Jour {d} de {t}",joinCircle:"+ Rejoindre",joinedCircle:"Rejoint",
-    deeper:"Plus profond",communitySparks:"Étincelles communautaires",
-    communitySparksDesc:"De vrais défis de vraies personnes. Accepte, vis-le, reviens.",
-    activeSparks:"Étincelles actives",mySparks:"Mes étincelles",createLabel:"Créer",
-    browseLabel:"Parcourir",verifyLabel:"Vérifier",acceptedLabel:"acceptées",returnedLabel:"revenus",
-    sparkOfDay:"ÉTINCELLE DU JOUR",acceptSpark:"Accepter",
-    skipForNow:"Passer",continueBtn:"Continuer",chooseAtLeast:"Choisis au moins 2",
-    faceBehinWords:"Un visage derrière les mots.",
-    connectionThreads:"Fils de Connexion",threadDelay:"2 heures minimum entre les messages. Réfléchis avant d'écrire. Ce ne sont pas des chats — ce sont des lettres.",
-    notificationsLabel:"Notifications",
-    surfaceLabel:"SURFACE",currentLabel:"COURANT",connectionLabel:"CONNEXION",essenceLabel:"ESSENCE",
-    embersTagline:"moments gagnés, pas joués",pauseBreath:"pause. respire. arrive.",
-    warmthLabel:"chaleur",warmBtn:"réchauffer",warmedBtn:"réchauffé",
-    reflections:"Réflexions",connections:"Connexions",depthReach:"Portée",
-    acceptedStatus:"Accepté",
-    alreadyHaveEssence:"Déjà une essence? Connecte-toi",needEssence:"Besoin d'une essence? Crée-en une",
-        antiScroll:"Votre pensée la plus intéressante vous attend encore dehors.",
+    antiScroll:"Votre pensée la plus intéressante vous attend encore dehors.",
   },
   pt:{tagline:"A Plataforma Social Humana Digital // Expressando Emoções Reais",begin:"COMECE SUA JORNADA",todaySpark:"Fagulha de hoje",spark:"Fagulha",depth:"Profundidade",dna:"DNA",essence:"Essência",back:"Voltar",goDeep:"Ir mais fundo",humanityIndex:"Seu Índice de Humanidade",torchbearer:"Portador da Tocha",createEssence:"Crie sua essência",antiScroll:"Seu pensamento mais interessante ainda está te esperando lá fora."},
   de:{tagline:"Die Digitale Menschliche Soziale Plattform // Wahre Emotionen Ausdrücken",begin:"BEGINNE DEINE REISE",todaySpark:"Heutiger Funke",spark:"Funke",depth:"Tiefe",dna:"DNS",essence:"Essenz",back:"Zurück",goDeep:"Tiefer gehen",humanityIndex:"Dein Menschlichkeitsindex",torchbearer:"Fackelträger",createEssence:"Erstelle deine Essenz",antiScroll:"Dein interessantester Gedanke wartet noch draußen."},
@@ -766,7 +694,7 @@ function ActivityTicker() {
   );
 }
 
-function SparkOfTheDay({ onAccept, lang }) {
+function SparkOfTheDay({ onAccept }) {
   var today = new Date().getDay();
   var spark = DAILY_SPARKS[today % DAILY_SPARKS.length];
   var _acc = useState(false); var accepted = _acc[0]; var setAccepted = _acc[1];
@@ -808,7 +736,7 @@ function SparkOfTheDay({ onAccept, lang }) {
         : React.createElement("button", {
             onClick: function() { haptic("medium"); setAccepted(true); if (onAccept) onAccept(spark); },
             style: { padding: "6px 16px", borderRadius: 10, background: C.ember, color: C.void, fontSize: 11, fontFamily: "'DM Sans',sans-serif", fontWeight: 600 }
-          }, t("acceptSpark",lang))
+          }, "Accept Spark")
     )
   );
 }
@@ -888,7 +816,7 @@ var EMBERS_DATA = [
   },
 ];
 
-function EmbersReel({ onOpenEmber, lang }) {
+function EmbersReel({ onOpenEmber }) {
   var scrollRef = useRef(null);
 
   return React.createElement("div", {
@@ -905,7 +833,7 @@ function EmbersReel({ onOpenEmber, lang }) {
     },
       React.createElement("div", { style: { width: 6, height: 6, borderRadius: 3, background: C.ember, animation: "breathe 2s ease-in-out infinite" } }),
       React.createElement("span", { style: { fontSize: 10, color: C.ember, fontFamily: "'DM Sans',sans-serif", fontWeight: 600, letterSpacing: 2, textTransform: "uppercase" } }, "EMBERS"),
-      React.createElement("span", { style: { fontSize: 9, color: C.dim, fontFamily: "'DM Sans',sans-serif", marginLeft: 4 } }, t("embersTagline",lang))
+      React.createElement("span", { style: { fontSize: 9, color: C.dim, fontFamily: "'DM Sans',sans-serif", marginLeft: 4 } }, "moments earned, not performed")
     ),
     React.createElement("div", {
       ref: scrollRef,
@@ -969,7 +897,7 @@ function EmbersReel({ onOpenEmber, lang }) {
   );
 }
 
-function EmberViewer({ embers, startIndex, onClose, lang }) {
+function EmberViewer({ embers, startIndex, onClose }) {
   var _idx = useState(startIndex || 0); var idx = _idx[0]; var setIdx = _idx[1];
   var _paused = useState(true); var paused = _paused[0]; var setPaused = _paused[1];
   var _timer = useState(3); var timer = _timer[0]; var setTimer = _timer[1];
@@ -1076,7 +1004,7 @@ function EmberViewer({ embers, startIndex, onClose, lang }) {
         }},
           React.createElement("span", { style: { fontSize: 28, color: C.ember, fontFamily: "'Cormorant Garamond',serif", fontWeight: 300 } }, timer)
         ),
-        React.createElement("p", { style: { fontSize: 11, color: C.mid, fontFamily: "'Cormorant Garamond',serif", fontStyle: "italic", marginTop: 12 } }, t("pauseBreath",lang))
+        React.createElement("p", { style: { fontSize: 11, color: C.mid, fontFamily: "'Cormorant Garamond',serif", fontStyle: "italic", marginTop: 12 } }, "pause. breathe. arrive.")
       ),
 
       // Tap zones for prev/next
@@ -1111,7 +1039,7 @@ function EmberViewer({ embers, startIndex, onClose, lang }) {
         React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12 } },
           React.createElement("div", { style: { flex: 1 } },
             React.createElement("div", { style: { display: "flex", justifyContent: "space-between", marginBottom: 4 } },
-              React.createElement("span", { style: { fontSize: 9, color: C.dim, fontFamily: "'DM Sans',sans-serif", letterSpacing: 1, textTransform: "uppercase" } }, t("warmthLabel",lang)),
+              React.createElement("span", { style: { fontSize: 9, color: C.dim, fontFamily: "'DM Sans',sans-serif", letterSpacing: 1, textTransform: "uppercase" } }, "warmth"),
               React.createElement("span", { style: { fontSize: 11, color: C.ember, fontFamily: "'JetBrains Mono',monospace" } }, ember.warmth + (warmed[ember.id] ? 1 : 0))
             ),
             React.createElement("div", { style: { height: 3, borderRadius: 2, background: C.ghost + "30", overflow: "hidden" } },
@@ -1126,14 +1054,14 @@ function EmberViewer({ embers, startIndex, onClose, lang }) {
           warmed[ember.id]
             ? React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 4, padding: "8px 14px", borderRadius: 12, background: C.ember + "15" } },
                 React.createElement(Flame, { size: 14, color: C.ember }),
-                React.createElement("span", { style: { fontSize: 11, color: C.ember, fontFamily: "'DM Sans',sans-serif" } }, t("warmedBtn",lang))
+                React.createElement("span", { style: { fontSize: 11, color: C.ember, fontFamily: "'DM Sans',sans-serif" } }, "warmed")
               )
             : React.createElement("button", {
                 onClick: handleWarm,
                 style: { display: "flex", alignItems: "center", gap: 5, padding: "8px 16px", borderRadius: 12, background: "linear-gradient(135deg," + C.ember + "," + C.kindle + ")", color: C.void }
               },
                 React.createElement(Flame, { size: 14 }),
-                React.createElement("span", { style: { fontSize: 11, fontFamily: "'DM Sans',sans-serif", fontWeight: 600 } }, t("warmBtn",lang))
+                React.createElement("span", { style: { fontSize: 11, fontFamily: "'DM Sans',sans-serif", fontWeight: 600 } }, "warm")
               )
         ),
 
@@ -2161,7 +2089,7 @@ function AuthScreen({ onAuth, lang, setLang }) {
           {photo?<img src={photo} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<Camera size={26} color={C.dim}/>}
         </div>
         <input ref={fileRef} type="file" accept="image/*" onChange={handlePhoto} style={{display:"none"}}/>
-        <button onClick={()=>setStep(1)} style={{padding:"12px 40px",borderRadius:12,background:C.ember,color:C.void,fontSize:13,fontFamily:"'DM Sans'",fontWeight:600}}>{photo?t("continueBtn",lang):t("skipForNow",lang)}</button>
+        <button onClick={()=>setStep(1)} style={{padding:"12px 40px",borderRadius:12,background:C.ember,color:C.void,fontSize:13,fontFamily:"'DM Sans'",fontWeight:600}}>{photo?"Continue":"Skip for now"}</button>
       </div>,
       <div key="v" className="di">
         <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,color:C.light,fontWeight:400,marginBottom:6,textAlign:"center"}}>What matters to you?</h2>
@@ -2169,7 +2097,7 @@ function AuthScreen({ onAuth, lang, setLang }) {
         <div style={{display:"flex",flexWrap:"wrap",gap:7,justifyContent:"center",marginBottom:24}}>
           {VALUES_OPTIONS.map(v=>(<button key={v} onClick={()=>setValues(p=>p.includes(v)?p.filter(x=>x!==v):p.length<5?[...p,v]:p)} style={{padding:"7px 16px",borderRadius:22,border:`1px solid ${values.includes(v)?C.ember:C.ghost}`,background:values.includes(v)?`${C.ember}12`:"transparent",color:values.includes(v)?C.ember:C.dim,fontSize:13,fontFamily:"'DM Sans'"}}>{v}</button>))}
         </div>
-        <button onClick={()=>values.length>=2&&setStep(2)} style={{width:"100%",padding:14,borderRadius:12,background:values.length>=2?C.ember:C.ghost,color:values.length>=2?C.void:C.dim,fontSize:13,fontFamily:"'DM Sans'",fontWeight:600}}>{values.length<2?t("chooseAtLeast",lang)+" ("+values.length+"/5)":t("continueBtn",lang)}</button>
+        <button onClick={()=>values.length>=2&&setStep(2)} style={{width:"100%",padding:14,borderRadius:12,background:values.length>=2?C.ember:C.ghost,color:values.length>=2?C.void:C.dim,fontSize:13,fontFamily:"'DM Sans'",fontWeight:600}}>{values.length<2?`Choose at least 2 (${values.length}/5)`:"Continue"}</button>
       </div>,
       <div key="b" className="di">
         <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,color:C.light,fontWeight:400,marginBottom:6,textAlign:"center"}}>Your essence</h2>
@@ -2218,7 +2146,7 @@ function AuthScreen({ onAuth, lang, setLang }) {
         {mode==="register"&&<div style={{position:"relative"}}><Shield size={16} color={C.dim} style={{position:"absolute",left:14,top:15}}/><input type="password" placeholder="Confirm password" value={form.confirmPw} onChange={e=>setForm({...form,confirmPw:e.target.value})} style={inp("confirmPw")}/>{errors.confirmPw&&<span style={{fontSize:11,color:C.warmth,display:"block",marginTop:3,fontFamily:"'DM Sans'"}}>{errors.confirmPw}</span>}</div>}
         {mode==="register"&&<div style={{fontSize:11,color:C.dim,fontFamily:"'DM Sans'",padding:"0 4px"}}><Lock size={10} style={{marginRight:4,verticalAlign:"middle"}}/>256-bit encrypted · Never shared · You own your data</div>}
         <button onClick={handleAuth} style={{padding:16,borderRadius:14,background:`linear-gradient(135deg,${C.ember},${C.kindle})`,color:C.void,fontSize:14,fontFamily:"'DM Sans'",fontWeight:600,marginTop:8,boxShadow:`0 8px 24px ${C.glow}`}}>{mode==="register"?"Create Essence":"Enter"}</button>
-        <button onClick={()=>setMode(mode==="register"?"login":"register")} style={{color:C.mid,fontSize:13,fontFamily:"'DM Sans'",marginTop:4}}>{mode==="register"?t("alreadyHaveEssence",lang):"New here? Create your essence"}</button>
+        <button onClick={()=>setMode(mode==="register"?"login":"register")} style={{color:C.mid,fontSize:13,fontFamily:"'DM Sans'",marginTop:4}}>{mode==="register"?"Already have an essence? Sign in":"New here? Create your essence"}</button>
       </div>
     </div>
   );
@@ -3527,8 +3455,8 @@ function SparkView({ user, lang }) {
   // ── Spark tab navigation ──
   const sparkTabs = [
     { id:"browse", label:"Explore", icon:Compass },
-    { id:"create", label:t("createLabel",lang), icon:Plus },
-    { id:"mySparks", label:t("mySparks",lang), icon:Flame },
+    { id:"create", label:"Create", icon:Plus },
+    { id:"mySparks", label:"My Sparks", icon:Flame },
   ];
 
   return (
@@ -3918,7 +3846,7 @@ export default function LucidApp(){
               <div>
                 <div onClick={function(){setShowNotifs(false)}} style={{ position:"fixed", inset:0, zIndex:998 }}/>
                 <div style={{ position:"absolute", top:"100%", right:0, marginTop:6, zIndex:1002, background:C.panel, border:"1px solid "+C.ghost, borderRadius:14, padding:8, width:280, boxShadow:"0 12px 40px "+C.void+"ee", maxHeight:350, overflowY:"auto" }}>
-                  <div style={{ fontSize:10, color:C.mid, fontFamily:"'DM Sans',sans-serif", letterSpacing:1, textTransform:"uppercase", padding:"4px 8px", marginBottom:4 }}>{t("notificationsLabel",lang)}</div>
+                  <div style={{ fontSize:10, color:C.mid, fontFamily:"'DM Sans',sans-serif", letterSpacing:1, textTransform:"uppercase", padding:"4px 8px", marginBottom:4 }}>Notifications</div>
                   {NOTIFS.map(function(n,i){return (
                     <button key={i} onClick={function(){haptic("light");if(n.action)setScreen(n.action);setShowNotifs(false)}} style={{ display:"flex", alignItems:"flex-start", gap:10, padding:"10px 10px", borderRadius:10, marginBottom:2, background:i===0?C.ember+"08":"transparent", width:"100%", textAlign:"left", cursor:"pointer", transition:"background 0.2s" }}>
                       <div style={{ width:32, height:32, borderRadius:10, background:n.color+"12", border:"1px solid "+n.color+"20", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
@@ -3978,7 +3906,7 @@ export default function LucidApp(){
       </div>
 
       <ActivityTicker/>
-      <EmbersReel lang={lang} onOpenEmber={function(ember, i) { setEmberView({ embers: EMBERS_DATA, startIndex: i }); }}/>
+      <EmbersReel onOpenEmber={function(ember, i) { setEmberView({ embers: EMBERS_DATA, startIndex: i }); }}/>
       <div style={{ flex:1, overflowY:"auto", overflowX:"hidden" }}>
         {screen==="depth" && <SparkOfTheDay lang={lang} onAccept={function(s){ haptic("heavy"); setToast("Spark accepted! Live it, then come back."); setTimeout(function(){setToast(null)},4000); }}/>}
         {screen==="depth" && <DepthExperience user={user} lang={lang}/>}
@@ -3996,12 +3924,12 @@ export default function LucidApp(){
         borderTop:"1px solid "+C.ghost+"12", flexShrink:0,
       }}>
         {[
-          {id:"spark",icon:Flame,label:t("spark",lang)},
-          {id:"depth",icon:Layers,label:t("depth",lang)},
-          {id:"circles",icon:Users,label:t("circles",lang)},
-          {id:"threads",icon:Layers,label:t("threads",lang)},
-          {id:"dna",icon:Fingerprint,label:t("dna",lang)},
-          {id:"essence",icon:Eye,label:t("me",lang)},
+          {id:"spark",icon:Flame,label:"Spark"},
+          {id:"depth",icon:Layers,label:"Depth"},
+          {id:"circles",icon:Users,label:"Circles"},
+          {id:"threads",icon:MessageCircle,label:"Threads"},
+          {id:"dna",icon:Fingerprint,label:"DNA"},
+          {id:"essence",icon:Eye,label:"Me"},
         ].map(function(n){
           var active = screen===n.id;
           return (
@@ -4019,7 +3947,7 @@ export default function LucidApp(){
           </button>
         )})}
       </div>
-      {emberView&&<EmberViewer lang={lang} embers={EMBERS_DATA} startIndex={emberView.startIndex} onClose={function(){setEmberView(null)}}/>}
+      {emberView&&<EmberViewer embers={EMBERS_DATA} startIndex={emberView.startIndex} onClose={function(){setEmberView(null)}}/>}
     </div>
   );
 }
