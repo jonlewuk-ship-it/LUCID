@@ -3772,12 +3772,14 @@ export default function LucidApp(){
   var _st5 = useState(langInit); var lang = _st5[0]; var setLang = _st5[1];
 
   var NOTIFS = [
-    {text:"Solace illuminated your reflection",time:"2h",color:C.illuminated,icon:Sparkles},
-    {text:"Your spark was accepted by 5 people",time:"4h",color:C.ember,icon:Flame},
-    {text:"Kindling verified your response",time:"6h",color:"#FFD700",icon:Sun},
-    {text:"12 people were stirred by your reflection",time:"1d",color:C.stirred,icon:Waves},
-    {text:"Northlight started a thread with you",time:"1d",color:C.intelligence,icon:MessageCircle},
-    {text:"Your Empathy score increased +3",time:"2d",color:C.understanding,icon:Heart},
+    {text:"Solace illuminated your reflection",time:"2h",color:C.illuminated,icon:Sparkles,action:"depth",userId:"solace"},
+    {text:"Your spark was accepted by 5 people",time:"4h",color:C.ember,icon:Flame,action:"spark"},
+    {text:"Kindling verified your response",time:"6h",color:"#FFD700",icon:Sun,action:"depth",userId:"kindling"},
+    {text:"12 people were stirred by your reflection",time:"1d",color:C.stirred,icon:Waves,action:"depth"},
+    {text:"Northlight started a thread with you",time:"1d",color:C.intelligence,icon:MessageCircle,action:"threads",userId:"northlight"},
+    {text:"Your Empathy score increased +3",time:"2d",color:C.understanding,icon:Heart,action:"essence"},
+    {text:"Wren warmed your Ember",time:"3h",color:C.ember,icon:Flame,action:"depth",userId:"wren"},
+    {text:"Atlas joined Kindred Minds circle",time:"5h",color:"#5B8DEF",icon:Users,action:"circles",userId:"atlas"},
   ];
 
   if(!user)return React.createElement("div",null,React.createElement("style",null,css),React.createElement(AuthScreen,{onAuth:handleAuth,lang:lang,setLang:setLang}));
@@ -3843,13 +3845,16 @@ export default function LucidApp(){
                 <div style={{ position:"absolute", top:"100%", right:0, marginTop:6, zIndex:1002, background:C.panel, border:"1px solid "+C.ghost, borderRadius:14, padding:8, width:280, boxShadow:"0 12px 40px "+C.void+"ee", maxHeight:350, overflowY:"auto" }}>
                   <div style={{ fontSize:10, color:C.mid, fontFamily:"'DM Sans',sans-serif", letterSpacing:1, textTransform:"uppercase", padding:"4px 8px", marginBottom:4 }}>Notifications</div>
                   {NOTIFS.map(function(n,i){return (
-                    <div key={i} style={{ display:"flex", alignItems:"flex-start", gap:8, padding:"8px 8px", borderRadius:8, marginBottom:2, background:i===0?C.ember+"06":"transparent" }}>
-                      <n.icon size={13} color={n.color} style={{flexShrink:0,marginTop:2}}/>
-                      <div style={{flex:1}}>
-                        <div style={{ fontSize:11, color:C.light, fontFamily:"'DM Sans',sans-serif", lineHeight:1.4 }}>{n.text}</div>
-                        <div style={{ fontSize:9, color:C.dim, fontFamily:"'JetBrains Mono',monospace", marginTop:2 }}>{n.time}</div>
+                    <button key={i} onClick={function(){haptic("light");if(n.action)setScreen(n.action);setShowNotifs(false)}} style={{ display:"flex", alignItems:"flex-start", gap:10, padding:"10px 10px", borderRadius:10, marginBottom:2, background:i===0?C.ember+"08":"transparent", width:"100%", textAlign:"left", cursor:"pointer", transition:"background 0.2s" }}>
+                      <div style={{ width:32, height:32, borderRadius:10, background:n.color+"12", border:"1px solid "+n.color+"20", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                        <n.icon size={14} color={n.color}/>
                       </div>
-                    </div>
+                      <div style={{flex:1}}>
+                        <div style={{ fontSize:12, color:C.light, fontFamily:"'DM Sans',sans-serif", lineHeight:1.5 }}>{n.text}</div>
+                        <div style={{ fontSize:9, color:C.dim, fontFamily:"'JetBrains Mono',monospace", marginTop:3 }}>{n.time} ago</div>
+                      </div>
+                      <ChevronRight size={14} color={C.ghost} style={{flexShrink:0, marginTop:4}}/>
+                    </button>
                   )})}
                 </div>
               </div>
