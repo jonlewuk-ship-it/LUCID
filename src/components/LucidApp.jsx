@@ -595,6 +595,8 @@ select{font-family:inherit}
 @keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 .di{animation:depthIn .55s cubic-bezier(.16,1,.3,1) forwards}
 .ri{animation:riseUp .5s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes emberPulse{0%,100%{box-shadow:0 0 8px 2px rgba(240,168,48,0.2);transform:scale(1)}50%{box-shadow:0 0 16px 6px rgba(240,168,48,0.35);transform:scale(1.05)}}
+@keyframes emberGlow{0%,100%{opacity:0.4}50%{opacity:0.8}}
 .ri1{animation-delay:.08s;opacity:0}.ri2{animation-delay:.16s;opacity:0}
 .ri3{animation-delay:.24s;opacity:0}.ri4{animation-delay:.32s;opacity:0}
 .trait-pulse{animation:traitGlow 3s ease-in-out infinite}
@@ -866,6 +868,7 @@ function EmbersReel({ onOpenEmber }) {
                 background: "conic-gradient(from 0deg, " + ringColor + " 0%, " + ringColor + Math.round(glowIntensity * 60) + " " + Math.round(ember.warmth) + "%, transparent " + Math.round(ember.warmth) + "%)",
                 animation: pulseAnim,
                 opacity: 0.4 + glowIntensity * 0.6,
+                transition: "all 0.3s ease",
               }
             }),
             React.createElement("div", {
@@ -881,6 +884,7 @@ function EmbersReel({ onOpenEmber }) {
                 width: 62, height: 62, borderRadius: "50%", overflow: "hidden",
                 border: "2px solid " + C.void,
                 position: "relative", zIndex: 1,
+                animation: ember.warming ? "emberPulse 2s ease-in-out infinite" : "none",
               }
             },
               person.photo
@@ -3911,7 +3915,7 @@ export default function LucidApp(){
         {screen==="depth" && <SparkOfTheDay lang={lang} onAccept={function(s){ haptic("heavy"); setToast("Spark accepted! Live it, then come back."); setTimeout(function(){setToast(null)},4000); }}/>}
         {screen==="depth" && <DepthExperience user={user} lang={lang}/>}
         {screen==="spark" && <SparkView user={user} lang={lang}/>}
-        {screen==="circles" && <WitnessCirclesView user={user}/>}
+        {screen==="circles" && <div><EmbersReel lang={lang} onOpenEmber={function(ember, i) { setEmberView({ embers: EMBERS_DATA, startIndex: i }); }}/><WitnessCirclesView user={user}/></div>}
         {screen==="threads" && <ThreadsView user={user}/>}
         {screen==="dna" && <DNAView user={user}/>}
         {screen==="essence" && <MyEssence user={user} lang={lang} onBack={function(){setScreen("depth")}}/>}
