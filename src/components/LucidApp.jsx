@@ -1184,7 +1184,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
   };
   var handleUp = function() { setDragging(false); };
 
-  var owner = PEOPLE[ownerId] || PEOPLE[Object.keys(PEOPLE)[0]];
+  var owner = PEOPLE[ownerId] || {id:ownerId, name:userName||"You", photo:userPhoto||null, essencePoints:0, soulprint:[50,50,50,50,50,50,50,50], spectrum:{intelligence:50,understanding:50,communication:50,appreciation:50}};
   var ownerTier = getTier(owner.essencePoints);
   var connectedIds = Object.keys(PEOPLE).filter(function(id) { return id !== ownerId; });
 
@@ -1207,7 +1207,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
     var personIdx = i % (connectedIds.length + 1);
     var isOwner = personIdx === 0;
     var personId = isOwner ? ownerId : connectedIds[(personIdx - 1) % connectedIds.length];
-    var person = PEOPLE[personId] || owner;
+    var person = PEOPLE[personId] || owner; var isOther = personId !== ownerId;
     var tier = getTier(person.essencePoints);
 
     // Check for connection intersection
@@ -1263,7 +1263,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
       <div style={{ textAlign:"center", marginBottom:12, padding:"0 16px" }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginBottom:4 }}>
           <Fingerprint size={16} color={ownerTier.color}/>
-          <span style={{ fontSize:15, color:C.light, fontFamily:"'Cormorant Garamond',serif", fontWeight:500 }}>{owner.name}'s Connection DNA</span>
+          <span style={{ fontSize:15, color:C.light, fontFamily:"'Cormorant Garamond',serif", fontWeight:500 }}>{userName||owner.name}'s Connection DNA</span>
         </div>
         <p style={{ fontSize:11, color:C.mid, fontFamily:"'DM Sans',sans-serif" }}>
           {dragging ? "Rotating..." : "Drag to rotate · Tap nodes to explore"}
@@ -1314,7 +1314,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
             var p1 = PROJECT(node.x, node.y, node.z);
             var p2 = PROJECT(helix2Nodes[i].x, helix2Nodes[i].y, helix2Nodes[i].z);
             var opacity = Math.max(0.03, (p1.scale - 0.5) * 0.2);
-            return <line key={"rung-"+i} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={ownerTier.color} strokeWidth="0.6" opacity={opacity} strokeDasharray="3,4"/>;
+            return <line key={"rung-"+i} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={ownerTier.color} strokeWidth={1 + p1.scale * 0.8} opacity={opacity * 1.5} strokeLinecap="round"/>;
           })}
 
           {/* Main helix strand 1 */}
@@ -1323,7 +1323,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
             var p1 = PROJECT(helixNodes[i-1].x, helixNodes[i-1].y, helixNodes[i-1].z);
             var p2 = PROJECT(node.x, node.y, node.z);
             var col = node.isOwner ? ownerTier.color : node.tier.color;
-            var opacity = Math.max(0.1, Math.min(0.9, (p2.z + 200) / 300));
+            var opacity = Math.max(0.1, Math.min(0.9, (p2.z + 200) / 300)) * (node.isOwner ? 1.0 : 0.5);
             var w = 1 + p2.scale * 2.5;
             return (
               <g key={"s1-"+i}>
@@ -1340,9 +1340,9 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
             .map(function(item) {
               var node = item.node, p = item.p, i = item.i;
               var isActive = activeNode === i;
-              var r = node.isIntersection ? 6 + p.scale * 8 : node.isOwner ? 4 + p.scale * 5 : 3 + p.scale * 3;
+              var r = node.isIntersection ? 6 + p.scale * 8 : node.isOwner ? 6 + p.scale * 7 : 3 + p.scale * 3;
               var col = node.isIntersection && node.spectrum ? node.spectrum.color : node.isOwner ? ownerTier.color : node.tier.color;
-              var opacity = Math.max(0.15, Math.min(1, (p.z + 200) / 300));
+              var opacity = Math.max(0.15, Math.min(1, (p.z + 200) / 300)) * (node.isOwner ? 1.0 : 0.55);
 
               if (opacity < 0.2 && !isActive) return null;
 
@@ -1350,7 +1350,11 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
                 <g key={"n-"+i}
                   onClick={function(e) { e.stopPropagation(); if(node.isIntersection) setActiveNode(isActive ? null : i); }}
                   style={{ cursor: node.isIntersection ? "pointer" : "default" }}>
-                  {/* Glow for intersection nodes */}
+                  {/* Glow for owner + intersection nodes */}
+                  {node.isOwner && !node.isIntersection && (
+                    <circle cx={p.x} cy={p.y} r={r+8} fill={ownerTier.color} opacity={0.12} filter="url(#glow3dL)"
+                      style={{ animation:"breathe 4s ease-in-out infinite" }}/>
+                  )}
                   {node.isIntersection && (
                     <circle cx={p.x} cy={p.y} r={r+6} fill={col} opacity={isActive ? 0.2 : 0.08} filter="url(#glow3dL)"
                       style={{ animation:"breathe 3s ease-in-out infinite "+(i*0.3)+"s" }}/>
@@ -1477,7 +1481,7 @@ function DNAView({ user }) {
 
   return (
     <div style={{ padding:20, paddingBottom:100, overflowY:"auto", maxHeight:"calc(100vh - 70px)" }}>
-      <DNAHelixMap ownerId="solace" onSelectPerson={setViewPerson}/>
+      <DNAHelixMap ownerId={user.name ? user.name.toLowerCase() : "you"} userName={user.name} userPhoto={user.photo} onSelectPerson={setViewPerson}/>
     </div>
   );
 }
