@@ -1155,7 +1155,7 @@ function SoulCard({ author, photo, emotions, height, borderRadiusTop }) {
 
 
 
-function DNAHelixMap({ ownerId, onSelectPerson }) {
+function DNAHelixMap({ ownerId, userName, userPhoto, onSelectPerson }) {
   const [activeNode, setActiveNode] = useState(null);
   const [rotY, setRotY] = useState(0);
   const [rotX, setRotX] = useState(10);
@@ -1262,7 +1262,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
       <div style={{ textAlign:"center", marginBottom:12, padding:"0 16px" }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginBottom:4 }}>
           <Fingerprint size={16} color={ownerTier.color}/>
-          <span style={{ fontSize:15, color:C.light, fontFamily:"'Cormorant Garamond',serif", fontWeight:500 }}>{owner.name}'s Connection DNA</span>
+          <span style={{ fontSize:15, color:C.light, fontFamily:"'Cormorant Garamond',serif", fontWeight:500 }}>{userName||owner.name}'s Connection DNA</span>
         </div>
         <p style={{ fontSize:11, color:C.mid, fontFamily:"'DM Sans',sans-serif" }}>
           {dragging ? "Rotating..." : "Drag to rotate · Tap nodes to explore"}
@@ -1321,7 +1321,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
             if (i === 0) return null;
             var p1 = PROJECT(helixNodes[i-1].x, helixNodes[i-1].y, helixNodes[i-1].z);
             var p2 = PROJECT(node.x, node.y, node.z);
-            var col = node.isOwner ? ownerTier.color : node.tier.color;
+            var col = node.isOwner ? ownerTier.color : node.tier.color; var strandOpacity = node.isOwner ? 1.0 : 0.4;
             var opacity = Math.max(0.1, Math.min(0.9, (p2.z + 200) / 300));
             var w = 1 + p2.scale * 2.5;
             return (
@@ -1341,7 +1341,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
               var isActive = activeNode === i;
               var r = node.isIntersection ? 6 + p.scale * 8 : node.isOwner ? 4 + p.scale * 5 : 3 + p.scale * 3;
               var col = node.isIntersection && node.spectrum ? node.spectrum.color : node.isOwner ? ownerTier.color : node.tier.color;
-              var opacity = Math.max(0.15, Math.min(1, (p.z + 200) / 300));
+              var opacity = Math.max(0.15, Math.min(1, (p.z + 200) / 300)) * (node.isOwner ? 1.0 : 0.5);
 
               if (opacity < 0.2 && !isActive) return null;
 
@@ -1370,7 +1370,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
 
           {/* Center label */}
           <text x="170" y="20" textAnchor="middle" fill={ownerTier.color} style={{ fontSize:"11px", fontFamily:"'DM Sans',sans-serif", fontWeight:500, letterSpacing:1 }}>
-            {owner.name}
+            {userName||owner.name}
           </text>
         </svg>
 
@@ -1476,7 +1476,7 @@ function DNAView({ user }) {
 
   return (
     <div style={{ padding:20, paddingBottom:100, overflowY:"auto", maxHeight:"calc(100vh - 70px)" }}>
-      <DNAHelixMap ownerId="solace" onSelectPerson={setViewPerson}/>
+      <DNAHelixMap ownerId="solace" userName={user.name} userPhoto={user.photo} onSelectPerson={setViewPerson}/>
     </div>
   );
 }
