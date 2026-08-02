@@ -792,6 +792,48 @@ function AchievementToast({ message, onDone }) {
 
 
 /* ═══════════════════════════════════════════════════════════════
+   API — Real backend calls to Supabase
+   ═══════════════════════════════════════════════════════════════ */
+
+async function apiRegister(name, email, password) {
+  try {
+    var res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: name, email: email, password: password }),
+    });
+    var data = await res.json();
+    if (!res.ok) return { error: data.error || "Registration failed" };
+    if (data.token) {
+      try { localStorage.setItem("lucid_token", data.token); } catch(e) {}
+    }
+    return { user: data.user };
+  } catch (e) {
+    return { error: "Network error — using offline mode" };
+  }
+}
+
+async function apiLogin(email, password) {
+  try {
+    var res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email, password: password }),
+    });
+    var data = await res.json();
+    if (!res.ok) return { error: data.error || "Login failed" };
+    if (data.token) {
+      try { localStorage.setItem("lucid_token", data.token); } catch(e) {}
+    }
+    return { user: data.user };
+  } catch (e) {
+    return { error: "Network error — using offline mode" };
+  }
+}
+
+
+
+/* ═══════════════════════════════════════════════════════════════
    EMBERS — Earned moments, not performances
    ═══════════════════════════════════════════════════════════════ */
 
@@ -2046,7 +2088,7 @@ function AuthScreen({ onAuth, lang, setLang }) {
 
   const validate=()=>{const e={};if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))e.email="Valid email required";if(mode==="register"){if(form.name.length<2)e.name="Essence name required";if(form.password.length<8)e.password="Min 8 chars, uppercase & number";else if(!/[A-Z]/.test(form.password)||!/[0-9]/.test(form.password))e.password="Include uppercase and number";if(form.password!==form.confirmPw)e.confirmPw="Passwords don't match";}else if(!form.password)e.password="Required";setErrors(e);return !Object.keys(e).length;};
 
-  const handleAuth=()=>{if(!validate())return;if(mode==="register")setMode("setup");else onAuth({name:"You",email:form.email,bio:"",values:[],essencePoints:0,photo:null,profileBg:null,soulprint:[50,50,50,50,50,50,50,50],spectrum:{intelligence:50,understanding:50,communication:50,appreciation:50},rewards:{witnessed:0,stirred:0,illuminated:0,rippled:0},humanityIndex:{depth:50,empathy:50,criticalThinking:50,impact:50,consistency:50}});};
+  const handleAuth=()=>{if(!validate())return;if(mode==="register")setMode("setup");else{setAuthLoading(true);apiLogin(form.email,form.password).then(function(res){setAuthLoading(false);if(res.error){setErrors({auth:res.error});onAuth({name:"You",email:form.email,bio:"",values:[],essencePoints:0,photo:null,profileBg:null,soulprint:[50,50,50,50,50,50,50,50],spectrum:{intelligence:50,understanding:50,communication:50,appreciation:50},rewards:{witnessed:0,stirred:0,illuminated:0,rippled:0},humanityIndex:{depth:50,empathy:50,criticalThinking:50,impact:50,consistency:50}})}else{onAuth(res.user)}})};};
 
   const finishSetup=()=>onAuth({name:form.name,email:form.email,bio,values,essencePoints:0,photo,profileBg:bgPhoto,soulprint:[50,50,50,50,50,50,50,50],spectrum:{intelligence:50,understanding:50,communication:50,appreciation:50},rewards:{witnessed:0,stirred:0,illuminated:0,rippled:0},humanityIndex:{depth:50,empathy:50,criticalThinking:50,impact:50,consistency:50}});
 

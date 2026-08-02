@@ -22,13 +22,14 @@ export async function POST(req: Request) {
     const { data: user, error } = await supabase
       .from('users')
       .insert({
-        name,
+        essence_name: name,
         email: email.toLowerCase(),
         password_hash: passwordHash,
         essence_points: 0,
-        values: [],
-        humanity_index: { depth: 50, empathy: 50, criticalThinking: 50, impact: 50, consistency: 50 },
-        spectrum: { intelligence: 50, understanding: 50, communication: 50, appreciation: 50 },
+        values_list: [],
+        hi_depth: 50, hi_empathy: 50, hi_critical_thinking: 50, hi_impact: 50, hi_consistency: 50,
+        spectrum_intelligence: 50, spectrum_understanding: 50, spectrum_communication: 50, spectrum_appreciation: 50,
+        total_witnessed: 0, total_stirred: 0, total_illuminated: 0, total_rippled: 0,
       })
       .select()
       .single()
@@ -36,7 +37,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
     const token = createToken(user.id, user.email)
-    return NextResponse.json({ user, token })
+    // Map DB columns to frontend shape
+    return NextResponse.json({ 
+      user: {
+        id: user.id, name: user.essence_name, email: user.email,
+        essencePoints: user.essence_points, bio: user.bio || '',
+        values: user.values_list || [],
+        photo: user.photo_url, profileBg: user.profile_bg_url,
+        spectrum: { intelligence: user.spectrum_intelligence, understanding: user.spectrum_understanding, communication: user.spectrum_communication, appreciation: user.spectrum_appreciation },
+        rewards: { witnessed: user.total_witnessed, stirred: user.total_stirred, illuminated: user.total_illuminated, rippled: user.total_rippled },
+        humanityIndex: { depth: user.hi_depth, empathy: user.hi_empathy, criticalThinking: user.hi_critical_thinking, impact: user.hi_impact, consistency: user.hi_consistency },
+      }, 
+      token 
+    })
   } catch (err) {
     return NextResponse.json({ error: 'Registration failed' }, { status: 500 })
   }

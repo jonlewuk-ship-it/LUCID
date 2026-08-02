@@ -23,7 +23,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
     }
     const token = createToken(user.id, user.email)
-    return NextResponse.json({ user, token })
+    return NextResponse.json({ 
+      user: {
+        id: user.id, name: user.essence_name, email: user.email,
+        essencePoints: user.essence_points, bio: user.bio || '',
+        values: user.values_list || [],
+        photo: user.photo_url, profileBg: user.profile_bg_url,
+        spectrum: { intelligence: user.spectrum_intelligence, understanding: user.spectrum_understanding, communication: user.spectrum_communication, appreciation: user.spectrum_appreciation },
+        rewards: { witnessed: user.total_witnessed, stirred: user.total_stirred, illuminated: user.total_illuminated, rippled: user.total_rippled },
+        humanityIndex: { depth: user.hi_depth, empathy: user.hi_empathy, criticalThinking: user.hi_critical_thinking, impact: user.hi_impact, consistency: user.hi_consistency },
+      }, 
+      token 
+    })
   } catch (err) {
     return NextResponse.json({ error: 'Login failed' }, { status: 500 })
   }
