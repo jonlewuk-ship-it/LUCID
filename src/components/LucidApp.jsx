@@ -3910,7 +3910,6 @@ export default function LucidApp(){
       </div>
 
       <ActivityTicker/>
-      <EmbersReel onOpenEmber={function(ember, i) { setEmberView({ embers: EMBERS_DATA, startIndex: i }); }}/>
       <div style={{ flex:1, overflowY:"auto", overflowX:"hidden" }}>
         {screen==="depth" && <SparkOfTheDay lang={lang} onAccept={function(s){ haptic("heavy"); setToast("Spark accepted! Live it, then come back."); setTimeout(function(){setToast(null)},4000); }}/>}
         {screen==="depth" && <DepthExperience user={user} lang={lang}/>}
