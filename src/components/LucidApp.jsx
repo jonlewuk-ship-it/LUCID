@@ -595,8 +595,6 @@ select{font-family:inherit}
 @keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 .di{animation:depthIn .55s cubic-bezier(.16,1,.3,1) forwards}
 .ri{animation:riseUp .5s cubic-bezier(.16,1,.3,1) forwards}
-@keyframes emberPulse{0%,100%{box-shadow:0 0 8px 2px rgba(240,168,48,0.2);transform:scale(1)}50%{box-shadow:0 0 16px 6px rgba(240,168,48,0.35);transform:scale(1.05)}}
-@keyframes emberGlow{0%,100%{opacity:0.4}50%{opacity:0.8}}
 .ri1{animation-delay:.08s;opacity:0}.ri2{animation-delay:.16s;opacity:0}
 .ri3{animation-delay:.24s;opacity:0}.ri4{animation-delay:.32s;opacity:0}
 .trait-pulse{animation:traitGlow 3s ease-in-out infinite}
@@ -868,7 +866,6 @@ function EmbersReel({ onOpenEmber }) {
                 background: "conic-gradient(from 0deg, " + ringColor + " 0%, " + ringColor + Math.round(glowIntensity * 60) + " " + Math.round(ember.warmth) + "%, transparent " + Math.round(ember.warmth) + "%)",
                 animation: pulseAnim,
                 opacity: 0.4 + glowIntensity * 0.6,
-                transition: "all 0.3s ease",
               }
             }),
             React.createElement("div", {
@@ -884,7 +881,6 @@ function EmbersReel({ onOpenEmber }) {
                 width: 62, height: 62, borderRadius: "50%", overflow: "hidden",
                 border: "2px solid " + C.void,
                 position: "relative", zIndex: 1,
-                animation: ember.warming ? "emberPulse 2s ease-in-out infinite" : "none",
               }
             },
               person.photo
@@ -1184,12 +1180,9 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
   };
   var handleUp = function() { setDragging(false); };
 
-  var owner = PEOPLE[ownerId] || {id:ownerId, name:"You", photo:null, essencePoints:0, soulprint:[50,50,50,50,50,50,50,50], spectrum:{intelligence:50,understanding:50,communication:50,appreciation:50}};
-  // Override display name/photo with logged-in user data
-  if (userName) owner = Object.assign({}, owner, {name: userName});
-  if (userPhoto) owner = Object.assign({}, owner, {photo: userPhoto});
+  var owner = PEOPLE[ownerId] || PEOPLE[Object.keys(PEOPLE)[0]];
   var ownerTier = getTier(owner.essencePoints);
-  var connectedIds = Object.keys(PEOPLE).filter(function(id) { return id !== ownerId && id !== "__me__"; });
+  var connectedIds = Object.keys(PEOPLE).filter(function(id) { return id !== ownerId; });
 
   // Build 3D cylinder nodes
   var CYLINDER_R = 100;   // radius of cylinder
@@ -1210,7 +1203,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
     var personIdx = i % (connectedIds.length + 1);
     var isOwner = personIdx === 0;
     var personId = isOwner ? ownerId : connectedIds[(personIdx - 1) % connectedIds.length];
-    var person = PEOPLE[personId] || owner; var isOther = personId !== ownerId;
+    var person = PEOPLE[personId] || owner;
     var tier = getTier(person.essencePoints);
 
     // Check for connection intersection
@@ -1266,7 +1259,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
       <div style={{ textAlign:"center", marginBottom:12, padding:"0 16px" }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginBottom:4 }}>
           <Fingerprint size={16} color={ownerTier.color}/>
-          <span style={{ fontSize:15, color:C.light, fontFamily:"'Cormorant Garamond',serif", fontWeight:500 }}>{userName||owner.name}'s Connection DNA</span>
+          <span style={{ fontSize:15, color:C.light, fontFamily:"'Cormorant Garamond',serif", fontWeight:500 }}>{user.name}'s Connection DNA</span>
         </div>
         <p style={{ fontSize:11, color:C.mid, fontFamily:"'DM Sans',sans-serif" }}>
           {dragging ? "Rotating..." : "Drag to rotate · Tap nodes to explore"}
@@ -1317,7 +1310,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
             var p1 = PROJECT(node.x, node.y, node.z);
             var p2 = PROJECT(helix2Nodes[i].x, helix2Nodes[i].y, helix2Nodes[i].z);
             var opacity = Math.max(0.03, (p1.scale - 0.5) * 0.2);
-            return <line key={"rung-"+i} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={ownerTier.color} strokeWidth={1 + p1.scale * 0.8} opacity={opacity * 1.5} strokeLinecap="round"/>;
+            return <line key={"rung-"+i} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={ownerTier.color} strokeWidth="0.6" opacity={opacity} strokeDasharray="3,4"/>;
           })}
 
           {/* Main helix strand 1 */}
@@ -1326,7 +1319,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
             var p1 = PROJECT(helixNodes[i-1].x, helixNodes[i-1].y, helixNodes[i-1].z);
             var p2 = PROJECT(node.x, node.y, node.z);
             var col = node.isOwner ? ownerTier.color : node.tier.color;
-            var opacity = Math.max(0.1, Math.min(0.9, (p2.z + 200) / 300)) * (node.isOwner ? 1.0 : 0.5);
+            var opacity = Math.max(0.1, Math.min(0.9, (p2.z + 200) / 300));
             var w = 1 + p2.scale * 2.5;
             return (
               <g key={"s1-"+i}>
@@ -1353,11 +1346,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
                 <g key={"n-"+i}
                   onClick={function(e) { e.stopPropagation(); if(node.isIntersection) setActiveNode(isActive ? null : i); }}
                   style={{ cursor: node.isIntersection ? "pointer" : "default" }}>
-                  {/* Glow for owner + intersection nodes */}
-                  {node.isOwner && !node.isIntersection && (
-                    <circle cx={p.x} cy={p.y} r={r+8} fill={ownerTier.color} opacity={0.12} filter="url(#glow3dL)"
-                      style={{ animation:"breathe 4s ease-in-out infinite" }}/>
-                  )}
+                  {/* Glow for intersection nodes */}
                   {node.isIntersection && (
                     <circle cx={p.x} cy={p.y} r={r+6} fill={col} opacity={isActive ? 0.2 : 0.08} filter="url(#glow3dL)"
                       style={{ animation:"breathe 3s ease-in-out infinite "+(i*0.3)+"s" }}/>
@@ -1482,27 +1471,9 @@ function DNAView({ user }) {
     );
   }
 
-  // Inject logged-in user into PEOPLE for DNA rendering
-  var myId = "__me__";
-  var myTier = getTier(user.essencePoints || 0);
-  PEOPLE[myId] = {
-    id: myId, name: user.name || "You", photo: user.photo || null,
-    essencePoints: user.essencePoints || 0,
-    soulprint: user.soulprint || [50,50,50,50,50,50,50,50],
-    spectrum: user.spectrum || {intelligence:50,understanding:50,communication:50,appreciation:50},
-    rewards: user.rewards || {witnessed:0,stirred:0,illuminated:0,rippled:0},
-    bio: user.bio || "", values: user.values || [],
-    humanityIndex: user.humanityIndex || {depth:50,empathy:50,criticalThinking:50,impact:50,consistency:50},
-  };
-
-  // Clean up on unmount
-  useEffect(function() {
-    return function() { delete PEOPLE[myId]; };
-  }, []);
-
   return (
     <div style={{ padding:20, paddingBottom:100, overflowY:"auto", maxHeight:"calc(100vh - 70px)" }}>
-      <DNAHelixMap ownerId={myId} userName={user.name} userPhoto={user.photo} onSelectPerson={setViewPerson}/>
+      <DNAHelixMap ownerId="solace" onSelectPerson={setViewPerson}/>
     </div>
   );
 }
@@ -3935,6 +3906,7 @@ export default function LucidApp(){
       </div>
 
       <ActivityTicker/>
+      <EmbersReel onOpenEmber={function(ember, i) { setEmberView({ embers: EMBERS_DATA, startIndex: i }); }}/>
       <div style={{ flex:1, overflowY:"auto", overflowX:"hidden" }}>
         {screen==="depth" && <SparkOfTheDay lang={lang} onAccept={function(s){ haptic("heavy"); setToast("Spark accepted! Live it, then come back."); setTimeout(function(){setToast(null)},4000); }}/>}
         {screen==="depth" && <DepthExperience user={user} lang={lang}/>}
