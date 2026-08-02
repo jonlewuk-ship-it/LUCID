@@ -1184,9 +1184,12 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
   };
   var handleUp = function() { setDragging(false); };
 
-  var owner = PEOPLE[ownerId] || {id:ownerId, name:userName||"You", photo:userPhoto||null, essencePoints:0, soulprint:[50,50,50,50,50,50,50,50], spectrum:{intelligence:50,understanding:50,communication:50,appreciation:50}};
+  var owner = PEOPLE[ownerId] || {id:ownerId, name:"You", photo:null, essencePoints:0, soulprint:[50,50,50,50,50,50,50,50], spectrum:{intelligence:50,understanding:50,communication:50,appreciation:50}};
+  // Override display name/photo with logged-in user data
+  if (userName) owner = Object.assign({}, owner, {name: userName});
+  if (userPhoto) owner = Object.assign({}, owner, {photo: userPhoto});
   var ownerTier = getTier(owner.essencePoints);
-  var connectedIds = Object.keys(PEOPLE).filter(function(id) { return id !== ownerId; });
+  var connectedIds = Object.keys(PEOPLE).filter(function(id) { return id !== ownerId && id !== "__me__"; });
 
   // Build 3D cylinder nodes
   var CYLINDER_R = 100;   // radius of cylinder
@@ -1479,9 +1482,27 @@ function DNAView({ user }) {
     );
   }
 
+  // Inject logged-in user into PEOPLE for DNA rendering
+  var myId = "__me__";
+  var myTier = getTier(user.essencePoints || 0);
+  PEOPLE[myId] = {
+    id: myId, name: user.name || "You", photo: user.photo || null,
+    essencePoints: user.essencePoints || 0,
+    soulprint: user.soulprint || [50,50,50,50,50,50,50,50],
+    spectrum: user.spectrum || {intelligence:50,understanding:50,communication:50,appreciation:50},
+    rewards: user.rewards || {witnessed:0,stirred:0,illuminated:0,rippled:0},
+    bio: user.bio || "", values: user.values || [],
+    humanityIndex: user.humanityIndex || {depth:50,empathy:50,criticalThinking:50,impact:50,consistency:50},
+  };
+
+  // Clean up on unmount
+  useEffect(function() {
+    return function() { delete PEOPLE[myId]; };
+  }, []);
+
   return (
     <div style={{ padding:20, paddingBottom:100, overflowY:"auto", maxHeight:"calc(100vh - 70px)" }}>
-      <DNAHelixMap ownerId={Object.keys(PEOPLE)[0]} userName={user.name} userPhoto={user.photo} onSelectPerson={setViewPerson}/>
+      <DNAHelixMap ownerId={myId} userName={user.name} userPhoto={user.photo} onSelectPerson={setViewPerson}/>
     </div>
   );
 }
