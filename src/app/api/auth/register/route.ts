@@ -1,7 +1,5 @@
 export const dynamic = "force-dynamic"
 import { NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase'
-import { hashPassword, createToken } from '@/lib/auth'
 
 export async function POST(req: Request) {
   try {
@@ -9,16 +7,35 @@ export async function POST(req: Request) {
     if (!name || !email || !password) {
       return NextResponse.json({ error: 'All fields required' }, { status: 400 })
     }
-    const supabase = createServerClient()
+
+    // Dynamic imports to avoid serverless bundling issues
+    const { createClient } = await import('@supabase/supabase-js')
+    const bcrypt = (await import('bcryptjs')).default
+    const jwt = (await import('jsonwebtoken')).default
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const jwtSecret = process.env.JWT_SECRET || 'lucid-dev-secret'
+
+    if (!supabaseUrl || !supabaseKey) {
+      return NextResponse.json({ error: 'Server config missing', detail: 'SUPABASE vars not set' }, { status: 500 })
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey)
+
+    // Check existing
     const { data: existing } = await supabase
       .from('users')
       .select('id')
       .eq('email', email.toLowerCase())
       .single()
+
     if (existing) {
       return NextResponse.json({ error: 'Email already registered' }, { status: 409 })
     }
-    const passwordHash = await hashPassword(password)
+
+    const passwordHash = await bcrypt.hash(password, 12)
+
     const { data: user, error } = await supabase
       .from('users')
       .insert({
@@ -33,11 +50,13 @@ export async function POST(req: Request) {
       })
       .select()
       .single()
+
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: 'DB error: ' + error.message }, { status: 500 })
     }
-    const token = createToken(user.id, user.email)
-    // Map DB columns to frontend shape
+
+    const token = jwt.sign({ userId: user.id, email: user.email }, jwtSecret, { expiresIn: '30d' })
+
     return NextResponse.json({ 
       user: {
         id: user.id, name: user.essence_name, email: user.email,
@@ -50,7 +69,7 @@ export async function POST(req: Request) {
       }, 
       token 
     })
-  } catch (err) {
-    return NextResponse.json({ error: 'Registration failed' }, { status: 500 })
+  } catch (err: any) {
+    return NextResponse.json({ error: 'Registration failed', detail: err.message || String(err) }, { status: 500 })
   }
 }

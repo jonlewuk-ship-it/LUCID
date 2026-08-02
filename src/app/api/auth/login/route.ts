@@ -1,7 +1,5 @@
 export const dynamic = "force-dynamic"
 import { NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase'
-import { verifyPassword, createToken } from '@/lib/auth'
 
 export async function POST(req: Request) {
   try {
@@ -9,20 +7,34 @@ export async function POST(req: Request) {
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
     }
-    const supabase = createServerClient()
+
+    const { createClient } = await import('@supabase/supabase-js')
+    const bcrypt = (await import('bcryptjs')).default
+    const jwt = (await import('jsonwebtoken')).default
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+    const jwtSecret = process.env.JWT_SECRET || 'lucid-dev-secret'
+
     const { data: user } = await supabase
       .from('users')
       .select('*')
       .eq('email', email.toLowerCase())
       .single()
+
     if (!user) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
     }
-    const valid = await verifyPassword(password, user.password_hash)
+
+    const valid = await bcrypt.compare(password, user.password_hash)
     if (!valid) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
     }
-    const token = createToken(user.id, user.email)
+
+    const token = jwt.sign({ userId: user.id, email: user.email }, jwtSecret, { expiresIn: '30d' })
+
     return NextResponse.json({ 
       user: {
         id: user.id, name: user.essence_name, email: user.email,
@@ -35,7 +47,7 @@ export async function POST(req: Request) {
       }, 
       token 
     })
-  } catch (err) {
-    return NextResponse.json({ error: 'Login failed' }, { status: 500 })
+  } catch (err: any) {
+    return NextResponse.json({ error: 'Login failed', detail: err.message || String(err) }, { status: 500 })
   }
 }
