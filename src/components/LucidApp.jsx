@@ -2090,7 +2090,13 @@ function AuthScreen({ onAuth, lang, setLang }) {
 
   const handleAuth=()=>{if(!validate())return;if(mode==="register")setMode("setup");else{setAuthLoading(true);apiLogin(form.email,form.password).then(function(res){setAuthLoading(false);if(res.error){setErrors({auth:res.error});onAuth({name:"You",email:form.email,bio:"",values:[],essencePoints:0,photo:null,profileBg:null,soulprint:[50,50,50,50,50,50,50,50],spectrum:{intelligence:50,understanding:50,communication:50,appreciation:50},rewards:{witnessed:0,stirred:0,illuminated:0,rippled:0},humanityIndex:{depth:50,empathy:50,criticalThinking:50,impact:50,consistency:50}})}else{onAuth(res.user)}})};};
 
-  const finishSetup=()=>onAuth({name:form.name,email:form.email,bio,values,essencePoints:0,photo,profileBg:bgPhoto,soulprint:[50,50,50,50,50,50,50,50],spectrum:{intelligence:50,understanding:50,communication:50,appreciation:50},rewards:{witnessed:0,stirred:0,illuminated:0,rippled:0},humanityIndex:{depth:50,empathy:50,criticalThinking:50,impact:50,consistency:50}});
+  const finishSetup=()=>{
+    var offlineUser={name:form.name,email:form.email,bio:bio,values:values,essencePoints:0,photo:photo,profileBg:bgPhoto,soulprint:[50,50,50,50,50,50,50,50],spectrum:{intelligence:50,understanding:50,communication:50,appreciation:50},rewards:{witnessed:0,stirred:0,illuminated:0,rippled:0},humanityIndex:{depth:50,empathy:50,criticalThinking:50,impact:50,consistency:50}};
+    apiRegister(form.name,form.email,form.password).then(function(res){
+      if(res.user){var u=res.user;u.bio=bio;u.values=values;u.photo=photo;u.profileBg=bgPhoto;onAuth(u);}
+      else{onAuth(offlineUser);}
+    });
+  };
 
   const handlePhoto=(e)=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=(ev)=>setPhoto(ev.target.result);r.readAsDataURL(f);};
 
