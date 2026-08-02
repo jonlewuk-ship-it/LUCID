@@ -1481,7 +1481,7 @@ function DNAView({ user }) {
 
   return (
     <div style={{ padding:20, paddingBottom:100, overflowY:"auto", maxHeight:"calc(100vh - 70px)" }}>
-      <DNAHelixMap ownerId={user.name ? user.name.toLowerCase() : "you"} userName={user.name} userPhoto={user.photo} onSelectPerson={setViewPerson}/>
+      <DNAHelixMap ownerId={Object.keys(PEOPLE)[0]} userName={user.name} userPhoto={user.photo} onSelectPerson={setViewPerson}/>
     </div>
   );
 }
