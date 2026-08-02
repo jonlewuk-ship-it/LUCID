@@ -2422,11 +2422,7 @@ function DepthExperience({ user }) {
           <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:15,color:C.light,lineHeight:1.8}}>{p.evolvedBio}</p>
         </div>
 
-        {/* Humanity Index — the real measure */}
-        <div className="ri ri2" style={{background:C.abyss,borderRadius:16,padding:"16px 8px",marginBottom:14,border:`1px solid ${C.ghost}`}}>
-          <div style={{fontSize:10,color:C.mid,fontFamily:"'DM Sans'",letterSpacing:1.5,textTransform:"uppercase",marginBottom:4,textAlign:"center"}}>Humanity Index</div>
-          <HumanityIndexViz data={p.humanityIndex} size={320}/>
-        </div>
+
 
         {/* Journey Map — their growth path */}
         <div className="ri ri3" style={{marginBottom:14}}>
