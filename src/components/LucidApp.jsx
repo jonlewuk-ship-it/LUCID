@@ -595,6 +595,9 @@ select{font-family:inherit}
 @keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 .di{animation:depthIn .55s cubic-bezier(.16,1,.3,1) forwards}
 .ri{animation:riseUp .5s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes dnaRotate{0%{transform:rotateY(0deg)}100%{transform:rotateY(360deg)}}
+@keyframes dnaPulse{0%,100%{filter:brightness(1) drop-shadow(0 0 4px rgba(240,168,48,0.2))}50%{filter:brightness(1.2) drop-shadow(0 0 12px rgba(240,168,48,0.4))}}
+@keyframes nodeFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 .ri1{animation-delay:.08s;opacity:0}.ri2{animation-delay:.16s;opacity:0}
 .ri3{animation-delay:.24s;opacity:0}.ri4{animation-delay:.32s;opacity:0}
 .trait-pulse{animation:traitGlow 3s ease-in-out infinite}
@@ -1281,7 +1284,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
         <svg width="340" height="440" viewBox="0 0 340 440" style={{ display:"block", margin:"0 auto" }}>
           <defs>
             <filter id="glow3d"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-            <filter id="glow3dL"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="glow3dL" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
           </defs>
 
           {/* Cylinder wireframe rings */}
@@ -1310,7 +1313,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
             var p1 = PROJECT(node.x, node.y, node.z);
             var p2 = PROJECT(helix2Nodes[i].x, helix2Nodes[i].y, helix2Nodes[i].z);
             var opacity = Math.max(0.03, (p1.scale - 0.5) * 0.2);
-            return <line key={"rung-"+i} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={ownerTier.color} strokeWidth="0.6" opacity={opacity} strokeDasharray="3,4"/>;
+            return <line key={"rung-"+i} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={ownerTier.color} strokeWidth="0.6" opacity={opacity} strokeLinecap="round"/>;
           })}
 
           {/* Main helix strand 1 */}
@@ -1349,7 +1352,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
                   {/* Glow for intersection nodes */}
                   {node.isIntersection && (
                     <circle cx={p.x} cy={p.y} r={r+6} fill={col} opacity={isActive ? 0.2 : 0.08} filter="url(#glow3dL)"
-                      style={{ animation:"breathe 3s ease-in-out infinite "+(i*0.3)+"s" }}/>
+                      style={{ animation:"dnaPulse 3s ease-in-out infinite "+(i*0.3)+"s" }}/>
                   )}
                   {/* Node body */}
                   <circle cx={p.x} cy={p.y} r={r} fill={col} opacity={opacity * (node.isIntersection ? 0.7 : 0.5)} filter={node.isIntersection ? "url(#glow3d)" : undefined}/>
@@ -3906,12 +3909,11 @@ export default function LucidApp(){
       </div>
 
       <ActivityTicker/>
-      <EmbersReel onOpenEmber={function(ember, i) { setEmberView({ embers: EMBERS_DATA, startIndex: i }); }}/>
       <div style={{ flex:1, overflowY:"auto", overflowX:"hidden" }}>
         {screen==="depth" && <SparkOfTheDay lang={lang} onAccept={function(s){ haptic("heavy"); setToast("Spark accepted! Live it, then come back."); setTimeout(function(){setToast(null)},4000); }}/>}
         {screen==="depth" && <DepthExperience user={user} lang={lang}/>}
         {screen==="spark" && <SparkView user={user} lang={lang}/>}
-        {screen==="circles" && <WitnessCirclesView user={user}/>}
+        {screen==="circles" && <div><EmbersReel onOpenEmber={function(ember, i) { setEmberView({ embers: EMBERS_DATA, startIndex: i }); }}/><WitnessCirclesView user={user}/></div>}
         {screen==="threads" && <ThreadsView user={user}/>}
         {screen==="dna" && <DNAView user={user}/>}
         {screen==="essence" && <MyEssence user={user} lang={lang}/>}
