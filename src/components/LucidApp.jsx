@@ -1259,7 +1259,7 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
       <div style={{ textAlign:"center", marginBottom:12, padding:"0 16px" }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginBottom:4 }}>
           <Fingerprint size={16} color={ownerTier.color}/>
-          <span style={{ fontSize:15, color:C.light, fontFamily:"'Cormorant Garamond',serif", fontWeight:500 }}>{user.name}'s Connection DNA</span>
+          <span style={{ fontSize:15, color:C.light, fontFamily:"'Cormorant Garamond',serif", fontWeight:500 }}>{owner.name}'s Connection DNA</span>
         </div>
         <p style={{ fontSize:11, color:C.mid, fontFamily:"'DM Sans',sans-serif" }}>
           {dragging ? "Rotating..." : "Drag to rotate · Tap nodes to explore"}
@@ -1336,9 +1336,9 @@ function DNAHelixMap({ ownerId, onSelectPerson }) {
             .map(function(item) {
               var node = item.node, p = item.p, i = item.i;
               var isActive = activeNode === i;
-              var r = node.isIntersection ? 6 + p.scale * 8 : node.isOwner ? 6 + p.scale * 7 : 3 + p.scale * 3;
+              var r = node.isIntersection ? 6 + p.scale * 8 : node.isOwner ? 4 + p.scale * 5 : 3 + p.scale * 3;
               var col = node.isIntersection && node.spectrum ? node.spectrum.color : node.isOwner ? ownerTier.color : node.tier.color;
-              var opacity = Math.max(0.15, Math.min(1, (p.z + 200) / 300)) * (node.isOwner ? 1.0 : 0.55);
+              var opacity = Math.max(0.15, Math.min(1, (p.z + 200) / 300));
 
               if (opacity < 0.2 && !isActive) return null;
 
@@ -3882,7 +3882,7 @@ export default function LucidApp(){
       }}>
         <button onClick={function(){haptic("light");setScreen("essence")}} style={{ 
           width:52, height:52, borderRadius:"50%", overflow:"hidden", padding:0, flexShrink:0,
-          border:screen==="essence"?"3px solid "+tier.color:"3px solid "+tier.color+"40", 
+          border:screen==="essence"?"3px solid "+tier.color:"3px solid "+C.ghost+"30", 
           background:user.photo?"none":"linear-gradient(135deg,"+tier.color+"30,"+tier.color+"08)", 
           display:"flex", alignItems:"center", justifyContent:"center", 
           boxShadow:"0 4px 16px "+tier.color+"15", transition:"all 0.3s ease",
@@ -3911,10 +3911,10 @@ export default function LucidApp(){
         {screen==="depth" && <SparkOfTheDay lang={lang} onAccept={function(s){ haptic("heavy"); setToast("Spark accepted! Live it, then come back."); setTimeout(function(){setToast(null)},4000); }}/>}
         {screen==="depth" && <DepthExperience user={user} lang={lang}/>}
         {screen==="spark" && <SparkView user={user} lang={lang}/>}
-        {screen==="circles" && <div><EmbersReel lang={lang} onOpenEmber={function(ember, i) { setEmberView({ embers: EMBERS_DATA, startIndex: i }); }}/><WitnessCirclesView user={user}/></div>}
+        {screen==="circles" && <WitnessCirclesView user={user}/>}
         {screen==="threads" && <ThreadsView user={user}/>}
         {screen==="dna" && <DNAView user={user}/>}
-        {screen==="essence" && <MyEssence user={user} lang={lang} onBack={function(){setScreen("depth")}}/>}
+        {screen==="essence" && <MyEssence user={user} lang={lang}/>}
       </div>
 
       <div style={{
@@ -3929,7 +3929,7 @@ export default function LucidApp(){
           {id:"circles",icon:Users,label:"Circles"},
           {id:"threads",icon:MessageCircle,label:"Threads"},
           {id:"dna",icon:Fingerprint,label:"DNA"},
-          
+          {id:"essence",icon:Eye,label:"Me"},
         ].map(function(n){
           var active = screen===n.id;
           return (
