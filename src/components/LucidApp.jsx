@@ -3929,7 +3929,7 @@ export default function LucidApp(){
           {id:"circles",icon:Users,label:"Circles"},
           {id:"threads",icon:MessageCircle,label:"Threads"},
           {id:"dna",icon:Fingerprint,label:"DNA"},
-          {id:"essence",icon:Eye,label:"Me"},
+          
         ].map(function(n){
           var active = screen===n.id;
           return (
