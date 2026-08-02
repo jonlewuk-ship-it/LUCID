@@ -3882,7 +3882,7 @@ export default function LucidApp(){
       }}>
         <button onClick={function(){haptic("light");setScreen("essence")}} style={{ 
           width:52, height:52, borderRadius:"50%", overflow:"hidden", padding:0, flexShrink:0,
-          border:screen==="essence"?"3px solid "+tier.color:"3px solid "+C.ghost+"30", 
+          border:screen==="essence"?"3px solid "+tier.color:"3px solid "+tier.color+"40", 
           background:user.photo?"none":"linear-gradient(135deg,"+tier.color+"30,"+tier.color+"08)", 
           display:"flex", alignItems:"center", justifyContent:"center", 
           boxShadow:"0 4px 16px "+tier.color+"15", transition:"all 0.3s ease",
@@ -3914,7 +3914,7 @@ export default function LucidApp(){
         {screen==="circles" && <WitnessCirclesView user={user}/>}
         {screen==="threads" && <ThreadsView user={user}/>}
         {screen==="dna" && <DNAView user={user}/>}
-        {screen==="essence" && <MyEssence user={user} lang={lang}/>}
+        {screen==="essence" && <MyEssence user={user} lang={lang} onBack={function(){setScreen("depth")}}/>}
       </div>
 
       <div style={{
@@ -3929,7 +3929,7 @@ export default function LucidApp(){
           {id:"circles",icon:Users,label:"Circles"},
           {id:"threads",icon:MessageCircle,label:"Threads"},
           {id:"dna",icon:Fingerprint,label:"DNA"},
-          {id:"essence",icon:Eye,label:"Me"},
+          
         ].map(function(n){
           var active = screen===n.id;
           return (
