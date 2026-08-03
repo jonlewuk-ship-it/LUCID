@@ -3133,7 +3133,7 @@ function SparkView({ user, lang }) {
     var allSparks = [{isDailySpotlight:true, prompt:dailySpark.prompt, creator:dailySpark.creator, category:dailySpark.category, responses:[]}].concat(COMMUNITY_SPARKS);
 
     return (
-    <div style={{ scrollSnapType:"y mandatory", overflowY:"auto", maxHeight:"calc(100vh - 130px)", scrollbarWidth:"none" }}>
+    <div style={{ overflowY:"auto", maxHeight:"calc(100vh - 130px)", scrollbarWidth:"none", padding:"0 0 20px" }}>
       {allSparks.map(function(spark, i) {
         var isDaily = spark.isDailySpotlight;
         var creator = PEOPLE[spark.creatorId] || {name:spark.creator||"LUCID"};
@@ -3141,9 +3141,7 @@ function SparkView({ user, lang }) {
         var returnRate = spark.accepted > 0 ? Math.round((spark.returned||0)/(spark.accepted||1)*100) : 0;
 
         return React.createElement("div", {key:isDaily?"daily":spark.id, style:{
-            scrollSnapAlign:"start", minHeight:"calc(100vh - 140px)",
-            padding:"20px 16px", display:"flex", flexDirection:"column", justifyContent:"center",
-            borderBottom:"1px solid "+C.ghost+"10",
+            padding:"8px 16px 4px", display:"flex", flexDirection:"column",
         }},
           isDaily && React.createElement("div", {className:"di", style:{display:"flex",alignItems:"center",gap:6,marginBottom:14}},
             React.createElement("div", {style:{width:6,height:6,borderRadius:3,background:C.ember,animation:"breathe 2s ease-in-out infinite"}}),
@@ -3161,24 +3159,40 @@ function SparkView({ user, lang }) {
             React.createElement("p", {style:{fontFamily:"'Cormorant Garamond',serif",fontSize:isDaily?20:17,color:C.light,lineHeight:1.7,marginBottom:18}},
               "\u201C" + spark.prompt + "\u201D"
             ),
-            React.createElement("div", {style:{display:"flex",alignItems:"center",gap:8,marginBottom:16}},
-              creator.photo && React.createElement("img", {src:creator.photo,alt:"",style:{width:24,height:24,borderRadius:"50%",objectFit:"cover"}}),
-              React.createElement("span", {style:{fontSize:11,color:C.dim,fontFamily:"'DM Sans',sans-serif"}}, t("by",lang) + " " + (creator.name||spark.creator))
+            React.createElement("div", {style:{display:"flex",alignItems:"center",gap:10,marginBottom:16,padding:"8px 12px",borderRadius:12,background:C.surface,border:"1px solid "+C.ghost+"20"}},
+              React.createElement("div", {style:{width:36,height:36,borderRadius:"50%",overflow:"hidden",border:"2px solid "+C.ember+"30",flexShrink:0}},
+                creator.photo ? React.createElement("img", {src:creator.photo,alt:"",style:{width:"100%",height:"100%",objectFit:"cover"}}) : React.createElement("div", {style:{width:"100%",height:"100%",background:C.ember+"15",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,color:C.ember}}, (creator.name||"?")[0])
+              ),
+              React.createElement("div", {style:{flex:1}},
+                React.createElement("div", {style:{fontSize:12,color:C.light,fontFamily:"'DM Sans',sans-serif",fontWeight:500}}, creator.name||spark.creator),
+                React.createElement("div", {style:{fontSize:9,color:C.dim,fontFamily:"'DM Sans',sans-serif"}}, (creator.reflCount||0)+" reflections · "+(creator.connections||0)+" connections")
+              ),
+              React.createElement("div", {style:{padding:"3px 8px",borderRadius:8,background:(getTier(creator.essencePoints||0).color)+"10",border:"1px solid "+(getTier(creator.essencePoints||0).color)+"20"}},
+                React.createElement("span", {style:{fontSize:9,color:getTier(creator.essencePoints||0).color,fontFamily:"'JetBrains Mono',monospace"}}, getTier(creator.essencePoints||0).name)
+              )
             ),
-            !isDaily && React.createElement("div", {style:{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap"}},
-              React.createElement("div", {style:{display:"flex",alignItems:"center",gap:4,padding:"4px 10px",borderRadius:8,background:C.ember+"08",border:"1px solid "+C.ember+"12"}},
-                React.createElement(Flame, {size:11,color:C.ember}),
-                React.createElement("span", {style:{fontSize:10,color:C.ember,fontFamily:"'JetBrains Mono',monospace"}}, spark.accepted||0),
-                React.createElement("span", {style:{fontSize:9,color:C.dim}}, " "+t("acceptedLabel",lang))
+            !isDaily && React.createElement("div", {style:{display:"flex",flexDirection:"column",gap:10,marginBottom:14}},
+              React.createElement("div", {style:{display:"flex",justifyContent:"space-between",alignItems:"center"}},
+                React.createElement("div", {style:{display:"flex",gap:6,flexWrap:"wrap"}},
+                  React.createElement("div", {style:{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",borderRadius:10,background:C.ember+"08",border:"1px solid "+C.ember+"15"}},
+                    React.createElement(Flame, {size:12,color:C.ember}),
+                    React.createElement("span", {style:{fontSize:11,color:C.ember,fontFamily:"'JetBrains Mono',monospace",fontWeight:600}}, spark.accepted||0),
+                    React.createElement("span", {style:{fontSize:9,color:C.dim}}, " "+t("acceptedLabel",lang))
+                  ),
+                  React.createElement("div", {style:{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",borderRadius:10,background:C.understanding+"08",border:"1px solid "+C.understanding+"15"}},
+                    React.createElement("span", {style:{fontSize:11,color:C.understanding,fontFamily:"'JetBrains Mono',monospace",fontWeight:600}}, returnRate+"%"),
+                    React.createElement("span", {style:{fontSize:9,color:C.dim}}, " "+t("returnedLabel",lang))
+                  )
+                ),
+                spark.avgDepth && React.createElement("div", {style:{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",borderRadius:10,background:C.appreciation+"08",border:"1px solid "+C.appreciation+"15"}},
+                  React.createElement("span", {style:{fontSize:9,color:C.dim}}, t("depthLabel",lang)),
+                  React.createElement("span", {style:{fontSize:12,color:C.appreciation,fontFamily:"'JetBrains Mono',monospace",fontWeight:700}}, spark.avgDepth)
+                )
               ),
-              React.createElement("div", {style:{display:"flex",alignItems:"center",gap:4,padding:"4px 10px",borderRadius:8,background:C.understanding+"08",border:"1px solid "+C.understanding+"12"}},
-                React.createElement("span", {style:{fontSize:10,color:C.understanding,fontFamily:"'JetBrains Mono',monospace"}}, returnRate+"%"),
-                React.createElement("span", {style:{fontSize:9,color:C.dim}}, " "+t("returnedLabel",lang))
-              ),
-              echoCount > 0 && React.createElement("button", {onClick:function(){setSelectedSpark(spark);setPhase("echoes")},style:{display:"flex",alignItems:"center",gap:4,padding:"4px 10px",borderRadius:8,background:C.appreciation+"08",border:"1px solid "+C.appreciation+"12",cursor:"pointer"}},
-                React.createElement(Waves, {size:11,color:C.appreciation}),
-                React.createElement("span", {style:{fontSize:10,color:C.appreciation,fontFamily:"'JetBrains Mono',monospace"}}, echoCount),
-                React.createElement("span", {style:{fontSize:9,color:C.dim}}, " echoes")
+              echoCount > 0 && React.createElement("button", {onClick:function(){haptic("light");setSelectedSpark(spark);setPhase("echoes")},style:{display:"flex",alignItems:"center",justifyContent:"center",gap:6,padding:"8px 14px",borderRadius:12,background:C.appreciation+"06",border:"1px solid "+C.appreciation+"18",cursor:"pointer",width:"100%"}},
+                React.createElement(Waves, {size:14,color:C.appreciation}),
+                React.createElement("span", {style:{fontSize:11,color:C.appreciation,fontFamily:"'DM Sans',sans-serif",fontWeight:500}}, echoCount+" Echoes — see how people felt"),
+                React.createElement(ChevronRight, {size:14,color:C.appreciation})
               )
             ),
             React.createElement("button", {onClick:function(){haptic("medium");setSelectedSpark(spark);setPhase("accepted")},style:{
@@ -3189,9 +3203,7 @@ function SparkView({ user, lang }) {
               border:isDaily?"none":"1px solid "+C.ember+"30",
             }}, t("acceptSpark",lang))
           ),
-          i < allSparks.length - 1 && React.createElement("div", {style:{textAlign:"center",marginTop:16,opacity:0.3}},
-            React.createElement(ChevronRight, {size:16,color:C.dim,style:{transform:"rotate(90deg)"}})
-          )
+          null
         );
       })}
     </div>
