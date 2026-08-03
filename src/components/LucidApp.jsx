@@ -3262,6 +3262,56 @@ function SparkView({ user, lang }) {
   };
 
   // ── CREATE a spark ──
+  const renderSparkDetail = () => {
+    if (!selectedSpark) return null;
+    var creator = PEOPLE[selectedSpark.creatorId] || {name:selectedSpark.creator||"LUCID"};
+
+    if (phase === "submitted") {
+      return React.createElement("div", {style:{padding:40,textAlign:"center"}},
+        React.createElement(Sparkles, {size:40,color:C.ember,style:{marginBottom:16}}),
+        React.createElement("h3", {style:{fontFamily:"'Cormorant Garamond',serif",fontSize:22,color:C.light,fontWeight:400,marginBottom:8}}, "Your echo has been shared"),
+        React.createElement("p", {style:{fontSize:12,color:C.mid,fontFamily:"'DM Sans',sans-serif",lineHeight:1.6,marginBottom:20}}, "The spark creator will review your reflection. Your Humanity Index grows with every honest response."),
+        React.createElement("button", {onClick:function(){setPhase("view");setSelectedSpark(null);setReflectText("");setEmotions([])},style:{padding:"12px 24px",borderRadius:12,background:C.ember,color:C.void,fontSize:13,fontFamily:"'DM Sans',sans-serif",fontWeight:600}}, "Back to Sparks")
+      );
+    }
+
+    if (phase === "reflect") {
+      return React.createElement("div", {style:{padding:16}},
+        React.createElement("button", {onClick:function(){setPhase("accepted")},style:{display:"flex",alignItems:"center",gap:6,color:C.mid,fontSize:12,fontFamily:"'DM Sans',sans-serif",marginBottom:16}},
+          React.createElement(ArrowLeft, {size:16}), " "+t("backBtn",lang)
+        ),
+        React.createElement("p", {style:{fontFamily:"'Cormorant Garamond',serif",fontSize:14,color:C.mid,lineHeight:1.6,marginBottom:16,fontStyle:"italic"}}, "You lived this spark. Now share what you felt."),
+        React.createElement("textarea", {value:reflectText,onChange:function(e){setReflectText(e.target.value)},rows:5,placeholder:"What happened? What did you feel? Be honest...",style:{width:"100%",padding:16,borderRadius:14,background:C.surface,border:"1px solid "+C.ghost,color:C.light,fontSize:14,fontFamily:"'Cormorant Garamond',serif",lineHeight:1.7,resize:"none",marginBottom:12}}),
+        React.createElement("div", {style:{display:"flex",flexWrap:"wrap",gap:6,marginBottom:16}},
+          EMOTION_OPTIONS.slice(0,10).map(function(em) {
+            var sel = emotions.indexOf(em) !== -1;
+            return React.createElement("button", {key:em,onClick:function(){setEmotions(function(prev){return sel?prev.filter(function(x){return x!==em}):prev.length<3?prev.concat([em]):prev})},style:{padding:"5px 12px",borderRadius:10,fontSize:10,border:"1px solid "+(sel?C.ember:C.ghost),background:sel?C.ember+"12":"transparent",color:sel?C.ember:C.dim,fontFamily:"'DM Sans',sans-serif"}}, em);
+          })
+        ),
+        React.createElement("button", {onClick:function(){if(reflectText.length>20&&emotions.length>=1){haptic("heavy");setPhase("submitted")}},style:{width:"100%",padding:14,borderRadius:14,background:reflectText.length>20&&emotions.length>=1?C.ember:C.ghost,color:reflectText.length>20&&emotions.length>=1?C.void:C.dim,fontSize:13,fontFamily:"'DM Sans',sans-serif",fontWeight:600}}, "Share your echo")
+      );
+    }
+
+    // Default: accepted state
+    return React.createElement("div", {style:{padding:16}},
+      React.createElement("button", {onClick:function(){setPhase("view");setSelectedSpark(null)},style:{display:"flex",alignItems:"center",gap:6,color:C.mid,fontSize:12,fontFamily:"'DM Sans',sans-serif",marginBottom:16}},
+        React.createElement(ArrowLeft, {size:16}), " "+t("backBtn",lang)
+      ),
+      React.createElement("div", {style:{background:C.abyss,borderRadius:16,padding:"20px 16px",border:"1px solid "+C.ember+"20",marginBottom:16}},
+        React.createElement("div", {style:{display:"flex",alignItems:"center",gap:6,marginBottom:10}},
+          React.createElement(Flame, {size:14,color:C.ember}),
+          React.createElement("span", {style:{fontSize:10,color:C.ember,fontFamily:"'DM Sans',sans-serif",fontWeight:600,letterSpacing:1}}, "SPARK ACCEPTED")
+        ),
+        React.createElement("p", {style:{fontFamily:"'Cormorant Garamond',serif",fontSize:16,color:C.light,lineHeight:1.7,marginBottom:12}}, "\u201C"+selectedSpark.prompt+"\u201D"),
+        React.createElement("div", {style:{fontSize:11,color:C.dim,fontFamily:"'DM Sans',sans-serif"}}, t("by",lang)+" "+(creator.name||""))
+      ),
+      React.createElement("div", {style:{background:C.surface,borderRadius:14,padding:"16px 14px",border:"1px solid "+C.ghost+"20",marginBottom:16}},
+        React.createElement("p", {style:{fontFamily:"'Cormorant Garamond',serif",fontSize:14,color:C.mid,lineHeight:1.7,fontStyle:"italic"}}, "Now go live this spark. Step away from the screen. When you come back, share what you experienced and how it made you feel.")
+      ),
+      React.createElement("button", {onClick:function(){haptic("medium");setPhase("reflect")},style:{width:"100%",padding:14,borderRadius:14,background:"linear-gradient(135deg,"+C.ember+","+C.kindle+")",color:C.void,fontSize:13,fontFamily:"'DM Sans',sans-serif",fontWeight:600}}, "I lived it — share my echo")
+    );
+  };
+
   const renderCreate = () => {
     if (sparkCreated) return (
       <div className="di" style={{ textAlign:"center", padding:"60px 0" }}>
@@ -3401,7 +3451,7 @@ function SparkView({ user, lang }) {
       )}
 
       {/* Content */}
-      {selectedSpark ? renderSparkDetail() :
+      {phase==="echoes" && selectedSpark ? renderEchoes() : selectedSpark ? renderSparkDetail() :
         tab === "browse" ? renderBrowse() :
         tab === "create" ? renderCreate() :
         renderMySparks()
