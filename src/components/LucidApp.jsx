@@ -3064,6 +3064,8 @@ function SparkView({ user, lang }) {
   const [tab, setTab] = useState("browse");       // browse | create | mySparks | respond
   const [selectedSpark, setSelectedSpark] = useState(null);
   const [phase, setPhase] = useState("view");      // view → accepted → reflect → submitted
+  var sparkGoBack = function(){ if(phase==="reflect"){setPhase("accepted")} else if(phase==="echoes"){setPhase("view");setSelectedSpark(null)} else {setPhase("view");setSelectedSpark(null);setReflectText("");setEmotions([])} };
+  var swipe = useSwipeBack(sparkGoBack);
   const [reflectText, setReflectText] = useState("");
   const [emotions, setEmotions] = useState([]);
   const [modWarn, setModWarn] = useState(null);
@@ -3294,7 +3296,7 @@ function SparkView({ user, lang }) {
   const renderSparkDetail = () => {
     if (!selectedSpark) return null;
     var creator = PEOPLE[selectedSpark.creatorId] || {name:selectedSpark.creator||"LUCID"};
-    var goBack = function(){ if(phase==="reflect"){setPhase("accepted")} else {setPhase("view");setSelectedSpark(null);setReflectText("");setEmotions([])} };
+
 
     if (phase === "submitted") {
       return React.createElement("div", {style:{padding:40,textAlign:"center"}},
@@ -3324,7 +3326,6 @@ function SparkView({ user, lang }) {
     }
 
     // Default: accepted state — swipe right to go back
-    var swipe = useSwipeBack(goBack);
     return React.createElement("div", Object.assign({style:Object.assign({padding:16},swipe.style)},swipe.handlers),
       swipe.indicator,
       React.createElement("div", {style:{display:"flex",alignItems:"center",gap:6,marginBottom:16,opacity:0.4}},
