@@ -3243,11 +3243,9 @@ function SparkView({ user, lang }) {
     if (!selectedSpark) return null;
     var responses = selectedSpark.responses || [];
     var creator = PEOPLE[selectedSpark.creatorId] || {name:selectedSpark.creator||"LUCID"};
-    return React.createElement("div", {style:{padding:16,paddingBottom:100,overflowY:"auto",maxHeight:"calc(100vh - 130px)"}},
-      React.createElement("div", {style:{display:"flex",alignItems:"center",gap:6,marginBottom:16,opacity:0.4}},
-        React.createElement("div", {style:{width:24,height:2,borderRadius:1,background:C.ember}}),
-        React.createElement("span", {style:{fontSize:9,color:C.dim,fontFamily:"'DM Sans',sans-serif"}}, "swipe right to go back")
-      ),
+    return React.createElement("div", Object.assign({style:Object.assign({padding:16,paddingBottom:100,overflowY:"auto",maxHeight:"calc(100vh - 130px)"},swipe.style)},swipe.handlers),
+      swipe.indicator,
+
       React.createElement("div", {style:{background:C.abyss,borderRadius:16,padding:"16px 14px",marginBottom:20,border:"1px solid "+C.ghost,borderLeft:"3px solid "+C.ember+"44"}},
         React.createElement("p", {style:{fontFamily:"'Cormorant Garamond',serif",fontSize:14,color:C.light,lineHeight:1.6}}, "\u201C"+selectedSpark.prompt+"\u201D"),
         React.createElement("div", {style:{fontSize:10,color:C.dim,fontFamily:"'DM Sans',sans-serif",marginTop:8}}, t("by",lang)+" "+(creator.name||""))
@@ -3308,11 +3306,9 @@ function SparkView({ user, lang }) {
     }
 
     if (phase === "reflect") {
-      return React.createElement("div", {style:{padding:16}},
-        React.createElement("div", {style:{display:"flex",alignItems:"center",gap:6,marginBottom:16,opacity:0.4}},
-          React.createElement("div", {style:{width:24,height:2,borderRadius:1,background:C.ember}}),
-          React.createElement("span", {style:{fontSize:9,color:C.dim,fontFamily:"'DM Sans',sans-serif"}}, "swipe right to go back")
-        ),
+      return React.createElement("div", Object.assign({style:Object.assign({padding:16},swipe.style)},swipe.handlers),
+        swipe.indicator,
+
         React.createElement("p", {style:{fontFamily:"'Cormorant Garamond',serif",fontSize:14,color:C.mid,lineHeight:1.6,marginBottom:16,fontStyle:"italic"}}, "You lived this spark. Now share what you felt."),
         React.createElement("textarea", {value:reflectText,onChange:function(e){setReflectText(e.target.value)},rows:5,placeholder:"What happened? What did you feel? Be honest...",style:{width:"100%",padding:16,borderRadius:14,background:C.surface,border:"1px solid "+C.ghost,color:C.light,fontSize:14,fontFamily:"'Cormorant Garamond',serif",lineHeight:1.7,resize:"none",marginBottom:12}}),
         React.createElement("div", {style:{display:"flex",flexWrap:"wrap",gap:6,marginBottom:16}},
@@ -3328,10 +3324,7 @@ function SparkView({ user, lang }) {
     // Default: accepted state — swipe right to go back
     return React.createElement("div", Object.assign({style:Object.assign({padding:16},swipe.style)},swipe.handlers),
       swipe.indicator,
-      React.createElement("div", {style:{display:"flex",alignItems:"center",gap:6,marginBottom:16,opacity:0.4}},
-        React.createElement("div", {style:{width:24,height:2,borderRadius:1,background:C.ember}}),
-        React.createElement("span", {style:{fontSize:9,color:C.dim,fontFamily:"'DM Sans',sans-serif"}}, "swipe right to go back")
-      ),
+
       React.createElement("div", {style:{background:C.abyss,borderRadius:16,padding:"20px 16px",border:"1px solid "+C.ember+"20",marginBottom:16}},
         React.createElement("div", {style:{display:"flex",alignItems:"center",gap:6,marginBottom:10}},
           React.createElement(Flame, {size:14,color:C.ember}),
