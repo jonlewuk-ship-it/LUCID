@@ -3049,6 +3049,7 @@ function SparkView({ user, lang }) {
   const [newSparkDifficulty, setNewSparkDifficulty] = useState(2);
   const [newSparkTime, setNewSparkTime] = useState("30 min");
   const [sparkCreated, setSparkCreated] = useState(false);
+  const [myCreatedSparks, setMyCreatedSparks] = useState([]);
 
   // Creator review state
   const [reviewingResponse, setReviewingResponse] = useState(null);
@@ -3114,6 +3115,7 @@ function SparkView({ user, lang }) {
     if (!check.safe) { setModWarn(check.message); return; }
     if (newSparkPrompt.length >= 30) {
       setSparkCreated(true);
+      setMyCreatedSparks(function(prev){return prev.concat([{id:"my_"+Date.now(),prompt:newSparkPrompt,category:newSparkCategory,accepted:0,returned:0,toReview:0,created:new Date().toLocaleDateString()}])});
       setTimeout(() => { setSparkCreated(false); setTab("mySparks"); setNewSparkPrompt(""); }, 2500);
     }
   };
@@ -3343,7 +3345,7 @@ function SparkView({ user, lang }) {
       {/* Example user-created spark */}
       <div style={{ background:C.abyss, borderRadius:14, padding:16, border:`1px solid ${C.ghost}`, marginBottom:12, borderLeft:`3px solid ${C.ember}44` }}>
         <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:14, color:C.light, lineHeight:1.6, marginBottom:10 }}>
-          "Your latest spark will appear here once created"
+          myCreatedSparks.length>0?myCreatedSparks[myCreatedSparks.length-1].prompt:"Your latest spark will appear here once created"
         </p>
         <div style={{ display:"flex", gap:16 }}>
           <div style={{ textAlign:"center" }}><div style={{ fontSize:16, color:C.ember, fontFamily:"'Cormorant Garamond',serif", fontWeight:600 }}>0</div><div style={{ fontSize:8, color:C.dim, fontFamily:"'DM Sans'", textTransform:"uppercase" }}>Accepted</div></div>
