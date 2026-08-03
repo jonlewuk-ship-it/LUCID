@@ -782,6 +782,34 @@ function AchievementToast({ message, onDone }) {
 }
 
 
+function useSwipeBack(onBack) {
+  var touchStart = useRef(null);
+  var touchDelta = useRef(0);
+  var _offset = useState(0); var offset = _offset[0]; var setOffset = _offset[1];
+  var _swiping = useState(false); var swiping = _swiping[0]; var setSwiping = _swiping[1];
+
+  var handlers = {
+    onTouchStart: function(e) { touchStart.current = e.touches[0].clientX; touchDelta.current = 0; setSwiping(false); },
+    onTouchMove: function(e) {
+      if (touchStart.current === null) return;
+      var dx = e.touches[0].clientX - touchStart.current;
+      if (dx > 10) { setSwiping(true); setOffset(Math.min(dx, 300)); touchDelta.current = dx; }
+    },
+    onTouchEnd: function() {
+      if (touchDelta.current > 80 && onBack) { setOffset(400); setTimeout(function(){ onBack(); setOffset(0); setSwiping(false); }, 200); }
+      else { setOffset(0); setSwiping(false); }
+      touchStart.current = null; touchDelta.current = 0;
+    },
+  };
+
+  var style = { transform: "translateX(" + offset + "px)", opacity: swiping ? Math.max(0.3, 1 - offset/400) : 1, transition: swiping ? "none" : "all 0.3s ease" };
+  var indicator = offset > 20 ? React.createElement("div", {style:{position:"fixed",left:0,top:"50%",transform:"translateY(-50%)",width:4,height:60,borderRadius:"0 4px 4px 0",background:C.ember,opacity:Math.min(1,offset/80),transition:swiping?"none":"opacity 0.3s",zIndex:9999}}) : null;
+
+  return { handlers: handlers, style: style, indicator: indicator };
+}
+
+
+
 /* ═══════════════════════════════════════════════════════════════
    API — Real backend calls to Supabase
    ═══════════════════════════════════════════════════════════════ */
@@ -3214,8 +3242,9 @@ function SparkView({ user, lang }) {
     var responses = selectedSpark.responses || [];
     var creator = PEOPLE[selectedSpark.creatorId] || {name:selectedSpark.creator||"LUCID"};
     return React.createElement("div", {style:{padding:16,paddingBottom:100,overflowY:"auto",maxHeight:"calc(100vh - 130px)"}},
-      React.createElement("button", {onClick:function(){setPhase("view");setSelectedSpark(null)},style:{display:"flex",alignItems:"center",gap:6,color:C.mid,fontSize:12,fontFamily:"'DM Sans',sans-serif",marginBottom:16}},
-        React.createElement(ArrowLeft, {size:16}), " "+t("backBtn",lang)
+      React.createElement("div", {style:{display:"flex",alignItems:"center",gap:6,marginBottom:16,opacity:0.4}},
+        React.createElement("div", {style:{width:24,height:2,borderRadius:1,background:C.ember}}),
+        React.createElement("span", {style:{fontSize:9,color:C.dim,fontFamily:"'DM Sans',sans-serif"}}, "swipe right to go back")
       ),
       React.createElement("div", {style:{background:C.abyss,borderRadius:16,padding:"16px 14px",marginBottom:20,border:"1px solid "+C.ghost,borderLeft:"3px solid "+C.ember+"44"}},
         React.createElement("p", {style:{fontFamily:"'Cormorant Garamond',serif",fontSize:14,color:C.light,lineHeight:1.6}}, "\u201C"+selectedSpark.prompt+"\u201D"),
@@ -3265,6 +3294,7 @@ function SparkView({ user, lang }) {
   const renderSparkDetail = () => {
     if (!selectedSpark) return null;
     var creator = PEOPLE[selectedSpark.creatorId] || {name:selectedSpark.creator||"LUCID"};
+    var goBack = function(){ if(phase==="reflect"){setPhase("accepted")} else {setPhase("view");setSelectedSpark(null);setReflectText("");setEmotions([])} };
 
     if (phase === "submitted") {
       return React.createElement("div", {style:{padding:40,textAlign:"center"}},
@@ -3277,8 +3307,9 @@ function SparkView({ user, lang }) {
 
     if (phase === "reflect") {
       return React.createElement("div", {style:{padding:16}},
-        React.createElement("button", {onClick:function(){setPhase("accepted")},style:{display:"flex",alignItems:"center",gap:6,color:C.mid,fontSize:12,fontFamily:"'DM Sans',sans-serif",marginBottom:16}},
-          React.createElement(ArrowLeft, {size:16}), " "+t("backBtn",lang)
+        React.createElement("div", {style:{display:"flex",alignItems:"center",gap:6,marginBottom:16,opacity:0.4}},
+          React.createElement("div", {style:{width:24,height:2,borderRadius:1,background:C.ember}}),
+          React.createElement("span", {style:{fontSize:9,color:C.dim,fontFamily:"'DM Sans',sans-serif"}}, "swipe right to go back")
         ),
         React.createElement("p", {style:{fontFamily:"'Cormorant Garamond',serif",fontSize:14,color:C.mid,lineHeight:1.6,marginBottom:16,fontStyle:"italic"}}, "You lived this spark. Now share what you felt."),
         React.createElement("textarea", {value:reflectText,onChange:function(e){setReflectText(e.target.value)},rows:5,placeholder:"What happened? What did you feel? Be honest...",style:{width:"100%",padding:16,borderRadius:14,background:C.surface,border:"1px solid "+C.ghost,color:C.light,fontSize:14,fontFamily:"'Cormorant Garamond',serif",lineHeight:1.7,resize:"none",marginBottom:12}}),
@@ -3292,10 +3323,13 @@ function SparkView({ user, lang }) {
       );
     }
 
-    // Default: accepted state
-    return React.createElement("div", {style:{padding:16}},
-      React.createElement("button", {onClick:function(){setPhase("view");setSelectedSpark(null)},style:{display:"flex",alignItems:"center",gap:6,color:C.mid,fontSize:12,fontFamily:"'DM Sans',sans-serif",marginBottom:16}},
-        React.createElement(ArrowLeft, {size:16}), " "+t("backBtn",lang)
+    // Default: accepted state — swipe right to go back
+    var swipe = useSwipeBack(goBack);
+    return React.createElement("div", Object.assign({style:Object.assign({padding:16},swipe.style)},swipe.handlers),
+      swipe.indicator,
+      React.createElement("div", {style:{display:"flex",alignItems:"center",gap:6,marginBottom:16,opacity:0.4}},
+        React.createElement("div", {style:{width:24,height:2,borderRadius:1,background:C.ember}}),
+        React.createElement("span", {style:{fontSize:9,color:C.dim,fontFamily:"'DM Sans',sans-serif"}}, "swipe right to go back")
       ),
       React.createElement("div", {style:{background:C.abyss,borderRadius:16,padding:"20px 16px",border:"1px solid "+C.ember+"20",marginBottom:16}},
         React.createElement("div", {style:{display:"flex",alignItems:"center",gap:6,marginBottom:10}},
