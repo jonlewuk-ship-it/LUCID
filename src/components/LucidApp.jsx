@@ -1,4 +1,5 @@
 import React from "react";
+import { translate as i18t, SUPPORTED_LANGUAGES, SUPPORTED_CODES } from "../i18n/index.js";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   Eye, Flame, Brain, Heart, Users, BookOpen, ArrowRight, ArrowLeft,
@@ -32,17 +33,7 @@ const C = {
 /* ═══════════════════════════════════════════════════════════════
    i18n — MULTI-LANGUAGE SYSTEM
    ═══════════════════════════════════════════════════════════════ */
-const LANGUAGES = [
-  { code:"en", label:"English", flag:"🇬🇧" },
-  { code:"es", label:"Español", flag:"🇪🇸" },
-  { code:"it", label:"Italiano", flag:"🇮🇹" },
-  { code:"fr", label:"Français", flag:"🇫🇷" },
-  { code:"pt", label:"Português", flag:"🇧🇷" },
-  { code:"de", label:"Deutsch", flag:"🇩🇪" },
-  { code:"ar", label:"العربية", flag:"🇸🇦" },
-  { code:"zh", label:"中文", flag:"🇨🇳" },
-  { code:"ja", label:"日本語", flag:"🇯🇵" },
-];
+const LANGUAGES = SUPPORTED_LANGUAGES;
 
 const TRANSLATIONS = {
   en: {
@@ -258,7 +249,7 @@ const TRANSLATIONS = {
 };
 
 // Translation helper — falls back to English
-const t = (key, lang) => (TRANSLATIONS[lang]||{})[key] || TRANSLATIONS.en[key] || key;
+const t = (key, lang) => i18t(key, lang) || (TRANSLATIONS[lang]||{})[key] || TRANSLATIONS.en[key] || key;
 
 /* Profile photo generator — gives each person a unique, consistent visual identity */
 const PROFILE_PHOTOS = {
@@ -3837,7 +3828,7 @@ export default function LucidApp(){
   try {
     var raw = typeof navigator !== "undefined" ? (navigator.language || "en") : "en";
     var bl = raw.split("-")[0].toLowerCase();
-    var supported = LANGUAGES.map(function(l){return l.code});
+    var supported = SUPPORTED_CODES;
     if (supported.indexOf(bl) !== -1) langInit = bl;
   } catch(e) {}
   var _st5 = useState(langInit); var lang = _st5[0]; var setLang = _st5[1];
