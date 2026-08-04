@@ -3265,7 +3265,7 @@ function SparkView({ user, lang }) {
           </div>
 
           {phase === "view" && (
-            <button onClick={() => setPhase("accepted")} style={{ width:"100%", padding:14, borderRadius:14, background:`linear-gradient(135deg,${C.ember},${C.kindle})`, color:C.void, fontSize:14, fontFamily:"'DM Sans',sans-serif", fontWeight:600, boxShadow:`0 8px 24px ${C.glow}` }}>
+            <button onClick={() => {setAcceptedSparks(function(p){var exists=p.some(function(s){return s.prompt===selectedSpark.prompt});if(!exists)return p.concat([Object.assign({},selectedSpark,{acceptedAt:new Date().toLocaleDateString()})]);return p});setPhase("accepted")}} style={{ width:"100%", padding:14, borderRadius:14, background:`linear-gradient(135deg,${C.ember},${C.kindle})`, color:C.void, fontSize:14, fontFamily:"'DM Sans',sans-serif", fontWeight:600, boxShadow:`0 8px 24px ${C.glow}` }}>
               Accept this Spark
             </button>
           )}
