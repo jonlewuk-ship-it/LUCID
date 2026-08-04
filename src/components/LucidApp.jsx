@@ -3055,6 +3055,7 @@ function SparkView({ user, lang }) {
   const [newSparkDifficulty, setNewSparkDifficulty] = useState(2);
   const [newSparkTime, setNewSparkTime] = useState("30 min");
   const [sparkCreated, setSparkCreated] = useState(false);
+  const [acceptedSparks, setAcceptedSparks] = useState([]);
 
   // Creator review state
   const [reviewingResponse, setReviewingResponse] = useState(null);
@@ -3405,6 +3406,37 @@ function SparkView({ user, lang }) {
   };
 
   // ── CREATE a spark ──
+  const renderAccepted = () => (
+    <div style={{ padding:16, paddingBottom:100 }}>
+      <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:22, color:C.light, fontWeight:400, marginBottom:6 }}>Accepted Sparks</div>
+      <p style={{ fontSize:12, color:C.dim, fontFamily:"'DM Sans',sans-serif", lineHeight:1.6, marginBottom:16 }}>Sparks you accepted. Come back after living them to share your echo.</p>
+      {acceptedSparks.length === 0 ? (
+        <div style={{ textAlign:"center", padding:"40px 20px" }}>
+          <Flame size={28} color={C.ghost} style={{ marginBottom:10 }}/>
+          <p style={{ fontSize:13, color:C.dim, fontFamily:"'Cormorant Garamond',serif", fontStyle:"italic" }}>No accepted sparks yet. Browse and accept one to start living.</p>
+        </div>
+      ) : (
+        acceptedSparks.map(function(spark, i) {
+          return (
+            <div key={i} className="ri" style={{ background:C.abyss, borderRadius:16, padding:"16px 14px", marginBottom:10, border:"1px solid "+C.ember+"15", borderLeft:"3px solid "+C.ember+"30" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:8 }}>
+                <div style={{ display:"inline-flex", alignItems:"center", gap:4, padding:"3px 10px", borderRadius:8, background:C.ember+"10", border:"1px solid "+C.ember+"15" }}>
+                  <Flame size={10} color={C.ember}/>
+                  <span style={{ fontSize:9, color:C.ember }}>{spark.category}</span>
+                </div>
+                <span style={{ fontSize:9, color:C.dim, fontFamily:"'JetBrains Mono',monospace", marginLeft:"auto" }}>{spark.acceptedAt}</span>
+              </div>
+              <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:14, color:C.light, lineHeight:1.7, marginBottom:12 }}>&ldquo;{spark.prompt}&rdquo;</p>
+              <button onClick={function(){haptic("medium");setSelectedSpark(spark);setPhase("reflect")}} style={{ width:"100%", padding:12, borderRadius:12, background:"linear-gradient(135deg,"+C.ember+","+C.kindle+")", color:C.void, fontSize:12, fontFamily:"'DM Sans',sans-serif", fontWeight:600 }}>
+                Share my echo
+              </button>
+            </div>
+          );
+        })
+      )}
+    </div>
+  );
+
   const renderCreate = () => {
     if (sparkCreated) return (
       <div className="di" style={{ textAlign:"center", padding:"60px 0" }}>
@@ -3522,6 +3554,7 @@ function SparkView({ user, lang }) {
     { id:"browse", label:"Explore", icon:Compass },
     { id:"create", label:"Create", icon:Plus },
     { id:"mySparks", label:"My Sparks", icon:Flame },
+          { id:"accepted", label:"Accepted", icon:Check },
   ];
 
   return (
@@ -3546,6 +3579,7 @@ function SparkView({ user, lang }) {
       {/* Content */}
       {selectedSpark ? renderSparkDetail() :
         tab === "browse" ? renderBrowse() :
+        tab === "accepted" ? renderAccepted() :
         tab === "create" ? renderCreate() :
         renderMySparks()
       }
