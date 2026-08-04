@@ -1,5 +1,4 @@
 import React from "react";
-import { translate as i18t, SUPPORTED_LANGUAGES, SUPPORTED_CODES } from "../i18n/index.js";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   Eye, Flame, Brain, Heart, Users, BookOpen, ArrowRight, ArrowLeft,
@@ -7,7 +6,7 @@ import {
   Compass, Shield, X, Check, ChevronRight, Target, Feather,
   Lightbulb, Globe, Pen, TrendingUp, Award, Layers, Orbit, Send, Scale,
   Camera, Mail, KeyRound, User, CircleDot, Fingerprint, Waves,
-  Search, Edit3, Plus, AlertTriangle, Bell, HelpCircle, Info, LogOut
+  Search, Edit3, Plus, AlertTriangle, Bell
 } from "lucide-react";
 
 // Aliases for icons not in lucide-react@0.383.0
@@ -33,7 +32,17 @@ const C = {
 /* ═══════════════════════════════════════════════════════════════
    i18n — MULTI-LANGUAGE SYSTEM
    ═══════════════════════════════════════════════════════════════ */
-const LANGUAGES = SUPPORTED_LANGUAGES;
+const LANGUAGES = [
+  { code:"en", label:"English", flag:"🇬🇧" },
+  { code:"es", label:"Español", flag:"🇪🇸" },
+  { code:"it", label:"Italiano", flag:"🇮🇹" },
+  { code:"fr", label:"Français", flag:"🇫🇷" },
+  { code:"pt", label:"Português", flag:"🇧🇷" },
+  { code:"de", label:"Deutsch", flag:"🇩🇪" },
+  { code:"ar", label:"العربية", flag:"🇸🇦" },
+  { code:"zh", label:"中文", flag:"🇨🇳" },
+  { code:"ja", label:"日本語", flag:"🇯🇵" },
+];
 
 const TRANSLATIONS = {
   en: {
@@ -249,7 +258,7 @@ const TRANSLATIONS = {
 };
 
 // Translation helper — falls back to English
-const t = (key, lang) => i18t(key, lang) || (TRANSLATIONS[lang]||{})[key] || TRANSLATIONS.en[key] || key;
+const t = (key, lang) => (TRANSLATIONS[lang]||{})[key] || TRANSLATIONS.en[key] || key;
 
 /* Profile photo generator — gives each person a unique, consistent visual identity */
 const PROFILE_PHOTOS = {
@@ -780,34 +789,6 @@ function AchievementToast({ message, onDone }) {
     React.createElement("span", { style: { fontSize: 12, color: C.light, fontFamily: "'DM Sans',sans-serif", fontWeight: 500 } }, message)
   );
 }
-
-
-function useSwipeBack(onBack) {
-  var touchStart = useRef(null);
-  var touchDelta = useRef(0);
-  var _offset = useState(0); var offset = _offset[0]; var setOffset = _offset[1];
-  var _swiping = useState(false); var swiping = _swiping[0]; var setSwiping = _swiping[1];
-
-  var handlers = {
-    onTouchStart: function(e) { touchStart.current = e.touches[0].clientX; touchDelta.current = 0; setSwiping(false); },
-    onTouchMove: function(e) {
-      if (touchStart.current === null) return;
-      var dx = e.touches[0].clientX - touchStart.current;
-      if (dx > 10) { setSwiping(true); setOffset(Math.min(dx, 300)); touchDelta.current = dx; }
-    },
-    onTouchEnd: function() {
-      if (touchDelta.current > 80 && onBack) { setOffset(400); setTimeout(function(){ onBack(); setOffset(0); setSwiping(false); }, 200); }
-      else { setOffset(0); setSwiping(false); }
-      touchStart.current = null; touchDelta.current = 0;
-    },
-  };
-
-  var style = { transform: "translateX(" + offset + "px)", opacity: swiping ? Math.max(0.3, 1 - offset/400) : 1, transition: swiping ? "none" : "all 0.3s ease" };
-  var indicator = offset > 20 ? React.createElement("div", {style:{position:"fixed",left:0,top:"50%",transform:"translateY(-50%)",width:4,height:60,borderRadius:"0 4px 4px 0",background:C.ember,opacity:Math.min(1,offset/80),transition:swiping?"none":"opacity 0.3s",zIndex:9999}}) : null;
-
-  return { handlers: handlers, style: style, indicator: indicator };
-}
-
 
 
 /* ═══════════════════════════════════════════════════════════════
@@ -3064,8 +3045,6 @@ function SparkView({ user, lang }) {
   const [tab, setTab] = useState("browse");       // browse | create | mySparks | respond
   const [selectedSpark, setSelectedSpark] = useState(null);
   const [phase, setPhase] = useState("view");      // view → accepted → reflect → submitted
-  var sparkGoBack = function(){ if(phase==="reflect"){setPhase("accepted")} else if(phase==="echoes"){setPhase("view");setSelectedSpark(null)} else {setPhase("view");setSelectedSpark(null);setReflectText("");setEmotions([])} };
-  var swipe = useSwipeBack(sparkGoBack);
   const [reflectText, setReflectText] = useState("");
   const [emotions, setEmotions] = useState([]);
   const [modWarn, setModWarn] = useState(null);
@@ -3079,7 +3058,6 @@ function SparkView({ user, lang }) {
   const [newSparkDifficulty, setNewSparkDifficulty] = useState(2);
   const [newSparkTime, setNewSparkTime] = useState("30 min");
   const [sparkCreated, setSparkCreated] = useState(false);
-  const [myCreatedSparks, setMyCreatedSparks] = useState([]);
 
   // Creator review state
   const [reviewingResponse, setReviewingResponse] = useState(null);
@@ -3145,7 +3123,6 @@ function SparkView({ user, lang }) {
     if (!check.safe) { setModWarn(check.message); return; }
     if (newSparkPrompt.length >= 30) {
       setSparkCreated(true);
-      setMyCreatedSparks(function(prev){return prev.concat([{id:"my_"+Date.now(),prompt:newSparkPrompt,category:newSparkCategory,accepted:0,returned:0,toReview:0,created:new Date().toLocaleDateString()}])});
       setTimeout(() => { setSparkCreated(false); setTab("mySparks"); setNewSparkPrompt(""); }, 2500);
     }
   };
@@ -3157,188 +3134,280 @@ function SparkView({ user, lang }) {
   };
 
   // ── BROWSE community sparks ──
-  const renderBrowse = () => {
-    var today = new Date().getDay();
-    var dailySpark = DAILY_SPARKS[today % DAILY_SPARKS.length];
-    var allSparks = [{isDailySpotlight:true, prompt:dailySpark.prompt, creator:dailySpark.creator, category:dailySpark.category, responses:[]}].concat(COMMUNITY_SPARKS);
+  const renderBrowse = () => (
+    <div className="di">
+      <div className="ri" style={{ marginBottom:20 }}>
+        <h3 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:20, color:C.light, fontWeight:400, marginBottom:4 }}>
+          Community Sparks
+        </h3>
+        <p style={{ fontSize:12, color:C.mid, fontFamily:"'DM Sans',sans-serif", lineHeight:1.5 }}>
+          Real challenges from real people. Accept one, live it, come back and share what you felt.
+        </p>
+      </div>
 
-    return (
-    <div style={{ overflowY:"auto", maxHeight:"calc(100vh - 130px)", scrollbarWidth:"none", padding:"0 0 20px" }}>
-      {allSparks.map(function(spark, i) {
-        var isDaily = spark.isDailySpotlight;
-        var creator = PEOPLE[spark.creatorId] || {name:spark.creator||"LUCID"};
-        var echoCount = (spark.responses||[]).length;
-        var returnRate = spark.accepted > 0 ? Math.round((spark.returned||0)/(spark.accepted||1)*100) : 0;
+      {COMMUNITY_SPARKS.map((spark, i) => {
+        const creator = PEOPLE[spark.creatorId];
+        const cTier = getTier((creator||{}).essencePoints || 0);
+        const returnRate = spark.accepted > 0 ? Math.round((spark.returned / spark.accepted) * 100) : 0;
+        return (
+          <div key={spark.id} className={`ri ri${Math.min(i+1,4)}`}
+            onClick={() => { setSelectedSpark(spark); setPhase("view"); }}
+            style={{
+              background:C.abyss, borderRadius:16, padding:"18px 16px",
+              marginBottom:12, cursor:"pointer", border:`1px solid ${C.ghost}`,
+              borderLeft:`3px solid ${cTier.color}44`,
+            }}>
+            {/* Creator */}
+            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
+              <Avatar name={(creator||{}).name} size={34} color={cTier.color} photo={(creator||{}).photo}/>
+              <div style={{ flex:1 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                  <span style={{ fontSize:13, color:C.light, fontFamily:"'DM Sans',sans-serif", fontWeight:500 }}>{(creator||{}).name}</span>
+                  {(creator||{}).torchbearer && <Sun size={12} color="#FFD700"/>}
+                </div>
+                <span style={{ fontSize:10, color:C.dim, fontFamily:"'DM Sans',sans-serif" }}>Spark creator</span>
+              </div>
+              <div style={{ textAlign:"right" }}>
+                <span style={{ fontSize:10, color:C.ember, fontFamily:"'JetBrains Mono',monospace" }}>{spark.category}</span>
+              </div>
+            </div>
 
-        return React.createElement("div", {key:isDaily?"daily":spark.id, style:{
-            padding:"8px 16px 4px", display:"flex", flexDirection:"column",
-        }},
-          isDaily && React.createElement("div", {className:"di", style:{display:"flex",alignItems:"center",gap:6,marginBottom:14}},
-            React.createElement("div", {style:{width:6,height:6,borderRadius:3,background:C.ember,animation:"breathe 2s ease-in-out infinite"}}),
-            React.createElement("span", {style:{fontSize:10,color:C.ember,fontFamily:"'DM Sans',sans-serif",fontWeight:600,letterSpacing:2,textTransform:"uppercase"}}, t("sparkOfDay",lang))
-          ),
-          React.createElement("div", {className:"di", style:{
-            background:isDaily?"linear-gradient(135deg,"+C.ember+"08,"+C.kindle+"05)":C.abyss,
-            borderRadius:20, padding:"24px 20px",
-            border:isDaily?"1px solid "+C.ember+"25":"1px solid "+C.ghost,
-          }},
-            React.createElement("div", {style:{display:"inline-flex",alignItems:"center",gap:5,padding:"4px 12px",borderRadius:10,background:C.ember+"10",border:"1px solid "+C.ember+"15",marginBottom:14}},
-              React.createElement(Flame, {size:10,color:C.ember}),
-              React.createElement("span", {style:{fontSize:9,color:C.ember,fontFamily:"'DM Sans',sans-serif",fontWeight:500,letterSpacing:1}}, spark.category)
-            ),
-            React.createElement("p", {style:{fontFamily:"'Cormorant Garamond',serif",fontSize:isDaily?20:17,color:C.light,lineHeight:1.7,marginBottom:18}},
-              "\u201C" + spark.prompt + "\u201D"
-            ),
-            React.createElement("div", {style:{display:"flex",alignItems:"center",gap:10,marginBottom:16,padding:"8px 12px",borderRadius:12,background:C.surface,border:"1px solid "+C.ghost+"20"}},
-              React.createElement("div", {style:{width:36,height:36,borderRadius:"50%",overflow:"hidden",border:"2px solid "+C.ember+"30",flexShrink:0}},
-                creator.photo ? React.createElement("img", {src:creator.photo,alt:"",style:{width:"100%",height:"100%",objectFit:"cover"}}) : React.createElement("div", {style:{width:"100%",height:"100%",background:C.ember+"15",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,color:C.ember}}, (creator.name||"?")[0])
-              ),
-              React.createElement("div", {style:{flex:1}},
-                React.createElement("div", {style:{fontSize:12,color:C.light,fontFamily:"'DM Sans',sans-serif",fontWeight:500}}, creator.name||spark.creator),
-                React.createElement("div", {style:{fontSize:9,color:C.dim,fontFamily:"'DM Sans',sans-serif"}}, (creator.reflCount||0)+" reflections · "+(creator.connections||0)+" connections")
-              ),
-              React.createElement("div", {style:{padding:"3px 8px",borderRadius:8,background:(getTier(creator.essencePoints||0).color)+"10",border:"1px solid "+(getTier(creator.essencePoints||0).color)+"20"}},
-                React.createElement("span", {style:{fontSize:9,color:getTier(creator.essencePoints||0).color,fontFamily:"'JetBrains Mono',monospace"}}, getTier(creator.essencePoints||0).name)
-              )
-            ),
-            !isDaily && React.createElement("div", {style:{display:"flex",flexDirection:"column",gap:10,marginBottom:14}},
-              React.createElement("div", {style:{display:"flex",justifyContent:"space-between",alignItems:"center"}},
-                React.createElement("div", {style:{display:"flex",gap:6,flexWrap:"wrap"}},
-                  React.createElement("div", {style:{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",borderRadius:10,background:C.ember+"08",border:"1px solid "+C.ember+"15"}},
-                    React.createElement(Flame, {size:12,color:C.ember}),
-                    React.createElement("span", {style:{fontSize:11,color:C.ember,fontFamily:"'JetBrains Mono',monospace",fontWeight:600}}, spark.accepted||0),
-                    React.createElement("span", {style:{fontSize:9,color:C.dim}}, " "+t("acceptedLabel",lang))
-                  ),
-                  React.createElement("div", {style:{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",borderRadius:10,background:C.understanding+"08",border:"1px solid "+C.understanding+"15"}},
-                    React.createElement("span", {style:{fontSize:11,color:C.understanding,fontFamily:"'JetBrains Mono',monospace",fontWeight:600}}, returnRate+"%"),
-                    React.createElement("span", {style:{fontSize:9,color:C.dim}}, " "+t("returnedLabel",lang))
-                  )
-                ),
-                spark.avgDepth && React.createElement("div", {style:{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",borderRadius:10,background:C.appreciation+"08",border:"1px solid "+C.appreciation+"15"}},
-                  React.createElement("span", {style:{fontSize:9,color:C.dim}}, t("depthLabel",lang)),
-                  React.createElement("span", {style:{fontSize:12,color:C.appreciation,fontFamily:"'JetBrains Mono',monospace",fontWeight:700}}, spark.avgDepth)
-                )
-              ),
-              echoCount > 0 && React.createElement("button", {onClick:function(){haptic("light");setSelectedSpark(spark);setPhase("echoes")},style:{display:"flex",alignItems:"center",justifyContent:"center",gap:6,padding:"8px 14px",borderRadius:12,background:C.appreciation+"06",border:"1px solid "+C.appreciation+"18",cursor:"pointer",width:"100%"}},
-                React.createElement(Waves, {size:14,color:C.appreciation}),
-                React.createElement("span", {style:{fontSize:11,color:C.appreciation,fontFamily:"'DM Sans',sans-serif",fontWeight:500}}, echoCount+" Echoes — see how people felt"),
-                React.createElement(ChevronRight, {size:14,color:C.appreciation})
-              )
-            ),
-            React.createElement("button", {onClick:function(){haptic("medium");setSelectedSpark(spark);setPhase("accepted")},style:{
-              width:"100%",padding:14,borderRadius:14,
-              background:isDaily?"linear-gradient(135deg,"+C.ember+","+C.kindle+")":C.ember+"15",
-              color:isDaily?C.void:C.ember,fontSize:13,
-              fontFamily:"'DM Sans',sans-serif",fontWeight:600,
-              border:isDaily?"none":"1px solid "+C.ember+"30",
-            }}, t("acceptSpark",lang))
-          ),
-          null
+            {/* Prompt */}
+            <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:15, color:C.light, lineHeight:1.7, marginBottom:14 }}>
+              "{spark.prompt}"
+            </p>
+
+            {/* Metrics — the social proof */}
+            <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:4, padding:"4px 10px", borderRadius:8, background:`${C.ember}08`, border:`1px solid ${C.ember}12` }}>
+                <Flame size={11} color={C.ember}/>
+                <span style={{ fontSize:10, color:C.ember, fontFamily:"'JetBrains Mono',monospace" }}>{spark.accepted}</span>
+                <span style={{ fontSize:9, color:C.dim, fontFamily:"'DM Sans',sans-serif" }}>accepted</span>
+              </div>
+              <div style={{ display:"flex", alignItems:"center", gap:4, padding:"4px 10px", borderRadius:8, background:`${C.understanding}08`, border:`1px solid ${C.understanding}12` }}>
+                <ArrowLeft size={11} color={C.understanding} style={{ transform:"rotate(180deg)" }}/>
+                <span style={{ fontSize:10, color:C.understanding, fontFamily:"'JetBrains Mono',monospace" }}>{returnRate}%</span>
+                <span style={{ fontSize:9, color:C.dim, fontFamily:"'DM Sans',sans-serif" }}>returned</span>
+              </div>
+              <div style={{ display:"flex", alignItems:"center", gap:4, padding:"4px 10px", borderRadius:8, background:`${C.appreciation}08`, border:`1px solid ${C.appreciation}12` }}>
+                <Brain size={11} color={C.appreciation}/>
+                <span style={{ fontSize:10, color:C.appreciation, fontFamily:"'JetBrains Mono',monospace" }}>{spark.avgDepth}</span>
+                <span style={{ fontSize:9, color:C.dim, fontFamily:"'DM Sans',sans-serif" }}>depth</span>
+              </div>
+            </div>
+          </div>
         );
       })}
     </div>
-  )};
+  );
 
-  const renderEchoes = () => {
+  // ── SPARK DETAIL + ACCEPT + REFLECT + RESPONSES ──
+  const renderSparkDetail = () => {
     if (!selectedSpark) return null;
-    var responses = selectedSpark.responses || [];
-    var creator = PEOPLE[selectedSpark.creatorId] || {name:selectedSpark.creator||"LUCID"};
-    return React.createElement("div", Object.assign({style:Object.assign({padding:16,paddingBottom:100,overflowY:"auto",maxHeight:"calc(100vh - 130px)"},swipe.style)},swipe.handlers),
-      swipe.indicator,
+    const spark = selectedSpark;
+    const creator = PEOPLE[spark.creatorId];
+    const cTier = getTier((creator||{}).essencePoints || 0);
 
-      React.createElement("div", {style:{background:C.abyss,borderRadius:16,padding:"16px 14px",marginBottom:20,border:"1px solid "+C.ghost,borderLeft:"3px solid "+C.ember+"44"}},
-        React.createElement("p", {style:{fontFamily:"'Cormorant Garamond',serif",fontSize:14,color:C.light,lineHeight:1.6}}, "\u201C"+selectedSpark.prompt+"\u201D"),
-        React.createElement("div", {style:{fontSize:10,color:C.dim,fontFamily:"'DM Sans',sans-serif",marginTop:8}}, t("by",lang)+" "+(creator.name||""))
-      ),
-      React.createElement("div", {style:{display:"flex",alignItems:"center",gap:6,marginBottom:14}},
-        React.createElement(Waves, {size:14,color:C.appreciation}),
-        React.createElement("span", {style:{fontSize:12,color:C.light,fontFamily:"'DM Sans',sans-serif",fontWeight:500}}, responses.length+" Echoes"),
-        React.createElement("span", {style:{fontSize:10,color:C.dim,fontFamily:"'DM Sans',sans-serif"}}, " \u2014 voices that came back")
-      ),
-      responses.map(function(resp, i) {
-        var rp = PEOPLE[resp.userId] || {name:resp.userId};
-        var rt = getTier(rp.essencePoints||0);
-        return React.createElement("div", {key:i,className:"ri",style:{background:C.abyss,borderRadius:14,padding:"14px 12px",marginBottom:10,border:"1px solid "+C.ghost}},
-          React.createElement("div", {style:{display:"flex",alignItems:"center",gap:8,marginBottom:10}},
-            React.createElement("div", {style:{width:28,height:28,borderRadius:"50%",overflow:"hidden",border:"2px solid "+rt.color+"40"}},
-              rp.photo ? React.createElement("img", {src:rp.photo,alt:"",style:{width:"100%",height:"100%",objectFit:"cover"}}) : React.createElement("div", {style:{width:"100%",height:"100%",background:rt.color+"20",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,color:rt.color}}, (rp.name||"?")[0])
-            ),
-            React.createElement("div", null,
-              React.createElement("div", {style:{fontSize:12,color:C.light,fontFamily:"'DM Sans',sans-serif",fontWeight:500}}, rp.name),
-              React.createElement("div", {style:{fontSize:9,color:rt.color,fontFamily:"'JetBrains Mono',monospace"}}, rt.name)
-            ),
-            React.createElement("div", {style:{marginLeft:"auto",fontSize:10,color:C.appreciation,fontFamily:"'JetBrains Mono',monospace"}}, resp.depthScore)
-          ),
-          React.createElement("p", {style:{fontFamily:"'Cormorant Garamond',serif",fontSize:13,color:C.light,lineHeight:1.7,marginBottom:10}}, resp.text),
-          React.createElement("div", {style:{display:"flex",gap:4,marginBottom:10,flexWrap:"wrap"}},
-            (resp.emotions||[]).map(function(em) { return React.createElement("span", {key:em,style:{fontSize:9,padding:"3px 8px",borderRadius:8,background:C.ghost+"25",border:"1px solid "+C.ghost+"15",color:C.mid,fontFamily:"'DM Sans',sans-serif"}}, em); })
-          ),
-          React.createElement("button", {onClick:function(){haptic("light")},style:{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",borderRadius:8,background:C.stirred+"08",border:"1px solid "+C.stirred+"15",cursor:"pointer"}},
-            React.createElement(Waves, {size:12,color:C.stirred}),
-            React.createElement("span", {style:{fontSize:10,color:C.stirred,fontFamily:"'DM Sans',sans-serif"}}, "Stir")
-          ),
-          resp.creatorReview && React.createElement("div", {style:{marginTop:10,padding:"10px 12px",borderRadius:10,background:C.ember+"06",borderLeft:"2px solid "+C.ember+"30"}},
-            React.createElement("div", {style:{fontSize:9,color:C.ember,fontFamily:"'DM Sans',sans-serif",fontWeight:600,marginBottom:4}}, (creator.name||"")+"'s review"),
-            React.createElement("p", {style:{fontSize:11,color:C.mid,fontFamily:"'Cormorant Garamond',serif",lineHeight:1.6,fontStyle:"italic"}}, resp.creatorReview)
-          )
-        );
-      }),
-      responses.length === 0 && React.createElement("div", {style:{textAlign:"center",padding:"40px 20px"}},
-        React.createElement(Waves, {size:28,color:C.ghost,style:{marginBottom:10}}),
-        React.createElement("p", {style:{fontSize:13,color:C.dim,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}, "No echoes yet \u2014 be the first to live this spark.")
-      )
+    // ── Submitted ──
+    if (phase === "submitted") return (
+      <div className="di" style={{ textAlign:"center", padding:"40px 0" }}>
+        <div style={{ width:64, height:64, borderRadius:"50%", margin:"0 auto 16px", background:`${C.ember}12`, border:`1.5px solid ${C.ember}30`, display:"flex", alignItems:"center", justifyContent:"center", boxShadow:`0 0 30px ${C.glow}`, animation:"pulseGlow 3s ease-in-out infinite" }}>
+          <Feather size={28} color={C.ember}/>
+        </div>
+        <h2 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:22, color:C.light, fontWeight:400, marginBottom:6 }}>Experience shared</h2>
+        <p style={{ fontSize:13, color:C.mid, fontFamily:"'Cormorant Garamond',serif", lineHeight:1.6, maxWidth:280, margin:"0 auto 20px" }}>
+          {(creator||{}).name} will review your response. Your ability to express genuine feeling is being measured — not for judgment, but for growth.
+        </p>
+        <div style={{ display:"flex", gap:16, justifyContent:"center", marginBottom:24 }}>
+          <div style={{ textAlign:"center" }}><div style={{ fontSize:22, color:C.ember, fontFamily:"'Cormorant Garamond',serif", fontWeight:600 }}>+{spark.points}</div><div style={{ fontSize:8, color:C.dim, fontFamily:"'DM Sans',sans-serif", textTransform:"uppercase" }}>Lucidity</div></div>
+          <div style={{ textAlign:"center" }}><div style={{ fontSize:22, color:C.understanding, fontFamily:"'Cormorant Garamond',serif", fontWeight:600 }}>{Math.min(97, 55+wordCount)}</div><div style={{ fontSize:8, color:C.dim, fontFamily:"'DM Sans',sans-serif", textTransform:"uppercase" }}>Soul depth</div></div>
+        </div>
+        <button onClick={() => { setPhase("view"); setSelectedSpark(null); setReflectText(""); setEmotions([]); setReflectPhoto(null); setPerspectiveText(""); }}
+          style={{ padding:"10px 28px", borderRadius:12, background:C.surface, border:`1px solid ${C.ghost}`, color:C.mid, fontSize:12, fontFamily:"'DM Sans',sans-serif" }}>
+          Back to sparks
+        </button>
+      </div>
+    );
+
+    return (
+      <div className="di">
+        {/* Back */}
+        <button onClick={() => { setSelectedSpark(null); setPhase("view"); }} style={{ color:C.mid, display:"flex", alignItems:"center", gap:4, fontSize:12, fontFamily:"'DM Sans',sans-serif", marginBottom:16 }}>
+          <ArrowLeft size={16}/> All sparks
+        </button>
+
+        {/* Creator card */}
+        <div style={{ display:"flex", alignItems:"center", gap:12, padding:14, borderRadius:14, background:C.abyss, border:`1px solid ${cTier.color}15`, marginBottom:16 }}>
+          <Avatar name={(creator||{}).name} size={44} color={cTier.color} photo={(creator||{}).photo}/>
+          <div style={{ flex:1 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+              <span style={{ fontSize:14, color:C.light, fontFamily:"'DM Sans',sans-serif", fontWeight:500 }}>{(creator||{}).name}</span>
+              {(creator||{}).torchbearer && <Sun size={13} color="#FFD700"/>}
+              <span style={{ fontSize:9, color:cTier.color, fontFamily:"'JetBrains Mono',monospace", padding:"2px 6px", borderRadius:6, background:`${cTier.color}10` }}>{cTier.name}</span>
+            </div>
+            <span style={{ fontSize:11, color:C.mid, fontFamily:"'DM Sans',sans-serif" }}>Spark creator · comes back to verify responses</span>
+          </div>
+        </div>
+
+        {/* Spark prompt */}
+        <div style={{ background:`linear-gradient(160deg,${C.abyss},${C.surface}55)`, borderRadius:18, padding:"22px 18px", border:`1px solid ${C.ember}10`, marginBottom:16, position:"relative", overflow:"hidden" }}>
+          <div style={{ position:"absolute", top:-20, right:-20, width:100, height:100, background:`radial-gradient(circle,${C.glow},transparent 70%)`, borderRadius:"50%", pointerEvents:"none", animation:"breathe 5s ease-in-out infinite" }}/>
+          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:14 }}>
+            <Flame size={16} color={C.ember}/>
+            <span style={{ fontSize:12, color:C.ember, fontFamily:"'DM Sans',sans-serif", fontWeight:500 }}>{spark.category}</span>
+            <span style={{ fontSize:11, color:C.dim, fontFamily:"'JetBrains Mono',monospace", marginLeft:"auto" }}>~{spark.time}</span>
+          </div>
+          <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:18, color:C.light, lineHeight:1.7, marginBottom:16 }}>
+            {spark.prompt}
+          </p>
+          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom: phase === "view" ? 16 : 0 }}>
+            <div style={{ display:"flex", gap:4 }}>{[1,2,3].map(i => <div key={i} style={{ width:7, height:7, borderRadius:4, background:i <= spark.difficulty ? C.ember : C.ghost }}/>)}</div>
+            <span style={{ fontSize:11, color:C.dim, fontFamily:"'DM Sans',sans-serif" }}>{spark.difficulty === 1 ? "Gentle" : spark.difficulty === 2 ? "Stretch" : "Deep reach"}</span>
+            <span style={{ fontSize:12, color:C.understanding, fontFamily:"'JetBrains Mono',monospace", marginLeft:"auto" }}>+{spark.points} LP</span>
+          </div>
+
+          {phase === "view" && (
+            <button onClick={() => setPhase("accepted")} style={{ width:"100%", padding:14, borderRadius:14, background:`linear-gradient(135deg,${C.ember},${C.kindle})`, color:C.void, fontSize:14, fontFamily:"'DM Sans',sans-serif", fontWeight:600, boxShadow:`0 8px 24px ${C.glow}` }}>
+              Accept this Spark
+            </button>
+          )}
+          {phase === "accepted" && (
+            <div style={{ marginTop:14 }}>
+              <div style={{ padding:12, borderRadius:12, background:`${C.understanding}08`, border:`1px solid ${C.understanding}20`, display:"flex", alignItems:"center", justifyContent:"center", gap:8, color:C.understanding, fontSize:13, fontFamily:"'DM Sans',sans-serif", marginBottom:12 }}>
+                <Check size={16}/> Go live it — {(creator||{}).name} will review your response
+              </div>
+              <button onClick={() => setPhase("reflect")} style={{ width:"100%", padding:12, borderRadius:12, border:`1px solid ${C.ember}22`, background:`${C.ember}06`, color:C.ember, fontSize:13, fontFamily:"'DM Sans',sans-serif", display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+                <Pen size={14}/> I lived it — share my experience
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* ═══ REFLECT on this spark ═══ */}
+        {phase === "reflect" && (
+          <div className="di">
+            <h3 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:18, color:C.light, fontWeight:400, marginBottom:4 }}>
+              What did you experience?
+            </h3>
+            <p style={{ fontSize:12, color:C.mid, fontFamily:"'DM Sans',sans-serif", marginBottom:14 }}>
+              {(creator||{}).name} will read this. Express what you genuinely felt — not what sounds good.
+            </p>
+            <div style={{ background:C.abyss, borderRadius:14, padding:16, border:`1px solid ${modWarn ? C.warmth : C.ghost}`, marginBottom:14 }}>
+              <textarea value={reflectText} onChange={e => { setReflectText(e.target.value); setModWarn(null); }} rows={6}
+                placeholder="When I did this, I felt..."
+                style={{ width:"100%", background:"transparent", border:"none", color:C.light, fontSize:15, fontFamily:"'Cormorant Garamond',serif", lineHeight:1.8, resize:"none" }}/>
+              <div style={{ display:"flex", justifyContent:"space-between", marginTop:8, borderTop:`1px solid ${C.ghost}`, paddingTop:8 }}>
+                <span style={{ fontSize:11, color:C.dim, fontFamily:"'JetBrains Mono',monospace" }}>{wordCount} words</span>
+                <span style={{ fontSize:11, color:wordCount >= 50 ? C.understanding : C.dim, fontFamily:"'DM Sans',sans-serif" }}>
+                  {wordCount < 20 ? `${20-wordCount} more` : wordCount < 50 ? "Keep going" : "Good depth"}
+                </span>
+              </div>
+            </div>
+            {modWarn && <div style={{ display:"flex", alignItems:"flex-start", gap:6, marginBottom:12, padding:"8px 12px", borderRadius:8, background:`${C.warmth}08`, border:`1px solid ${C.warmth}15` }}><AlertTriangle size={13} color={C.warmth} style={{ flexShrink:0, marginTop:1 }}/><span style={{ fontSize:11, color:C.warmth, fontFamily:"'DM Sans',sans-serif" }}>{modWarn}</span></div>}
+            <div style={{ marginBottom:14 }}>
+              <div style={{ fontSize:11, color:C.light, fontFamily:"'DM Sans',sans-serif", marginBottom:8 }}>Emotions (1–5)</div>
+              <div style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
+                {EMOTION_OPTIONS.map(em => <EmChip key={em} emotion={em} active={emotions.includes(em)} onClick={() => setEmotions(p => p.includes(em) ? p.filter(x=>x!==em) : p.length<5 ? [...p,em] : p)}/>)}
+              </div>
+            </div>
+            {/* Perspective challenge */}
+            {wordCount >= 20 && (
+              <div style={{ marginBottom:14, padding:14, borderRadius:14, background:`${C.intelligence}06`, border:`1px solid ${C.intelligence}12` }}>
+                <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:8 }}>
+                  <Brain size={14} color={C.intelligence}/><span style={{ fontSize:12, color:C.intelligence, fontFamily:"'DM Sans',sans-serif", fontWeight:600 }}>Perspective Challenge</span>
+                  <span style={{ fontSize:9, color:C.dim, fontFamily:"'JetBrains Mono',monospace", marginLeft:"auto" }}>+20 LP</span>
+                </div>
+                <p style={{ fontSize:11, color:C.mid, fontFamily:"'Cormorant Garamond',serif", lineHeight:1.5, marginBottom:10 }}>What would someone with a completely different perspective say about this?</p>
+                <textarea value={perspectiveText} onChange={e => setPerspectiveText(e.target.value)} placeholder="Someone else might see this differently because..." rows={2}
+                  style={{ width:"100%", padding:10, borderRadius:8, background:C.surface, border:`1px solid ${C.ghost}`, color:C.light, fontSize:12, fontFamily:"'Cormorant Garamond',serif", lineHeight:1.5, resize:"none" }}/>
+              </div>
+            )}
+            {/* Photo */}
+            <div style={{ marginBottom:14 }}>
+              <div style={{ fontSize:11, color:C.light, fontFamily:"'DM Sans',sans-serif", marginBottom:6 }}>Photo <span style={{ color:C.dim }}>(optional)</span></div>
+              <div onClick={() => photoRef.current && photoRef.current.click()} style={{ borderRadius:12, overflow:"hidden", border:`1px dashed ${reflectPhoto ? C.ember : C.ghost}`, background:reflectPhoto?"none":C.surface, height:reflectPhoto?120:60, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
+                {reflectPhoto ? <img src={reflectPhoto} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/> : <Camera size={18} color={C.dim}/>}
+              </div>
+              <input ref={photoRef} type="file" accept="image/*" onChange={handleReflectPhoto} style={{ display:"none" }}/>
+            </div>
+            <button onClick={handleSubmitResponse} disabled={wordCount<20||emotions.length<1}
+              style={{ width:"100%", padding:14, borderRadius:14, background:wordCount>=20&&emotions.length>=1?`linear-gradient(135deg,${C.ember},${C.kindle})`:C.ghost, color:wordCount>=20&&emotions.length>=1?C.void:C.dim, fontSize:14, fontFamily:"'DM Sans',sans-serif", fontWeight:600 }}>
+              {wordCount < 20 ? `${20-wordCount} more words` : emotions.length < 1 ? "Choose an emotion" : "Share your experience"}
+            </button>
+          </div>
+        )}
+
+        {/* ═══ RESPONSES — other people's experiences + creator reviews ═══ */}
+        {phase === "view" && spark.responses.length > 0 && (
+          <div style={{ marginTop:4 }}>
+            <div style={{ fontSize:11, color:C.mid, fontFamily:"'DM Sans',sans-serif", letterSpacing:1, textTransform:"uppercase", marginBottom:12 }}>
+              Experiences shared · {spark.responses.length} souls responded
+            </div>
+            {spark.responses.map((resp, i) => {
+              const respPerson = PEOPLE[resp.userId];
+              const rTier = getTier((respPerson||{}).essencePoints || 0);
+              return (
+                <div key={i} style={{ background:C.abyss, borderRadius:14, padding:16, marginBottom:12, border:`1px solid ${C.ghost}` }}>
+                  {/* Responder */}
+                  <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
+                    <Avatar name={(respPerson||{}).name} size={30} color={rTier.color} photo={(respPerson||{}).photo}/>
+                    <span style={{ fontSize:12, color:C.light, fontFamily:"'DM Sans',sans-serif" }}>{(respPerson||{}).name}</span>
+                    <div style={{ marginLeft:"auto", display:"flex", alignItems:"center", gap:4 }}>
+                      <span style={{ fontSize:10, color:C.appreciation, fontFamily:"'JetBrains Mono',monospace" }}>depth {resp.depthScore}</span>
+                    </div>
+                  </div>
+                  {/* Response text */}
+                  <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:14, color:C.light, lineHeight:1.7, marginBottom:10 }}>
+                    {resp.text}
+                  </p>
+                  <div style={{ display:"flex", flexWrap:"wrap", gap:4, marginBottom:10 }}>
+                    {resp.emotions.map(em => <EmChip key={em} emotion={em} active small/>)}
+                  </div>
+                  {/* Creator verification — this is the key differentiator */}
+                  {resp.verified && resp.creatorReview && (
+                    <div style={{ padding:"12px 14px", borderRadius:12, background:`${cTier.color}06`, border:`1px solid ${cTier.color}15`, marginTop:8 }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:6 }}>
+                        <Avatar name={(creator||{}).name} size={20} color={cTier.color} photo={(creator||{}).photo}/>
+                        <span style={{ fontSize:10, color:cTier.color, fontFamily:"'DM Sans',sans-serif", fontWeight:600 }}>
+                          {(creator||{}).name} verified
+                        </span>
+                        <Check size={12} color={cTier.color}/>
+                      </div>
+                      <p style={{ fontSize:12, color:C.mid, fontFamily:"'Cormorant Garamond',serif", fontStyle:"italic", lineHeight:1.6 }}>
+                        "{resp.creatorReview}"
+                      </p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Soul metrics for this spark */}
+        {phase === "view" && (
+          <div style={{ background:C.abyss, borderRadius:14, padding:16, border:`1px solid ${C.ghost}`, marginTop:8 }}>
+            <div style={{ fontSize:10, color:C.mid, fontFamily:"'DM Sans',sans-serif", letterSpacing:1, textTransform:"uppercase", marginBottom:12 }}>Spark performance</div>
+            <div style={{ display:"flex", justifyContent:"space-around" }}>
+              {[
+                { val:spark.accepted, label:"Accepted", color:C.ember },
+                { val:`${spark.accepted > 0 ? Math.round((spark.returned/spark.accepted)*100) : 0}%`, label:"Return rate", color:C.understanding },
+                { val:spark.avgDepth, label:"Avg depth", color:C.appreciation },
+                { val:spark.responses.filter(r => r.verified).length, label:"Verified", color:"#FFD700" },
+              ].map((m, i) => (
+                <div key={i} style={{ textAlign:"center" }}>
+                  <div style={{ fontSize:18, color:m.color, fontFamily:"'Cormorant Garamond',serif", fontWeight:600 }}>{m.val}</div>
+                  <div style={{ fontSize:8, color:C.dim, fontFamily:"'DM Sans',sans-serif", textTransform:"uppercase", letterSpacing:0.5 }}>{m.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     );
   };
 
   // ── CREATE a spark ──
-  const renderSparkDetail = () => {
-    if (!selectedSpark) return null;
-    var creator = PEOPLE[selectedSpark.creatorId] || {name:selectedSpark.creator||"LUCID"};
-
-
-    if (phase === "submitted") {
-      return React.createElement("div", {style:{padding:40,textAlign:"center"}},
-        React.createElement(Sparkles, {size:40,color:C.ember,style:{marginBottom:16}}),
-        React.createElement("h3", {style:{fontFamily:"'Cormorant Garamond',serif",fontSize:22,color:C.light,fontWeight:400,marginBottom:8}}, "Your echo has been shared"),
-        React.createElement("p", {style:{fontSize:12,color:C.mid,fontFamily:"'DM Sans',sans-serif",lineHeight:1.6,marginBottom:20}}, "The spark creator will review your reflection. Your Humanity Index grows with every honest response."),
-        React.createElement("button", {onClick:function(){setPhase("view");setSelectedSpark(null);setReflectText("");setEmotions([])},style:{padding:"12px 24px",borderRadius:12,background:C.ember,color:C.void,fontSize:13,fontFamily:"'DM Sans',sans-serif",fontWeight:600}}, "Back to Sparks")
-      );
-    }
-
-    if (phase === "reflect") {
-      return React.createElement("div", Object.assign({style:Object.assign({padding:16},swipe.style)},swipe.handlers),
-        swipe.indicator,
-
-        React.createElement("p", {style:{fontFamily:"'Cormorant Garamond',serif",fontSize:14,color:C.mid,lineHeight:1.6,marginBottom:16,fontStyle:"italic"}}, "You lived this spark. Now share what you felt."),
-        React.createElement("textarea", {value:reflectText,onChange:function(e){setReflectText(e.target.value)},rows:5,placeholder:"What happened? What did you feel? Be honest...",style:{width:"100%",padding:16,borderRadius:14,background:C.surface,border:"1px solid "+C.ghost,color:C.light,fontSize:14,fontFamily:"'Cormorant Garamond',serif",lineHeight:1.7,resize:"none",marginBottom:12}}),
-        React.createElement("div", {style:{display:"flex",flexWrap:"wrap",gap:6,marginBottom:16}},
-          EMOTION_OPTIONS.slice(0,10).map(function(em) {
-            var sel = emotions.indexOf(em) !== -1;
-            return React.createElement("button", {key:em,onClick:function(){setEmotions(function(prev){return sel?prev.filter(function(x){return x!==em}):prev.length<3?prev.concat([em]):prev})},style:{padding:"5px 12px",borderRadius:10,fontSize:10,border:"1px solid "+(sel?C.ember:C.ghost),background:sel?C.ember+"12":"transparent",color:sel?C.ember:C.dim,fontFamily:"'DM Sans',sans-serif"}}, em);
-          })
-        ),
-        React.createElement("button", {onClick:function(){if(reflectText.length>20&&emotions.length>=1){haptic("heavy");setPhase("submitted")}},style:{width:"100%",padding:14,borderRadius:14,background:reflectText.length>20&&emotions.length>=1?C.ember:C.ghost,color:reflectText.length>20&&emotions.length>=1?C.void:C.dim,fontSize:13,fontFamily:"'DM Sans',sans-serif",fontWeight:600}}, "Share your echo")
-      );
-    }
-
-    // Default: accepted state — swipe right to go back
-    return React.createElement("div", {style:{padding:16}},
-
-      React.createElement("div", {style:{background:C.abyss,borderRadius:16,padding:"20px 16px",border:"1px solid "+C.ember+"20",marginBottom:16}},
-        React.createElement("div", {style:{display:"flex",alignItems:"center",gap:6,marginBottom:10}},
-          React.createElement(Flame, {size:14,color:C.ember}),
-          React.createElement("span", {style:{fontSize:10,color:C.ember,fontFamily:"'DM Sans',sans-serif",fontWeight:600,letterSpacing:1}}, "SPARK ACCEPTED")
-        ),
-        React.createElement("p", {style:{fontFamily:"'Cormorant Garamond',serif",fontSize:16,color:C.light,lineHeight:1.7,marginBottom:12}}, "\u201C"+selectedSpark.prompt+"\u201D"),
-        React.createElement("div", {style:{fontSize:11,color:C.dim,fontFamily:"'DM Sans',sans-serif"}}, t("by",lang)+" "+(creator.name||""))
-      ),
-      React.createElement("div", {style:{background:C.surface,borderRadius:14,padding:"16px 14px",border:"1px solid "+C.ghost+"20",marginBottom:16}},
-        React.createElement("p", {style:{fontFamily:"'Cormorant Garamond',serif",fontSize:14,color:C.mid,lineHeight:1.7,fontStyle:"italic"}}, "Now go live this spark. Step away from the screen. When you come back, share what you experienced and how it made you feel.")
-      ),
-      React.createElement("button", {onClick:function(){haptic("medium");setPhase("reflect")},style:{width:"100%",padding:14,borderRadius:14,background:"linear-gradient(135deg,"+C.ember+","+C.kindle+")",color:C.void,fontSize:13,fontFamily:"'DM Sans',sans-serif",fontWeight:600}}, "I lived it — share my echo")
-    );
-  };
-
   const renderCreate = () => {
     if (sparkCreated) return (
       <div className="di" style={{ textAlign:"center", padding:"60px 0" }}>
@@ -3434,7 +3503,7 @@ function SparkView({ user, lang }) {
       {/* Example user-created spark */}
       <div style={{ background:C.abyss, borderRadius:14, padding:16, border:`1px solid ${C.ghost}`, marginBottom:12, borderLeft:`3px solid ${C.ember}44` }}>
         <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:14, color:C.light, lineHeight:1.6, marginBottom:10 }}>
-          {myCreatedSparks.length>0?myCreatedSparks[myCreatedSparks.length-1].prompt:"Your latest spark will appear here once created"}
+          "Your latest spark will appear here once created"
         </p>
         <div style={{ display:"flex", gap:16 }}>
           <div style={{ textAlign:"center" }}><div style={{ fontSize:16, color:C.ember, fontFamily:"'Cormorant Garamond',serif", fontWeight:600 }}>0</div><div style={{ fontSize:8, color:C.dim, fontFamily:"'DM Sans'", textTransform:"uppercase" }}>Accepted</div></div>
@@ -3478,7 +3547,7 @@ function SparkView({ user, lang }) {
       )}
 
       {/* Content */}
-      {phase==="echoes" && selectedSpark ? React.createElement("div", Object.assign({style:Object.assign({},swipe.style)},swipe.handlers), swipe.indicator, renderEchoes()) : selectedSpark ? React.createElement("div", Object.assign({style:Object.assign({},swipe.style)},swipe.handlers), swipe.indicator, renderSparkDetail()) :
+      {selectedSpark ? renderSparkDetail() :
         tab === "browse" ? renderBrowse() :
         tab === "create" ? renderCreate() :
         renderMySparks()
@@ -3768,7 +3837,7 @@ export default function LucidApp(){
   try {
     var raw = typeof navigator !== "undefined" ? (navigator.language || "en") : "en";
     var bl = raw.split("-")[0].toLowerCase();
-    var supported = SUPPORTED_CODES;
+    var supported = LANGUAGES.map(function(l){return l.code});
     if (supported.indexOf(bl) !== -1) langInit = bl;
   } catch(e) {}
   var _st5 = useState(langInit); var lang = _st5[0]; var setLang = _st5[1];
@@ -3879,7 +3948,7 @@ export default function LucidApp(){
         borderBottom:"1px solid "+C.ghost+"12",
         background:C.void,
       }}>
-        <button onClick={function(){haptic("light");setShowSettings(!showSettings);setShowNotifs(false);setShowLangPicker(false)}} style={{ 
+        <button onClick={function(){haptic("light");setScreen("essence")}} style={{ 
           width:52, height:52, borderRadius:"50%", overflow:"hidden", padding:0, flexShrink:0,
           border:screen==="essence"?"3px solid "+tier.color:"3px solid "+C.ghost+"30", 
           background:user.photo?"none":"linear-gradient(135deg,"+tier.color+"30,"+tier.color+"08)", 
@@ -3904,71 +3973,9 @@ export default function LucidApp(){
         </div>
       </div>
 
-      {/* Settings Menu */}
-      {showSettings && (
-        <div style={{position:"absolute",top:120,right:12,left:12,zIndex:999,background:C.abyss,borderRadius:16,border:"1px solid "+C.ghost,boxShadow:"0 16px 48px rgba(0,0,0,0.6)",padding:"12px 0",maxHeight:"70vh",overflowY:"auto"}}>
-          <div style={{padding:"8px 16px 12px",borderBottom:"1px solid "+C.ghost+"20"}}>
-            <div style={{fontSize:14,color:C.light,fontFamily:"'DM Sans',sans-serif",fontWeight:600}}>{user.name}</div>
-            <div style={{fontSize:11,color:C.dim,fontFamily:"'DM Sans',sans-serif"}}>{user.email||""}</div>
-          </div>
-          {[
-            {icon:User,label:"Your Profile",action:function(){setScreen("essence");setShowSettings(false)}},
-            {icon:Flame,label:"Your Sparks",action:function(){setScreen("spark");setShowSettings(false)}},
-            {icon:Heart,label:"Saved Reflections",action:function(){setScreen("depth");setShowSettings(false)}},
-            {icon:Users,label:"Your Circles",action:function(){setScreen("circles");setShowSettings(false)}},
-            {icon:Fingerprint,label:"Connection DNA",action:function(){setScreen("dna");setShowSettings(false)}},
-          ].map(function(item,i){return (
-            <button key={i} onClick={function(){haptic("light");item.action()}} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 16px",textAlign:"left",cursor:"pointer",borderTop:i===0?"none":"none"}}>
-              <div style={{width:32,height:32,borderRadius:10,background:C.ember+"08",border:"1px solid "+C.ember+"12",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                <item.icon size={15} color={C.ember}/>
-              </div>
-              <span style={{fontSize:13,color:C.light,fontFamily:"'DM Sans',sans-serif"}}>{item.label}</span>
-              <ChevronRight size={14} color={C.ghost} style={{marginLeft:"auto"}}/>
-            </button>
-          )})}
-          <div style={{height:1,background:C.ghost+"20",margin:"4px 16px"}}/>
-          {[
-            {icon:Globe,label:"Language",sub:(LANGUAGES.find(function(l){return l.code===lang})||{}).label||"English",action:function(){setShowLangPicker(!showLangPicker);setShowSettings(false)}},
-            {icon:Bell,label:"Notifications",sub:"On",action:function(){setShowNotifs(true);setShowSettings(false)}},
-            {icon:Shield,label:"Privacy & Safety",action:function(){}},
-            {icon:Eye,label:"Appearance",sub:"Dark",action:function(){}},
-          ].map(function(item,i){return (
-            <button key={"s"+i} onClick={function(){haptic("light");item.action()}} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 16px",textAlign:"left",cursor:"pointer"}}>
-              <div style={{width:32,height:32,borderRadius:10,background:C.surface,border:"1px solid "+C.ghost+"20",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                <item.icon size={15} color={C.mid}/>
-              </div>
-              <div style={{flex:1}}>
-                <span style={{fontSize:13,color:C.light,fontFamily:"'DM Sans',sans-serif"}}>{item.label}</span>
-                {item.sub && <span style={{fontSize:10,color:C.dim,fontFamily:"'DM Sans',sans-serif",marginLeft:8}}>{item.sub}</span>}
-              </div>
-              <ChevronRight size={14} color={C.ghost}/>
-            </button>
-          )})}
-          <div style={{height:1,background:C.ghost+"20",margin:"4px 16px"}}/>
-          {[
-            {icon:HelpCircle,label:"Help & Support",action:function(){}},
-            {icon:Info,label:"About LUCID",action:function(){}},
-          ].map(function(item,i){return (
-            <button key={"h"+i} onClick={function(){haptic("light");item.action()}} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 16px",textAlign:"left",cursor:"pointer"}}>
-              <div style={{width:32,height:32,borderRadius:10,background:C.surface,border:"1px solid "+C.ghost+"20",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                <item.icon size={15} color={C.mid}/>
-              </div>
-              <span style={{fontSize:13,color:C.light,fontFamily:"'DM Sans',sans-serif"}}>{item.label}</span>
-              <ChevronRight size={14} color={C.ghost} style={{marginLeft:"auto"}}/>
-            </button>
-          )})}
-          <div style={{height:1,background:C.ghost+"20",margin:"4px 16px"}}/>
-          <button onClick={function(){haptic("medium");handleLogout();setShowSettings(false)}} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 16px",textAlign:"left",cursor:"pointer"}}>
-            <div style={{width:32,height:32,borderRadius:10,background:"#E85D7508",border:"1px solid #E85D7512",display:"flex",alignItems:"center",justifyContent:"center"}}>
-              <LogOut size={15} color="#E85D75"/>
-            </div>
-            <span style={{fontSize:13,color:"#E85D75",fontFamily:"'DM Sans',sans-serif",fontWeight:500}}>Log out</span>
-          </button>
-        </div>
-      )}
-
       <ActivityTicker/>
       <div style={{ flex:1, overflowY:"auto", overflowX:"hidden" }}>
+        {screen==="depth" && <SparkOfTheDay lang={lang} onAccept={function(s){ haptic("heavy"); setToast("Spark accepted! Live it, then come back."); setTimeout(function(){setToast(null)},4000); }}/>}
         {screen==="depth" && <DepthExperience user={user} lang={lang}/>}
         {screen==="spark" && <SparkView user={user} lang={lang}/>}
         {screen==="circles" && <div><EmbersReel onOpenEmber={function(ember, i) { setEmberView({ embers: EMBERS_DATA, startIndex: i }); }}/><WitnessCirclesView user={user}/></div>}
