@@ -7,7 +7,7 @@ import {
   Compass, Shield, X, Check, ChevronRight, Target, Feather,
   Lightbulb, Globe, Pen, TrendingUp, Award, Layers, Orbit, Send, Scale,
   Camera, Mail, KeyRound, User, CircleDot, Fingerprint, Waves,
-  Search, Edit3, Plus, AlertTriangle, Bell
+  Search, Edit3, Plus, AlertTriangle, Bell, HelpCircle, Info, LogOut
 } from "lucide-react";
 
 // Aliases for icons not in lucide-react@0.383.0
