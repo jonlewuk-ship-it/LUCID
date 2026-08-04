@@ -3322,8 +3322,7 @@ function SparkView({ user, lang }) {
     }
 
     // Default: accepted state — swipe right to go back
-    return React.createElement("div", Object.assign({style:Object.assign({padding:16},swipe.style)},swipe.handlers),
-      swipe.indicator,
+    return React.createElement("div", {style:{padding:16}},
 
       React.createElement("div", {style:{background:C.abyss,borderRadius:16,padding:"20px 16px",border:"1px solid "+C.ember+"20",marginBottom:16}},
         React.createElement("div", {style:{display:"flex",alignItems:"center",gap:6,marginBottom:10}},
@@ -3479,7 +3478,7 @@ function SparkView({ user, lang }) {
       )}
 
       {/* Content */}
-      {phase==="echoes" && selectedSpark ? renderEchoes() : selectedSpark ? renderSparkDetail() :
+      {phase==="echoes" && selectedSpark ? React.createElement("div", Object.assign({style:Object.assign({},swipe.style)},swipe.handlers), swipe.indicator, renderEchoes()) : selectedSpark ? React.createElement("div", Object.assign({style:Object.assign({},swipe.style)},swipe.handlers), swipe.indicator, renderSparkDetail()) :
         tab === "browse" ? renderBrowse() :
         tab === "create" ? renderCreate() :
         renderMySparks()
@@ -3880,7 +3879,7 @@ export default function LucidApp(){
         borderBottom:"1px solid "+C.ghost+"12",
         background:C.void,
       }}>
-        <button onClick={function(){haptic("light");setScreen("essence")}} style={{ 
+        <button onClick={function(){haptic("light");setShowSettings(!showSettings);setShowNotifs(false);setShowLangPicker(false)}} style={{ 
           width:52, height:52, borderRadius:"50%", overflow:"hidden", padding:0, flexShrink:0,
           border:screen==="essence"?"3px solid "+tier.color:"3px solid "+C.ghost+"30", 
           background:user.photo?"none":"linear-gradient(135deg,"+tier.color+"30,"+tier.color+"08)", 
@@ -3904,6 +3903,69 @@ export default function LucidApp(){
           </div>
         </div>
       </div>
+
+      {/* Settings Menu */}
+      {showSettings && (
+        <div style={{position:"absolute",top:120,right:12,left:12,zIndex:999,background:C.abyss,borderRadius:16,border:"1px solid "+C.ghost,boxShadow:"0 16px 48px rgba(0,0,0,0.6)",padding:"12px 0",maxHeight:"70vh",overflowY:"auto"}}>
+          <div style={{padding:"8px 16px 12px",borderBottom:"1px solid "+C.ghost+"20"}}>
+            <div style={{fontSize:14,color:C.light,fontFamily:"'DM Sans',sans-serif",fontWeight:600}}>{user.name}</div>
+            <div style={{fontSize:11,color:C.dim,fontFamily:"'DM Sans',sans-serif"}}>{user.email||""}</div>
+          </div>
+          {[
+            {icon:User,label:"Your Profile",action:function(){setScreen("essence");setShowSettings(false)}},
+            {icon:Flame,label:"Your Sparks",action:function(){setScreen("spark");setShowSettings(false)}},
+            {icon:Heart,label:"Saved Reflections",action:function(){setScreen("depth");setShowSettings(false)}},
+            {icon:Users,label:"Your Circles",action:function(){setScreen("circles");setShowSettings(false)}},
+            {icon:Fingerprint,label:"Connection DNA",action:function(){setScreen("dna");setShowSettings(false)}},
+          ].map(function(item,i){return (
+            <button key={i} onClick={function(){haptic("light");item.action()}} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 16px",textAlign:"left",cursor:"pointer",borderTop:i===0?"none":"none"}}>
+              <div style={{width:32,height:32,borderRadius:10,background:C.ember+"08",border:"1px solid "+C.ember+"12",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                <item.icon size={15} color={C.ember}/>
+              </div>
+              <span style={{fontSize:13,color:C.light,fontFamily:"'DM Sans',sans-serif"}}>{item.label}</span>
+              <ChevronRight size={14} color={C.ghost} style={{marginLeft:"auto"}}/>
+            </button>
+          )})}
+          <div style={{height:1,background:C.ghost+"20",margin:"4px 16px"}}/>
+          {[
+            {icon:Globe,label:"Language",sub:(LANGUAGES.find(function(l){return l.code===lang})||{}).label||"English",action:function(){setShowLangPicker(!showLangPicker);setShowSettings(false)}},
+            {icon:Bell,label:"Notifications",sub:"On",action:function(){setShowNotifs(true);setShowSettings(false)}},
+            {icon:Shield,label:"Privacy & Safety",action:function(){}},
+            {icon:Eye,label:"Appearance",sub:"Dark",action:function(){}},
+          ].map(function(item,i){return (
+            <button key={"s"+i} onClick={function(){haptic("light");item.action()}} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 16px",textAlign:"left",cursor:"pointer"}}>
+              <div style={{width:32,height:32,borderRadius:10,background:C.surface,border:"1px solid "+C.ghost+"20",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                <item.icon size={15} color={C.mid}/>
+              </div>
+              <div style={{flex:1}}>
+                <span style={{fontSize:13,color:C.light,fontFamily:"'DM Sans',sans-serif"}}>{item.label}</span>
+                {item.sub && <span style={{fontSize:10,color:C.dim,fontFamily:"'DM Sans',sans-serif",marginLeft:8}}>{item.sub}</span>}
+              </div>
+              <ChevronRight size={14} color={C.ghost}/>
+            </button>
+          )})}
+          <div style={{height:1,background:C.ghost+"20",margin:"4px 16px"}}/>
+          {[
+            {icon:HelpCircle,label:"Help & Support",action:function(){}},
+            {icon:Info,label:"About LUCID",action:function(){}},
+          ].map(function(item,i){return (
+            <button key={"h"+i} onClick={function(){haptic("light");item.action()}} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 16px",textAlign:"left",cursor:"pointer"}}>
+              <div style={{width:32,height:32,borderRadius:10,background:C.surface,border:"1px solid "+C.ghost+"20",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                <item.icon size={15} color={C.mid}/>
+              </div>
+              <span style={{fontSize:13,color:C.light,fontFamily:"'DM Sans',sans-serif"}}>{item.label}</span>
+              <ChevronRight size={14} color={C.ghost} style={{marginLeft:"auto"}}/>
+            </button>
+          )})}
+          <div style={{height:1,background:C.ghost+"20",margin:"4px 16px"}}/>
+          <button onClick={function(){haptic("medium");handleLogout();setShowSettings(false)}} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 16px",textAlign:"left",cursor:"pointer"}}>
+            <div style={{width:32,height:32,borderRadius:10,background:"#E85D7508",border:"1px solid #E85D7512",display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <LogOut size={15} color="#E85D75"/>
+            </div>
+            <span style={{fontSize:13,color:"#E85D75",fontFamily:"'DM Sans',sans-serif",fontWeight:500}}>Log out</span>
+          </button>
+        </div>
+      )}
 
       <ActivityTicker/>
       <div style={{ flex:1, overflowY:"auto", overflowX:"hidden" }}>
