@@ -3951,7 +3951,6 @@ export default function LucidApp(){
           </div>
         </div>
       </div>
-      </div>
       <ActivityTicker/>
       <div style={{ flex:1, overflowY:"auto", overflowX:"hidden" }}>
         {screen==="depth" && <SparkOfTheDay lang={lang} onAccept={function(s){ haptic("heavy"); setToast("Spark accepted! Live it, then come back."); setTimeout(function(){setToast(null)},4000); }}/>}
