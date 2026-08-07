@@ -3892,47 +3892,65 @@ export default function LucidApp(){
     <div style={{background:C.void,height:"100vh",maxWidth:480,margin:"0 auto",position:"relative",overflow:"hidden",display:"flex",flexDirection:"column",paddingTop:"env(safe-area-inset-top, 0px)"}}>
       <style>{css}</style>
 
-            {/* ═══ COVER + PROFILE (Facebook-style) ═══ */}
+            {/* ═══ COVER + PROFILE ═══ */}
       <div style={{ flexShrink:0, position:"relative", zIndex:1000 }}>
+        {/* Cover */}
         <div style={{
-          height:110, width:"100%",
-          background: user.profileBg ? "url("+user.profileBg+") center/cover" : "linear-gradient(135deg, #1a1a3a 0%, #0E0E2E 40%, "+C.ember+"12 100%)",
-          position:"relative",
+          height:100, width:"100%",
+          background: user.profileBg ? "url("+user.profileBg+") center/cover" : "linear-gradient(135deg, #12122a 0%, #1a1a3a 50%, "+C.ember+"08 100%)",
         }}>
-          <div style={{ position:"absolute", top:8, left:12, display:"flex", alignItems:"center", gap:6 }}>
-            <svg width="20" height="20" viewBox="0 0 30 30"><circle cx="15" cy="10" r="5.5" fill={C.ember} opacity="0.85"/><ellipse cx="15" cy="21" rx="8.5" ry="6.5" fill={C.ember} opacity="0.45"/></svg>
-            <span style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:15, color:C.light, letterSpacing:3, textShadow:"0 1px 4px rgba(0,0,0,0.5)" }}>LUCID</span>
-          </div>
-          <div style={{ position:"absolute", top:8, right:12, display:"flex", alignItems:"center", gap:6 }}>
-            <button onClick={function(){setShowLangPicker(!showLangPicker);setShowNotifs(false)}} style={{ padding:"4px 8px", borderRadius:8, background:"rgba(0,0,0,0.4)", backdropFilter:"blur(8px)", border:"1px solid rgba(255,255,255,0.1)" }}>
-              <span style={{ fontSize:13 }}>{(LANGUAGES.find(function(l){return l.code===lang}) || {}).flag || "EN"}</span>
-            </button>
-            <button onClick={function(){setShowNotifs(!showNotifs);setShowLangPicker(false)}} style={{ padding:"4px 8px", borderRadius:8, background:"rgba(0,0,0,0.4)", backdropFilter:"blur(8px)", border:"1px solid rgba(255,255,255,0.1)", position:"relative" }}>
-              <Bell size={15} color={C.light}/>
-              <div style={{ position:"absolute", top:2, right:2, width:6, height:6, borderRadius:3, background:C.ember }}/>
-            </button>
-          </div>
-        </div>
-        <div style={{ padding:"0 16px", marginTop:-28, display:"flex", alignItems:"flex-end", gap:14, marginBottom:8 }}>
-          <button onClick={function(){haptic("light");setScreen("essence")}} style={{
-            width:60, height:60, borderRadius:"50%", overflow:"hidden", flexShrink:0,
-            border:"3px solid "+C.void, boxShadow:"0 4px 16px rgba(0,0,0,0.4)",
-            background: user.photo ? "none" : "linear-gradient(135deg,"+tier.color+"30,"+tier.color+"10)",
-            display:"flex", alignItems:"center", justifyContent:"center", padding:0,
-          }}>
-            {user.photo ? <img src={user.photo} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/> : <span style={{ fontSize:20, color:tier.color, fontFamily:"'Cormorant Garamond',serif", fontWeight:600 }}>{(user.name||"?")[0].toUpperCase()}</span>}
-          </button>
-          <div style={{ flex:1, paddingBottom:4 }}>
-            <div style={{ fontSize:17, color:C.light, fontFamily:"'DM Sans',sans-serif", fontWeight:600 }}>{user.name}</div>
-            <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:2 }}>
-              <div style={{ display:"inline-flex", alignItems:"center", gap:4, padding:"2px 8px", borderRadius:8, background:tier.color+"12", border:"1px solid "+tier.color+"18" }}>
-                <div style={{ width:4, height:4, borderRadius:2, background:tier.color }}/>
-                <span style={{ fontSize:9, color:tier.color, fontFamily:"'JetBrains Mono',monospace" }}>{tier.name}</span>
-              </div>
-              <span style={{ fontSize:9, color:C.dim, fontFamily:"'JetBrains Mono',monospace" }}>{user.essencePoints||0} LP</span>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", padding:"8px 12px" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+              <svg width="18" height="18" viewBox="0 0 30 30"><circle cx="15" cy="10" r="5.5" fill={C.ember} opacity="0.85"/><ellipse cx="15" cy="21" rx="8.5" ry="6.5" fill={C.ember} opacity="0.45"/></svg>
+              <span style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:14, color:C.light, letterSpacing:3, textShadow:"0 1px 6px rgba(0,0,0,0.7)" }}>LUCID</span>
+            </div>
+            <div style={{ display:"flex", gap:6 }}>
+              <button onClick={function(){setShowLangPicker(!showLangPicker);setShowNotifs(false)}} style={{ padding:"5px 8px", borderRadius:10, background:"rgba(6,6,14,0.6)", backdropFilter:"blur(12px)", border:"1px solid rgba(255,255,255,0.08)" }}>
+                <span style={{ fontSize:12 }}>{(LANGUAGES.find(function(l){return l.code===lang}) || {}).flag || "EN"}</span>
+              </button>
+              <button onClick={function(){setShowNotifs(!showNotifs);setShowLangPicker(false)}} style={{ padding:"5px 8px", borderRadius:10, background:"rgba(6,6,14,0.6)", backdropFilter:"blur(12px)", border:"1px solid rgba(255,255,255,0.08)", position:"relative" }}>
+                <Bell size={14} color={C.light}/>
+                <div style={{ position:"absolute", top:4, right:4, width:5, height:5, borderRadius:3, background:C.ember }}/>
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Profile bar — overlaps cover */}
+        <div style={{ background:C.void, padding:"0 16px 10px", marginTop:-24 }}>
+          <div style={{ display:"flex", alignItems:"flex-end", gap:14 }}>
+            {/* Avatar with glowing tier border */}
+            <button onClick={function(){haptic("light");setScreen("essence")}} style={{ position:"relative", padding:0, background:"none", cursor:"pointer", flexShrink:0 }}>
+              <div style={{
+                position:"absolute", inset:-4, borderRadius:"50%",
+                background:"conic-gradient(from 0deg, "+tier.color+", "+C.ember+", "+tier.color+")",
+                animation:"breathe 4s ease-in-out infinite",
+                opacity:0.7,
+              }}/>
+              <div style={{
+                width:56, height:56, borderRadius:"50%", overflow:"hidden",
+                border:"3px solid "+C.void, position:"relative",
+                background: user.photo ? "none" : "linear-gradient(135deg,"+tier.color+"30,"+tier.color+"10)",
+                display:"flex", alignItems:"center", justifyContent:"center",
+              }}>
+                {user.photo ? <img src={user.photo} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/> : <span style={{ fontSize:20, color:tier.color, fontFamily:"'Cormorant Garamond',serif", fontWeight:600 }}>{(user.name||"?")[0].toUpperCase()}</span>}
+              </div>
+            </button>
+
+            {/* Name + tier */}
+            <div style={{ flex:1, paddingBottom:2 }}>
+              <div style={{ fontSize:17, color:C.light, fontFamily:"'DM Sans',sans-serif", fontWeight:600, letterSpacing:0.5 }}>{user.name}</div>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:3 }}>
+                <div style={{ display:"inline-flex", alignItems:"center", gap:4, padding:"2px 10px", borderRadius:10, background:tier.color+"10", border:"1px solid "+tier.color+"18" }}>
+                  <div style={{ width:5, height:5, borderRadius:3, background:tier.color, boxShadow:"0 0 6px "+tier.color, animation:"breathe 3s ease-in-out infinite" }}/>
+                  <span style={{ fontSize:10, color:tier.color, fontFamily:"'JetBrains Mono',monospace", fontWeight:500 }}>{tier.name}</span>
+                </div>
+                <span style={{ fontSize:10, color:C.dim, fontFamily:"'JetBrains Mono',monospace" }}>{user.essencePoints||0} LP</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       </div>
       <ActivityTicker/>
       <div style={{ flex:1, overflowY:"auto", overflowX:"hidden" }}>
