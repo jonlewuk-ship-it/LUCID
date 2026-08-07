@@ -3892,118 +3892,48 @@ export default function LucidApp(){
     <div style={{background:C.void,height:"100vh",maxWidth:480,margin:"0 auto",position:"relative",overflow:"hidden",display:"flex",flexDirection:"column",paddingTop:"env(safe-area-inset-top, 0px)"}}>
       <style>{css}</style>
 
-      {/* ═══ TOP BAR — Logo + Actions ═══ */}
-      <div style={{
-        display:"flex", alignItems:"center", justifyContent:"space-between",
-        padding:"10px 16px", 
-        background:C.void, flexShrink:0,
-        position:"relative", zIndex:1000,
-      }}>
-        <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-          <svg width="30" height="30" viewBox="0 0 30 30">
-            <defs>
-              <radialGradient id="soulLogo" cx="50%" cy="40%" r="55%">
-                <stop offset="0%" stopColor={C.ember} stopOpacity="0.9"/>
-                <stop offset="70%" stopColor={C.kindle} stopOpacity="0.4"/>
-                <stop offset="100%" stopColor={C.ember} stopOpacity="0"/>
-              </radialGradient>
-            </defs>
-            <circle cx="15" cy="10" r="5.5" fill={C.ember} opacity="0.85"/>
-            <ellipse cx="15" cy="21" rx="8.5" ry="6.5" fill={C.ember} opacity="0.45"/>
-            <circle cx="15" cy="15" r="13" fill="none" stroke={C.ember} strokeWidth="0.7" opacity="0.25" style={{animation:"breathe 5s ease-in-out infinite"}}/>
-            <circle cx="15" cy="15" r="10" fill="url(#soulLogo)" opacity="0.12"/>
-          </svg>
-          <span style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:22, color:C.light, fontWeight:400, letterSpacing:4 }}>LUCID</span>
-        </div>
-        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-          {/* Language */}
-          <div style={{ position:"relative", zIndex:1001 }}>
-            <button onClick={function(){setShowLangPicker(!showLangPicker);setShowNotifs(false)}} style={{ padding:"4px 7px", borderRadius:8, background:C.surface, border:"1px solid "+C.ghost, fontSize:13, lineHeight:1 }}>
-              {(LANGUAGES.find(function(l){return l.code===lang}) || {}).flag || "EN"}
-            </button>
-            {showLangPicker && (
-              <div>
-                <div onClick={function(){setShowLangPicker(false)}} style={{ position:"fixed", inset:0, zIndex:998 }}/>
-                <div style={{ position:"absolute", top:"100%", right:0, marginTop:6, zIndex:1002, background:C.panel, border:"1px solid "+C.ghost, borderRadius:12, padding:6, minWidth:140, boxShadow:"0 12px 40px "+C.void+"ee", maxHeight:300, overflowY:"auto" }}>
-                  {LANGUAGES.map(function(l){return (
-                    <button key={l.code} onClick={function(){setLang(l.code);setShowLangPicker(false)}} style={{ display:"flex", alignItems:"center", gap:8, width:"100%", padding:"8px 10px", borderRadius:8, textAlign:"left", background:lang===l.code?C.ember+"12":"transparent", color:lang===l.code?C.ember:C.mid, fontSize:12, fontFamily:"'DM Sans',sans-serif" }}>
-                      <span style={{fontSize:15}}>{l.flag}</span> {l.label}
-                    </button>
-                  )})}
-                </div>
-              </div>
-            )}
+            {/* ═══ COVER + PROFILE (Facebook-style) ═══ */}
+      <div style={{ flexShrink:0, position:"relative", zIndex:1000 }}>
+        <div style={{
+          height:110, width:"100%",
+          background: user.profileBg ? "url("+user.profileBg+") center/cover" : "linear-gradient(135deg, #1a1a3a 0%, #0E0E2E 40%, "+C.ember+"12 100%)",
+          position:"relative",
+        }}>
+          <div style={{ position:"absolute", top:8, left:12, display:"flex", alignItems:"center", gap:6 }}>
+            <svg width="20" height="20" viewBox="0 0 30 30"><circle cx="15" cy="10" r="5.5" fill={C.ember} opacity="0.85"/><ellipse cx="15" cy="21" rx="8.5" ry="6.5" fill={C.ember} opacity="0.45"/></svg>
+            <span style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:15, color:C.light, letterSpacing:3, textShadow:"0 1px 4px rgba(0,0,0,0.5)" }}>LUCID</span>
           </div>
-
-          {/* Notifications bell */}
-          <div style={{ position:"relative", zIndex:1001 }}>
-            <button onClick={function(){setShowNotifs(!showNotifs);setShowLangPicker(false)}} style={{ padding:"5px 7px", borderRadius:8, background:C.surface, border:"1px solid "+C.ghost, position:"relative" }}>
-              <Bell size={14} color={C.mid}/>
+          <div style={{ position:"absolute", top:8, right:12, display:"flex", alignItems:"center", gap:6 }}>
+            <button onClick={function(){setShowLangPicker(!showLangPicker);setShowNotifs(false)}} style={{ padding:"4px 8px", borderRadius:8, background:"rgba(0,0,0,0.4)", backdropFilter:"blur(8px)", border:"1px solid rgba(255,255,255,0.1)" }}>
+              <span style={{ fontSize:13 }}>{(LANGUAGES.find(function(l){return l.code===lang}) || {}).flag || "EN"}</span>
+            </button>
+            <button onClick={function(){setShowNotifs(!showNotifs);setShowLangPicker(false)}} style={{ padding:"4px 8px", borderRadius:8, background:"rgba(0,0,0,0.4)", backdropFilter:"blur(8px)", border:"1px solid rgba(255,255,255,0.1)", position:"relative" }}>
+              <Bell size={15} color={C.light}/>
               <div style={{ position:"absolute", top:2, right:2, width:6, height:6, borderRadius:3, background:C.ember }}/>
             </button>
-            {showNotifs && (
-              <div>
-                <div onClick={function(){setShowNotifs(false)}} style={{ position:"fixed", inset:0, zIndex:998 }}/>
-                <div style={{ position:"absolute", top:"100%", right:0, marginTop:6, zIndex:1002, background:C.panel, border:"1px solid "+C.ghost, borderRadius:14, padding:8, width:280, boxShadow:"0 12px 40px "+C.void+"ee", maxHeight:350, overflowY:"auto" }}>
-                  <div style={{ fontSize:10, color:C.mid, fontFamily:"'DM Sans',sans-serif", letterSpacing:1, textTransform:"uppercase", padding:"4px 8px", marginBottom:4 }}>Notifications</div>
-                  {NOTIFS.map(function(n,i){return (
-                    <button key={i} onClick={function(){haptic("light");if(n.action)setScreen(n.action);setShowNotifs(false)}} style={{ display:"flex", alignItems:"flex-start", gap:10, padding:"10px 10px", borderRadius:10, marginBottom:2, background:i===0?C.ember+"08":"transparent", width:"100%", textAlign:"left", cursor:"pointer", transition:"background 0.2s" }}>
-                      <div style={{ width:32, height:32, borderRadius:10, background:n.color+"12", border:"1px solid "+n.color+"20", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                        <n.icon size={14} color={n.color}/>
-                      </div>
-                      <div style={{flex:1}}>
-                        <div style={{ fontSize:12, color:C.light, fontFamily:"'DM Sans',sans-serif", lineHeight:1.5 }}>{n.text}</div>
-                        <div style={{ fontSize:9, color:C.dim, fontFamily:"'JetBrains Mono',monospace", marginTop:3 }}>{n.time} ago</div>
-                      </div>
-                      <ChevronRight size={14} color={C.ghost} style={{flexShrink:0, marginTop:4}}/>
-                    </button>
-                  )})}
-                </div>
+          </div>
+        </div>
+        <div style={{ padding:"0 16px", marginTop:-28, display:"flex", alignItems:"flex-end", gap:14, marginBottom:8 }}>
+          <button onClick={function(){haptic("light");setScreen("essence")}} style={{
+            width:60, height:60, borderRadius:"50%", overflow:"hidden", flexShrink:0,
+            border:"3px solid "+C.void, boxShadow:"0 4px 16px rgba(0,0,0,0.4)",
+            background: user.photo ? "none" : "linear-gradient(135deg,"+tier.color+"30,"+tier.color+"10)",
+            display:"flex", alignItems:"center", justifyContent:"center", padding:0,
+          }}>
+            {user.photo ? <img src={user.photo} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/> : <span style={{ fontSize:20, color:tier.color, fontFamily:"'Cormorant Garamond',serif", fontWeight:600 }}>{(user.name||"?")[0].toUpperCase()}</span>}
+          </button>
+          <div style={{ flex:1, paddingBottom:4 }}>
+            <div style={{ fontSize:17, color:C.light, fontFamily:"'DM Sans',sans-serif", fontWeight:600 }}>{user.name}</div>
+            <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:2 }}>
+              <div style={{ display:"inline-flex", alignItems:"center", gap:4, padding:"2px 8px", borderRadius:8, background:tier.color+"12", border:"1px solid "+tier.color+"18" }}>
+                <div style={{ width:4, height:4, borderRadius:2, background:tier.color }}/>
+                <span style={{ fontSize:9, color:tier.color, fontFamily:"'JetBrains Mono',monospace" }}>{tier.name}</span>
               </div>
-            )}
-          </div>
-
-          {/* LP */}
-          <div style={{ display:"flex", alignItems:"center", gap:3, padding:"3px 8px", borderRadius:12, background:tier.color+"08", border:"1px solid "+tier.color+"15" }}>
-            <div style={{ width:4, height:4, borderRadius:2, background:tier.color }}/>
-            <span style={{ fontSize:9, color:tier.color, fontFamily:"'JetBrains Mono',monospace" }}>{user.essencePoints||0}</span>
-          </div>
-
-        </div>
-      </div>
-
-      {/* ═══ PROFILE BAR — Facebook-style ═══ */}
-      <div style={{
-        display:"flex", alignItems:"center", gap:14,
-        padding:"8px 16px 12px",
-        borderBottom:"1px solid "+C.ghost+"12",
-        background:C.void,
-      }}>
-        <button onClick={function(){haptic("light");setScreen("essence")}} style={{ 
-          width:52, height:52, borderRadius:"50%", overflow:"hidden", padding:0, flexShrink:0,
-          border:screen==="essence"?"3px solid "+tier.color:"3px solid "+C.ghost+"30", 
-          background:user.photo?"none":"linear-gradient(135deg,"+tier.color+"30,"+tier.color+"08)", 
-          display:"flex", alignItems:"center", justifyContent:"center", 
-          boxShadow:"0 4px 16px "+tier.color+"15", transition:"all 0.3s ease",
-        }}>
-          {user.photo ? (
-            <img src={user.photo} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
-          ) : (
-            <span style={{ fontSize:20, color:tier.color, fontFamily:"'Cormorant Garamond',serif", fontWeight:600 }}>{(user.name||"?")[0].toUpperCase()}</span>
-          )}
-        </button>
-        <div style={{ flex:1 }}>
-          <div style={{ fontSize:16, color:C.light, fontFamily:"'DM Sans',sans-serif", fontWeight:600 }}>{user.name}</div>
-          <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:3 }}>
-            <div style={{ display:"inline-flex", alignItems:"center", gap:4, padding:"2px 10px", borderRadius:10, background:tier.color+"10", border:"1px solid "+tier.color+"18" }}>
-              <div style={{ width:5, height:5, borderRadius:3, background:tier.color, animation:"breathe 3s ease-in-out infinite" }}/>
-              <span style={{ fontSize:10, color:tier.color, fontFamily:"'JetBrains Mono',monospace", fontWeight:500 }}>{tier.name}</span>
+              <span style={{ fontSize:9, color:C.dim, fontFamily:"'JetBrains Mono',monospace" }}>{user.essencePoints||0} LP</span>
             </div>
-            <span style={{ fontSize:10, color:C.dim, fontFamily:"'JetBrains Mono',monospace" }}>{user.essencePoints||0} LP</span>
           </div>
         </div>
       </div>
-
       <ActivityTicker/>
       <div style={{ flex:1, overflowY:"auto", overflowX:"hidden" }}>
         {screen==="depth" && <SparkOfTheDay lang={lang} onAccept={function(s){ haptic("heavy"); setToast("Spark accepted! Live it, then come back."); setTimeout(function(){setToast(null)},4000); }}/>}
