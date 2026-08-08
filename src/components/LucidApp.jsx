@@ -607,6 +607,10 @@ select{font-family:inherit}
 @keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 .di{animation:depthIn .55s cubic-bezier(.16,1,.3,1) forwards}
 .ri{animation:riseUp .5s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes nebulaDrift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes particleFloat{0%,100%{transform:translateY(0) scale(1);opacity:0.3}50%{transform:translateY(-8px) scale(1.3);opacity:0.8}}
+@keyframes strandGlow{0%,100%{filter:drop-shadow(0 0 3px rgba(100,150,255,0.3))}50%{filter:drop-shadow(0 0 10px rgba(100,150,255,0.6))}}
+@keyframes helixRotateGlow{0%,100%{opacity:0.6}50%{opacity:1}}
 @keyframes dnaRotate{0%{transform:rotateY(0deg)}100%{transform:rotateY(360deg)}}
 @keyframes dnaPulse{0%,100%{filter:brightness(1) drop-shadow(0 0 4px rgba(240,168,48,0.2))}50%{filter:brightness(1.2) drop-shadow(0 0 12px rgba(240,168,48,0.4))}}
 @keyframes nodeFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
@@ -1535,8 +1539,25 @@ function DNAView({ user }) {
   }
 
   return (
-    <div style={{ padding:20, paddingBottom:100, overflowY:"auto", maxHeight:"calc(100vh - 70px)" }}>
+    <div style={{ padding:0, paddingBottom:100, overflowY:"auto", maxHeight:"calc(100vh - 70px)", background:"radial-gradient(ellipse at 30% 20%, #0a1628 0%, #06060E 50%, #0d0820 100%)" }}>
+      {/* Nebula particles */}
+      <div style={{ position:"relative", overflow:"hidden" }}>
+        <div style={{ position:"absolute", inset:0, zIndex:0, overflow:"hidden", pointerEvents:"none" }}>
+          {[...Array(20)].map(function(_,i){return React.createElement("div",{key:"p"+i,style:{
+            position:"absolute",
+            width:2+Math.random()*4, height:2+Math.random()*4,
+            borderRadius:"50%",
+            background:["#5B8DEF","#C45EDB","#4AE8C4","#F0A830","#6B7DB3"][i%5],
+            left:Math.random()*100+"%", top:Math.random()*100+"%",
+            opacity:0.15+Math.random()*0.3,
+            animation:"particleFloat "+(3+Math.random()*5)+"s ease-in-out infinite "+(Math.random()*3)+"s",
+            filter:"blur("+(0.5+Math.random())+"px)",
+          }})})}
+        </div>
+        <div style={{ padding:"16px 20px", position:"relative", zIndex:1 }}>
       <DNAHelixMap ownerId="solace" userName={user.name} userPhoto={user.photo} onSelectPerson={setViewPerson}/>
+        </div>
+      </div>
     </div>
   );
 }
