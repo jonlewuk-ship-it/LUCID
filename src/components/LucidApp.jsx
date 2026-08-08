@@ -1351,8 +1351,8 @@ function SoulConstellation({ ownerId, userName, userPhoto, onSelectPerson }) {
       React.createElement("circle", {cx:cx, cy:cy, r:16, fill:ownerTier.color, opacity:0.3}),
       React.createElement("circle", {cx:cx, cy:cy, r:10, fill:ownerTier.color, opacity:0.9}),
       React.createElement("circle", {cx:cx, cy:cy, r:4, fill:"#ffffff", opacity:0.9}),
-      React.createElement("text", {x:cx, y:cy-32, textAnchor:"middle", fill:ownerTier.color,
-        style:{fontSize:"15px", fontFamily:"'Cormorant Garamond',serif", fontWeight:400, letterSpacing:4}}, userName||owner.name)
+      React.createElement("text", {x:cx, y:cy-42, textAnchor:"middle", fill:ownerTier.color,
+        style:{fontSize:"14px", fontFamily:"'DM Sans',sans-serif", fontWeight:600, letterSpacing:3}}, userName||owner.name)
     ),
 
     // Selected node detail card
@@ -3888,7 +3888,7 @@ export default function LucidApp(){
           {id:"depth",icon:Layers,label:"Depth"},
           {id:"circles",icon:Users,label:"Circles"},
           {id:"threads",icon:MessageCircle,label:"Threads"},
-          {id:"dna",icon:Fingerprint,label:"DNA"},
+          {id:"dna",icon:Fingerprint,label:"Soul"},
           
         ].map(function(n){
           var active = screen===n.id;
