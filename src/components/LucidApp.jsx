@@ -1219,290 +1219,172 @@ function SoulCard({ author, photo, emotions, height, borderRadiusTop }) {
 
 
 
-function DNAHelixMap({ ownerId, userName, userPhoto, onSelectPerson }) {
-  const [activeNode, setActiveNode] = useState(null);
-  const [rotY, setRotY] = useState(0);
-  const [rotX, setRotX] = useState(10);
-  const [autoSpin, setAutoSpin] = useState(true);
-  const [dragging, setDragging] = useState(false);
-  const dragRef = useRef({ x:0, y:0, ry:0, rx:0 });
+function SoulConstellation({ ownerId, userName, userPhoto, onSelectPerson }) {
+  var owner = PEOPLE[ownerId] || {id:ownerId, name:userName||"You", photo:userPhoto};
+  if (userName) owner = Object.assign({}, owner, {name: userName});
+  if (userPhoto) owner = Object.assign({}, owner, {photo: userPhoto});
+  var ownerTier = getTier(owner.essencePoints || 0);
+  var connectedIds = Object.keys(PEOPLE).filter(function(id) { return id !== ownerId && id !== "__me__"; });
 
-  // Auto rotation
+  var _sel = useState(null); var selected = _sel[0]; var setSelected = _sel[1];
+  var _time = useState(0); var time = _time[0]; var setTime = _time[1];
+
   useEffect(function() {
-    if (!autoSpin) return;
-    var id = setInterval(function() { setRotY(function(r) { return r + 0.3; }); }, 30);
-    return function() { clearInterval(id); };
-  }, [autoSpin]);
+    var raf;
+    var loop = function() { setTime(function(t) { return t + 0.003; }); raf = requestAnimationFrame(loop); };
+    raf = requestAnimationFrame(loop);
+    return function() { cancelAnimationFrame(raf); };
+  }, []);
 
-  var handleDown = function(e) {
-    setDragging(true); setAutoSpin(false);
-    dragRef.current = { x:e.clientX||((e.touches||[])[0]||{}).clientX||0, y:e.clientY||((e.touches||[])[0]||{}).clientY||0, ry:rotY, rx:rotX };
-  };
-  var handleMove = function(e) {
-    if (!dragging) return;
-    var cx = e.clientX||((e.touches||[])[0]||{}).clientX||0;
-    var cy = e.clientY||((e.touches||[])[0]||{}).clientY||0;
-    setRotY(dragRef.current.ry + (cx - dragRef.current.x) * 0.5);
-    setRotX(Math.max(-40, Math.min(40, dragRef.current.rx - (cy - dragRef.current.y) * 0.3)));
-  };
-  var handleUp = function() { setDragging(false); };
+  var cx = 170, cy = 200, size = 340;
 
-  var owner = PEOPLE[ownerId] || PEOPLE[Object.keys(PEOPLE)[0]];
-  var ownerTier = getTier(owner.essencePoints);
-  var connectedIds = Object.keys(PEOPLE).filter(function(id) { return id !== ownerId; });
+  // Calculate positions based on emotional affinity
+  var nodes = connectedIds.map(function(id, i) {
+    var person = PEOPLE[id];
+    var tier = getTier(person.essencePoints || 0);
+    // Distance from center = inverse of connection strength
+    var spectrum = person.spectrum || {};
+    var ownerSpectrum = owner.spectrum || {intelligence:50,understanding:50,communication:50,appreciation:50};
+    var affinity = (
+      Math.abs((spectrum.intelligence||50) - (ownerSpectrum.intelligence||50)) +
+      Math.abs((spectrum.understanding||50) - (ownerSpectrum.understanding||50)) +
+      Math.abs((spectrum.communication||50) - (ownerSpectrum.communication||50)) +
+      Math.abs((spectrum.appreciation||50) - (ownerSpectrum.appreciation||50))
+    ) / 4;
+    var dist = 55 + (affinity / 100) * 80;
+    var angle = (i / connectedIds.length) * 2 * Math.PI + time * (0.3 + i * 0.1);
+    var x = cx + Math.cos(angle) * dist;
+    var y = cy + Math.sin(angle) * dist;
 
-  // Build 3D cylinder nodes
-  var CYLINDER_R = 100;   // radius of cylinder
-  var CYLINDER_H = 400;   // height
-  var HELIX_TURNS = 3;    // number of full rotations
-  var TOTAL_NODES = 24;   // nodes along the helix
+    // Dominant emotion color
+    var specVals = [
+      {key:"intelligence", val:spectrum.intelligence||0, color:"#5B8DEF"},
+      {key:"understanding", val:spectrum.understanding||0, color:"#4AE8C4"},
+      {key:"communication", val:spectrum.communication||0, color:"#F0A830"},
+      {key:"appreciation", val:spectrum.appreciation||0, color:"#C45EDB"},
+    ];
+    specVals.sort(function(a,b) { return b.val - a.val; });
+    var dominantColor = specVals[0].color;
+    var secondColor = specVals[1].color;
 
-  // Generate helix points in 3D space
-  var helixNodes = [];
-  for (var i = 0; i < TOTAL_NODES; i++) {
-    var t = i / (TOTAL_NODES - 1);
-    var angle = t * HELIX_TURNS * 2 * Math.PI;
-    var y = -CYLINDER_H/2 + t * CYLINDER_H;
-    var x = CYLINDER_R * Math.cos(angle);
-    var z = CYLINDER_R * Math.sin(angle);
+    return { id:id, person:person, tier:tier, x:x, y:y, dist:dist, dominantColor:dominantColor, secondColor:secondColor, angle:angle };
+  });
 
-    // Assign to people/connections
-    var personIdx = i % (connectedIds.length + 1);
-    var isOwner = personIdx === 0;
-    var personId = isOwner ? ownerId : connectedIds[(personIdx - 1) % connectedIds.length];
-    var person = PEOPLE[personId] || owner;
-    var tier = getTier(person.essencePoints);
+  var selNode = selected ? nodes.find(function(n) { return n.id === selected; }) : null;
 
-    // Check for connection intersection
-    var isIntersection = !isOwner && (i % 3 === 0);
-    var spectrum = isIntersection ? SPECTRUMS[i % SPECTRUMS.length] : null;
+  return React.createElement("div", {style:{position:"relative", width:"100%", minHeight:440}},
+    React.createElement("svg", {width:size, height:400, viewBox:"0 0 "+size+" 400", style:{display:"block", margin:"0 auto"}},
+      React.createElement("defs", null,
+        React.createElement("filter", {id:"starGlow"}, React.createElement("feGaussianBlur", {stdDeviation:"6", result:"b"}), React.createElement("feMerge", null, React.createElement("feMergeNode", {in:"b"}), React.createElement("feMergeNode", {in:"b"}), React.createElement("feMergeNode", {in:"SourceGraphic"}))),
+        React.createElement("filter", {id:"nodeGlow"}, React.createElement("feGaussianBlur", {stdDeviation:"4", result:"b"}), React.createElement("feMerge", null, React.createElement("feMergeNode", {in:"b"}), React.createElement("feMergeNode", {in:"SourceGraphic"}))),
+        React.createElement("radialGradient", {id:"centerAura", cx:"50%", cy:"50%", r:"50%"},
+          React.createElement("stop", {offset:"0%", stopColor:ownerTier.color, stopOpacity:"0.15"}),
+          React.createElement("stop", {offset:"60%", stopColor:ownerTier.color, stopOpacity:"0.03"}),
+          React.createElement("stop", {offset:"100%", stopColor:"transparent"})
+        )
+      ),
 
-    helixNodes.push({
-      x:x, y:y, z:z, angle:angle,
-      isOwner:isOwner, personId:personId, person:person, tier:tier,
-      isIntersection:isIntersection, spectrum:spectrum,
-      strength: 55 + Math.floor((i * 7 + 13) % 40),
-      phrase: isIntersection ? (
-        ["shared vulnerability","finding beauty in ordinary moments","listening past words",
-         "sitting with uncertainty","seeing fear beneath anger","choosing presence over performance",
-         "discovering kindness in strangers","embracing discomfort as growth"][i % 8]
-      ) : "",
-    });
-  }
+      // Star field background
+      [...Array(60)].map(function(_,i) {
+        return React.createElement("circle", {key:"s"+i, cx:Math.random()*size, cy:Math.random()*400, r:0.3+Math.random()*1.2,
+          fill:"#ffffff", opacity:0.05+Math.random()*0.15,
+          style:{animation:"particleFloat "+(5+Math.random()*8)+"s ease-in-out infinite "+(Math.random()*5)+"s"}});
+      }),
 
-  // Second helix strand (offset by PI)
-  var helix2Nodes = [];
-  for (var j = 0; j < TOTAL_NODES; j++) {
-    var t2 = j / (TOTAL_NODES - 1);
-    var angle2 = t2 * HELIX_TURNS * 2 * Math.PI + Math.PI;
-    var y2 = -CYLINDER_H/2 + t2 * CYLINDER_H;
-    helix2Nodes.push({
-      x: CYLINDER_R * Math.cos(angle2),
-      y: y2,
-      z: CYLINDER_R * Math.sin(angle2),
-    });
-  }
+      // Connection lines (from center to each node)
+      nodes.map(function(node) {
+        var isSel = selected === node.id;
+        return React.createElement("line", {key:"l"+node.id,
+          x1:cx, y1:cy, x2:node.x, y2:node.y,
+          stroke:node.dominantColor, strokeWidth:isSel?2:0.8, opacity:isSel?0.7:0.2,
+          strokeDasharray:isSel?"none":"4,6",
+          style:{transition:"all 0.3s ease"}});
+      }),
 
-  // Project 3D to 2D with perspective
-  var PROJECT = function(px, py, pz) {
-    var cosY = Math.cos(rotY * Math.PI/180);
-    var sinY = Math.sin(rotY * Math.PI/180);
-    var cosX = Math.cos(rotX * Math.PI/180);
-    var sinX = Math.sin(rotX * Math.PI/180);
-    // Rotate Y
-    var rx = px * cosY - pz * sinY;
-    var rz = px * sinY + pz * cosY;
-    // Rotate X
-    var ry = py * cosX - rz * sinX;
-    var rz2 = py * sinX + rz * cosX;
-    // Perspective
-    var perspective = 600;
-    var scale = perspective / (perspective + rz2 + 200);
-    return { x: 170 + rx * scale, y: 220 + ry * scale, scale: scale, z: rz2 };
-  };
-
-  return (
-    <div style={{ position:"relative" }}>
-      <div style={{ textAlign:"center", marginBottom:12, padding:"0 16px" }}>
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginBottom:4 }}>
-          <Fingerprint size={16} color={ownerTier.color}/>
-          <span style={{ fontSize:15, color:C.light, fontFamily:"'Cormorant Garamond',serif", fontWeight:500 }}>{userName||owner.name}'s Connection DNA</span>
-        </div>
-        <p style={{ fontSize:11, color:C.mid, fontFamily:"'DM Sans',sans-serif" }}>
-          {dragging ? "Rotating..." : "Drag to rotate · Tap nodes to explore"}
-        </p>
-      </div>
-
-      {/* 3D Canvas */}
-      <div
-        onMouseDown={handleDown} onMouseMove={handleMove} onMouseUp={handleUp} onMouseLeave={handleUp}
-        onTouchStart={handleDown} onTouchMove={handleMove} onTouchEnd={handleUp}
-        style={{
-          width:"100%", height:440, borderRadius:18,
-          background:"radial-gradient(ellipse at 30% 20%, #0f1d3d 0%, #0a1025 30%, #08081a 60%, #0d0520 100%)",
-          border:"1px solid rgba(90,140,240,0.15)",
-          boxShadow:"inset 0 0 100px rgba(60,100,220,0.08), inset 0 0 40px rgba(120,60,200,0.05), 0 0 40px rgba(60,100,200,0.06)",
-          cursor: dragging ? "grabbing" : "grab",
-          touchAction:"none", overflow:"hidden", position:"relative",
-        }}
-      >
-        <svg width="340" height="440" viewBox="0 0 340 440" style={{ display:"block", margin:"0 auto" }}>
-          <defs>
-            <filter id="glow3d"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-            <filter id="softGlow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/></feMerge></filter>
-            <radialGradient id="nebulaCore" cx="50%" cy="40%" r="60%">
-              <stop offset="0%" stopColor="#3060cc" stopOpacity="0.06"/>
-              <stop offset="50%" stopColor="#2040a0" stopOpacity="0.03"/>
-              <stop offset="100%" stopColor="transparent"/>
-            </radialGradient>
-            <filter id="glow3dL" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          </defs>
-
-          {/* Cylinder wireframe rings */}
-          {[0.15, 0.35, 0.5, 0.65, 0.85].map(function(t, ri) {
-            var ringPts = [];
-            for (var a = 0; a < 32; a++) {
-              var ang = (a/32) * Math.PI * 2;
-              var p = PROJECT(CYLINDER_R * 0.85 * Math.cos(ang), -CYLINDER_H/2 + t*CYLINDER_H, CYLINDER_R * 0.85 * Math.sin(ang));
-              ringPts.push((a===0?"M":"L") + p.x + "," + p.y);
-            }
-            return <path key={ri} d={ringPts.join(" ")+" Z"} fill="none" stroke={C.ghost} strokeWidth="0.4" opacity="0.15"/>;
-          })}
-
-          {/* Helix strand 2 (behind, dimmer) */}
-          {helix2Nodes.map(function(node, i) {
-            if (i === 0) return null;
-            var p1 = PROJECT(helix2Nodes[i-1].x, helix2Nodes[i-1].y, helix2Nodes[i-1].z);
-            var p2 = PROJECT(node.x, node.y, node.z);
-            var opacity = Math.max(0.05, Math.min(0.25, (p2.z + 200) / 400 * 0.3));
-            return <line key={"h2-"+i} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={ownerTier.color} strokeWidth={1 + p2.scale} opacity={opacity}/>;
-          })}
-
-          {/* Rungs between helices */}
-          {helixNodes.map(function(node, i) {
-            if (i >= helix2Nodes.length || i % 2 !== 0) return null;
-            var p1 = PROJECT(node.x, node.y, node.z);
-            var p2 = PROJECT(helix2Nodes[i].x, helix2Nodes[i].y, helix2Nodes[i].z);
-            var opacity = Math.max(0.03, (p1.scale - 0.5) * 0.2);
-            return <line key={"rung-"+i} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={ownerTier.color} strokeWidth="0.6" opacity={opacity} strokeLinecap="round"/>;
-          })}
-
-          {/* Main helix strand 1 */}
-          {helixNodes.map(function(node, i) {
-            if (i === 0) return null;
-            var p1 = PROJECT(helixNodes[i-1].x, helixNodes[i-1].y, helixNodes[i-1].z);
-            var p2 = PROJECT(node.x, node.y, node.z);
-            var col = node.isOwner ? ownerTier.color : node.tier.color; var strandOpacity = node.isOwner ? 1.0 : 0.35;
-            var opacity = Math.max(0.1, Math.min(0.9, (p2.z + 200) / 300));
-            var w = 1 + p2.scale * 2.5;
-            return (
-              <g key={"s1-"+i}>
-                {opacity > 0.4 && <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={col} strokeWidth={w+3} opacity={opacity*0.1}/>}
-                <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={col} strokeWidth={w} opacity={opacity} strokeLinecap="round"/>
-              </g>
-            );
-          })}
-
-          {/* Nodes — sorted by z for proper depth rendering */}
-          {helixNodes
-            .map(function(node, i) { var p = PROJECT(node.x, node.y, node.z); return { node:node, p:p, i:i }; })
-            .sort(function(a, b) { return a.p.z - b.p.z; })
-            .map(function(item) {
-              var node = item.node, p = item.p, i = item.i;
-              var isActive = activeNode === i;
-              var r = node.isIntersection ? 6 + p.scale * 8 : node.isOwner ? 4 + p.scale * 5 : 3 + p.scale * 3;
-              var col = node.isIntersection && node.spectrum ? node.spectrum.color : node.isOwner ? ownerTier.color : node.tier.color;
-              var opacity = Math.max(0.15, Math.min(1, (p.z + 200) / 300)) * (node.isOwner ? 1.0 : 0.5);
-
-              if (opacity < 0.2 && !isActive) return null;
-
-              return (
-                <g key={"n-"+i}
-                  onClick={function(e) { e.stopPropagation(); if(node.isIntersection) setActiveNode(isActive ? null : i); }}
-                  style={{ cursor: node.isIntersection ? "pointer" : "default" }}>
-                  {/* Glow for intersection nodes */}
-                  {node.isIntersection && (
-                    <circle cx={p.x} cy={p.y} r={r+6} fill={col} opacity={isActive ? 0.2 : 0.08} filter="url(#glow3dL)"
-                      style={{ animation:"dnaPulse 3s ease-in-out infinite "+(i*0.3)+"s" }}/>
-                  )}
-                  {/* Node body */}
-                  <circle cx={p.x} cy={p.y} r={r} fill={col} opacity={opacity * (node.isIntersection ? 0.7 : 0.5)} filter={node.isIntersection ? "url(#glow3d)" : undefined}/>
-                  <circle cx={p.x} cy={p.y} r={r*0.4} fill={node.isIntersection ? C.light : col} opacity={opacity * 0.9}/>
-                  {/* Label on active */}
-                  {isActive && (
-                    <text x={p.x} y={p.y - r - 8} textAnchor="middle" fill={col} style={{ fontSize:"10px", fontFamily:"'DM Sans',sans-serif", fontWeight:600 }}>
-                      {node.person.name}
-                    </text>
-                  )}
-                </g>
-              );
-            })
+      // Inter-node connections (between nearby users)
+      nodes.map(function(n1,i) {
+        return nodes.slice(i+1).map(function(n2) {
+          var dx=n1.x-n2.x, dy=n1.y-n2.y;
+          var d = Math.sqrt(dx*dx+dy*dy);
+          if (d < 90) {
+            return React.createElement("line", {key:"c"+n1.id+n2.id,
+              x1:n1.x, y1:n1.y, x2:n2.x, y2:n2.y,
+              stroke:n1.secondColor, strokeWidth:0.5, opacity:0.12,
+              strokeDasharray:"2,4"});
           }
+          return null;
+        });
+      }),
 
-          {/* Center label */}
-          <text x="170" y="20" textAnchor="middle" fill={ownerTier.color} style={{ fontSize:"11px", fontFamily:"'DM Sans',sans-serif", fontWeight:500, letterSpacing:1 }}>
-            {userName||owner.name}
-          </text>
-        </svg>
+      // Center aura
+      React.createElement("circle", {cx:cx, cy:cy, r:50, fill:"url(#centerAura)", filter:"url(#starGlow)"}),
+      React.createElement("circle", {cx:cx, cy:cy, r:30, fill:"url(#centerAura)"}),
 
-        {/* Auto-spin toggle */}
-        <button onClick={function() { setAutoSpin(!autoSpin); }} style={{
-          position:"absolute", bottom:10, right:10, padding:"4px 10px", borderRadius:8,
-          background:C.surface, border:"1px solid "+C.ghost, fontSize:10, color:autoSpin ? C.ember : C.dim,
-          fontFamily:"'DM Sans',sans-serif",
-        }}>
-          {autoSpin ? "Auto ●" : "Auto ○"}
-        </button>
-      </div>
-
-      {/* Active node panel */}
-      {activeNode !== null && helixNodes[activeNode] && helixNodes[activeNode].isIntersection && (function() {
-        var node = helixNodes[activeNode];
-        var col = node.spectrum ? node.spectrum.color : C.ember;
-        return (
-          <div className="di" style={{
-            marginTop:10, padding:"14px 16px", borderRadius:14,
-            background:C.abyss, border:"1px solid "+col+"25",
-            position:"relative",
-          }}>
-            <div style={{ position:"absolute", top:0, left:16, right:16, height:2, borderRadius:1, background:col, opacity:0.5 }}/>
-            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
-              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                <Avatar name={owner.name} size={24} color={ownerTier.color} photo={owner.photo}/>
-                <div style={{ width:14, height:1, background:col }}/>
-                {node.spectrum && React.createElement(node.spectrum.icon, {size:13,color:col})}
-                <div style={{ width:14, height:1, background:col }}/>
-                <Avatar name={node.person.name} size={24} color={node.tier.color} photo={node.person.photo}/>
-              </div>
-              <span style={{ fontSize:11, color:col, fontFamily:"'JetBrains Mono',monospace" }}>{node.strength}%</span>
-            </div>
-            <div style={{ display:"flex", alignItems:"center", gap:5, marginBottom:6 }}>
-              {node.spectrum && <span style={{ fontSize:10, color:col, fontFamily:"'DM Sans',sans-serif", padding:"2px 8px", borderRadius:6, background:col+"12" }}>{node.spectrum.label}</span>}
-              <span style={{ fontSize:10, color:C.mid, fontFamily:"'DM Sans',sans-serif" }}>{owner.name} ↔ {node.person.name}</span>
-            </div>
-            <p style={{ fontSize:12, color:C.light, fontFamily:"'Cormorant Garamond',serif", fontStyle:"italic", lineHeight:1.6, marginBottom:8 }}>"{node.phrase}"</p>
-            <button onClick={function(){onSelectPerson && onSelectPerson(node.personId)}} style={{
-              width:"100%", padding:"8px 12px", borderRadius:8,
-              border:"1px solid "+node.tier.color+"25", background:node.tier.color+"06",
-              color:node.tier.color, fontSize:11, fontFamily:"'DM Sans',sans-serif",
-              display:"flex", alignItems:"center", justifyContent:"center", gap:5,
-            }}>See {node.person.name}'s essence <ChevronRight size={12}/></button>
-          </div>
+      // Orbiting user nodes
+      nodes.map(function(node) {
+        var isSel = selected === node.id;
+        var r = isSel ? 14 : 9;
+        return React.createElement("g", {key:"n"+node.id,
+          onClick:function(){ haptic("light"); setSelected(selected===node.id?null:node.id); },
+          style:{cursor:"pointer"}},
+          // Outer glow
+          React.createElement("circle", {cx:node.x, cy:node.y, r:r+8, fill:node.dominantColor, opacity:isSel?0.12:0.04, filter:"url(#nodeGlow)"}),
+          // Node circle
+          React.createElement("circle", {cx:node.x, cy:node.y, r:r, fill:node.dominantColor, opacity:isSel?0.9:0.5,
+            stroke:node.dominantColor, strokeWidth:isSel?1.5:0}),
+          // Inner bright dot
+          React.createElement("circle", {cx:node.x, cy:node.y, r:r*0.4, fill:"#ffffff", opacity:isSel?0.8:0.4}),
+          // Name label
+          isSel && React.createElement("text", {x:node.x, y:node.y-r-8, textAnchor:"middle", fill:node.dominantColor,
+            style:{fontSize:"10px", fontFamily:"'DM Sans',sans-serif", fontWeight:500}}, node.person.name)
         );
-      })()}
+      }),
 
-      {/* Spectrum legend */}
-      <div style={{ display:"flex", justifyContent:"center", gap:10, marginTop:10 }}>
-        {SPECTRUMS.map(function(s) { return (
-          <div key={s.key} style={{ display:"flex", alignItems:"center", gap:3 }}>
-            <div style={{ width:6, height:6, borderRadius:3, background:s.color, boxShadow:"0 0 6px "+s.color+"44" }}/>
-            <span style={{ fontSize:8, color:C.dim, fontFamily:"'DM Sans',sans-serif" }}>{s.label}</span>
-          </div>
-        ); })}
-      </div>
-    </div>
+      // Center node (YOU)
+      React.createElement("circle", {cx:cx, cy:cy, r:22, fill:ownerTier.color, opacity:0.15, filter:"url(#starGlow)",
+        style:{animation:"breathe 4s ease-in-out infinite"}}),
+      React.createElement("circle", {cx:cx, cy:cy, r:16, fill:ownerTier.color, opacity:0.3}),
+      React.createElement("circle", {cx:cx, cy:cy, r:10, fill:ownerTier.color, opacity:0.9}),
+      React.createElement("circle", {cx:cx, cy:cy, r:4, fill:"#ffffff", opacity:0.9}),
+      React.createElement("text", {x:cx, y:cy+30, textAnchor:"middle", fill:ownerTier.color,
+        style:{fontSize:"12px", fontFamily:"'Cormorant Garamond',serif", fontWeight:500, letterSpacing:2}}, userName||owner.name)
+    ),
+
+    // Selected node detail card
+    selNode && React.createElement("div", {style:{
+      margin:"12px 16px", padding:"14px", borderRadius:14,
+      background:C.abyss, border:"1px solid "+selNode.dominantColor+"20",
+      animation:"riseUp 0.3s ease forwards",
+    }},
+      React.createElement("div", {style:{display:"flex", alignItems:"center", gap:10, marginBottom:10}},
+        React.createElement("div", {style:{width:36, height:36, borderRadius:"50%", overflow:"hidden", border:"2px solid "+selNode.dominantColor+"40",
+          background:selNode.person.photo?"none":selNode.dominantColor+"15", display:"flex", alignItems:"center", justifyContent:"center"}},
+          selNode.person.photo ? React.createElement("img", {src:selNode.person.photo, alt:"", style:{width:"100%", height:"100%", objectFit:"cover"}}) :
+          React.createElement("span", {style:{fontSize:14, color:selNode.dominantColor}}, (selNode.person.name||"?")[0])
+        ),
+        React.createElement("div", null,
+          React.createElement("div", {style:{fontSize:14, color:C.light, fontFamily:"'DM Sans',sans-serif", fontWeight:500}}, selNode.person.name),
+          React.createElement("div", {style:{fontSize:9, color:selNode.tier.color, fontFamily:"'JetBrains Mono',monospace"}}, selNode.tier.name+" · "+Math.round(150-selNode.dist)+"% affinity")
+        ),
+        React.createElement("button", {onClick:function(){if(onSelectPerson)onSelectPerson(selNode.id)},
+          style:{marginLeft:"auto", padding:"6px 12px", borderRadius:8, background:selNode.dominantColor+"12", border:"1px solid "+selNode.dominantColor+"20", color:selNode.dominantColor, fontSize:10, fontFamily:"'DM Sans',sans-serif", cursor:"pointer"}}, "View profile")
+      ),
+      React.createElement("div", {style:{display:"flex", gap:6}},
+        [{k:"intelligence",c:"#5B8DEF",l:"Intelligence"},{k:"understanding",c:"#4AE8C4",l:"Understanding"},{k:"communication",c:"#F0A830",l:"Communication"},{k:"appreciation",c:"#C45EDB",l:"Appreciation"}].map(function(sp) {
+          var val = (selNode.person.spectrum||{})[sp.k] || 50;
+          return React.createElement("div", {key:sp.k, style:{flex:1, textAlign:"center"}},
+            React.createElement("div", {style:{height:3, borderRadius:2, background:C.ghost+"30", marginBottom:3, overflow:"hidden"}},
+              React.createElement("div", {style:{height:"100%", width:val+"%", background:sp.c, borderRadius:2}})
+            ),
+            React.createElement("div", {style:{fontSize:8, color:sp.c, fontFamily:"'JetBrains Mono',monospace"}}, val)
+          );
+        })
+      )
+    )
   );
 }
+
+
 
 function DNAView({ user }) {
   const [viewPerson, setViewPerson] = useState(null);
@@ -1514,7 +1396,7 @@ function DNAView({ user }) {
     return (
       <div style={{ padding:20, paddingBottom:100, overflowY:"auto", maxHeight:"calc(100vh - 70px)" }}>
         <button onClick={() => setViewPerson(null)} style={{ color:C.mid, display:"flex", alignItems:"center", gap:4, fontSize:12, fontFamily:"'DM Sans',sans-serif", marginBottom:16 }}>
-          <ArrowLeft size={16}/> Back to DNA
+          <ArrowLeft size={16}/> Back to Constellation
         </button>
         <div className="ri" style={{ textAlign:"center", marginBottom:16, padding:"24px 16px", background:`linear-gradient(180deg,${tier.color}06,transparent)`, borderRadius:18, border:`1px solid ${tier.color}10` }}>
           <Avatar name={p.name} size={60} color={tier.color}/>
@@ -1562,7 +1444,7 @@ function DNAView({ user }) {
           }})})}
         </div>
         <div style={{ padding:"16px 20px", position:"relative", zIndex:1 }}>
-      <DNAHelixMap ownerId="solace" userName={user.name} userPhoto={user.photo} onSelectPerson={setViewPerson}/>
+      <SoulConstellation ownerId="solace" userName={user.name} userPhoto={user.photo} onSelectPerson={setViewPerson}/>
         </div>
       </div>
     </div>
