@@ -1339,16 +1339,16 @@ function DNAHelixMap({ ownerId, userName, userPhoto, onSelectPerson }) {
         onTouchStart={handleDown} onTouchMove={handleMove} onTouchEnd={handleUp}
         style={{
           width:"100%", height:440, borderRadius:18,
-          background:"radial-gradient(ellipse at 40% 30%, #0d1a35 0%, #080c20 35%, #060818 60%, #0a0516 100%)",
-          border:"1px solid rgba(80,120,220,0.1)",
-          boxShadow:"inset 0 0 80px rgba(60,100,200,0.04), 0 0 30px rgba(60,100,200,0.03)",
+          background:"radial-gradient(ellipse at 30% 20%, #0f1d3d 0%, #0a1025 30%, #08081a 60%, #0d0520 100%)",
+          border:"1px solid rgba(90,140,240,0.15)",
+          boxShadow:"inset 0 0 100px rgba(60,100,220,0.08), inset 0 0 40px rgba(120,60,200,0.05), 0 0 40px rgba(60,100,200,0.06)",
           cursor: dragging ? "grabbing" : "grab",
           touchAction:"none", overflow:"hidden", position:"relative",
         }}
       >
         <svg width="340" height="440" viewBox="0 0 340 440" style={{ display:"block", margin:"0 auto" }}>
           <defs>
-            <filter id="glow3d"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="glow3d"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
             <filter id="softGlow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/></feMerge></filter>
             <radialGradient id="nebulaCore" cx="50%" cy="40%" r="60%">
               <stop offset="0%" stopColor="#3060cc" stopOpacity="0.06"/>
@@ -1546,7 +1546,7 @@ function DNAView({ user }) {
   }
 
   return (
-    <div style={{ padding:0, paddingBottom:100, overflowY:"auto", maxHeight:"calc(100vh - 70px)", background:"radial-gradient(ellipse at 30% 20%, #0a1628 0%, #06060E 50%, #0d0820 100%)" }}>
+    <div style={{ padding:0, paddingBottom:100, overflowY:"auto", maxHeight:"calc(100vh - 70px)", background:"radial-gradient(ellipse at 30% 20%, #0a1530 0%, #06060E 50%, #0d0822 100%)" }}>
       {/* Nebula particles */}
       <div style={{ position:"relative", overflow:"hidden" }}>
         <div style={{ position:"absolute", inset:0, zIndex:0, overflow:"hidden", pointerEvents:"none" }}>
