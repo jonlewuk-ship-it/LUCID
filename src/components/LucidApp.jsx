@@ -1284,11 +1284,16 @@ function SoulConstellation({ ownerId, userName, userPhoto, onSelectPerson }) {
         )
       ),
 
-      // Star field background
-      [...Array(60)].map(function(_,i) {
-        return React.createElement("circle", {key:"s"+i, cx:Math.random()*size, cy:Math.random()*400, r:0.3+Math.random()*1.2,
-          fill:"#ffffff", opacity:0.05+Math.random()*0.15,
-          style:{animation:"particleFloat "+(5+Math.random()*8)+"s ease-in-out infinite "+(Math.random()*5)+"s"}});
+      // Slow cosmic nebula + gentle stars
+      React.createElement("circle", {cx:80, cy:120, r:90, fill:"#1a2550", opacity:0.08}),
+      React.createElement("circle", {cx:260, cy:300, r:70, fill:"#2a1540", opacity:0.06}),
+      React.createElement("circle", {cx:170, cy:200, r:110, fill:"#1a1a40", opacity:0.05}),
+      [...Array(12)].map(function(_,i) {
+        var sx = 20 + (i * 29) % (size-20);
+        var sy = 15 + (i * 37) % 370;
+        return React.createElement("circle", {key:"s"+i, cx:sx, cy:sy, r:0.8+i%3*0.5,
+          fill:"#ffffff", opacity:0.08+i%4*0.04,
+          style:{animation:"breathe "+(8+i*2)+"s ease-in-out infinite "+(i*1.5)+"s"}});
       }),
 
       // Connection lines (from center to each node)
@@ -1346,8 +1351,8 @@ function SoulConstellation({ ownerId, userName, userPhoto, onSelectPerson }) {
       React.createElement("circle", {cx:cx, cy:cy, r:16, fill:ownerTier.color, opacity:0.3}),
       React.createElement("circle", {cx:cx, cy:cy, r:10, fill:ownerTier.color, opacity:0.9}),
       React.createElement("circle", {cx:cx, cy:cy, r:4, fill:"#ffffff", opacity:0.9}),
-      React.createElement("text", {x:cx, y:cy+30, textAnchor:"middle", fill:ownerTier.color,
-        style:{fontSize:"12px", fontFamily:"'Cormorant Garamond',serif", fontWeight:500, letterSpacing:2}}, userName||owner.name)
+      React.createElement("text", {x:cx, y:cy-32, textAnchor:"middle", fill:ownerTier.color,
+        style:{fontSize:"15px", fontFamily:"'Cormorant Garamond',serif", fontWeight:400, letterSpacing:4}}, userName||owner.name)
     ),
 
     // Selected node detail card
