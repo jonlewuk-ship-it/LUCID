@@ -1339,15 +1339,22 @@ function DNAHelixMap({ ownerId, userName, userPhoto, onSelectPerson }) {
         onTouchStart={handleDown} onTouchMove={handleMove} onTouchEnd={handleUp}
         style={{
           width:"100%", height:440, borderRadius:18,
-          background:"linear-gradient(180deg, "+C.abyss+", "+C.deep+" 50%, "+C.abyss+")",
-          border:"1px solid "+C.ghost,
+          background:"radial-gradient(ellipse at 40% 30%, #0d1a35 0%, #080c20 35%, #060818 60%, #0a0516 100%)",
+          border:"1px solid rgba(80,120,220,0.1)",
+          boxShadow:"inset 0 0 80px rgba(60,100,200,0.04), 0 0 30px rgba(60,100,200,0.03)",
           cursor: dragging ? "grabbing" : "grab",
           touchAction:"none", overflow:"hidden", position:"relative",
         }}
       >
         <svg width="340" height="440" viewBox="0 0 340 440" style={{ display:"block", margin:"0 auto" }}>
           <defs>
-            <filter id="glow3d"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="glow3d"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="softGlow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/></feMerge></filter>
+            <radialGradient id="nebulaCore" cx="50%" cy="40%" r="60%">
+              <stop offset="0%" stopColor="#3060cc" stopOpacity="0.06"/>
+              <stop offset="50%" stopColor="#2040a0" stopOpacity="0.03"/>
+              <stop offset="100%" stopColor="transparent"/>
+            </radialGradient>
             <filter id="glow3dL" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
           </defs>
 
@@ -1385,7 +1392,7 @@ function DNAHelixMap({ ownerId, userName, userPhoto, onSelectPerson }) {
             if (i === 0) return null;
             var p1 = PROJECT(helixNodes[i-1].x, helixNodes[i-1].y, helixNodes[i-1].z);
             var p2 = PROJECT(node.x, node.y, node.z);
-            var col = node.isOwner ? ownerTier.color : node.tier.color; var strandOpacity = node.isOwner ? 1.0 : 0.4;
+            var col = node.isOwner ? ownerTier.color : node.tier.color; var strandOpacity = node.isOwner ? 1.0 : 0.35;
             var opacity = Math.max(0.1, Math.min(0.9, (p2.z + 200) / 300));
             var w = 1 + p2.scale * 2.5;
             return (
